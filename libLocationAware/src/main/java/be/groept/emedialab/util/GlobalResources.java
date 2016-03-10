@@ -55,9 +55,9 @@ public class GlobalResources {
     private boolean moving = false;
     private boolean tilted = false;
     private boolean isClient = true;
-    private int camXoffset, camYoffset;
+    private double camXoffset, camYoffset;
     private Context v;
-    private boolean calibrating, calibrated = false;
+    private boolean calibrated = false;
     private int camPictureWidth, camPictureHeight;
 
     /**
@@ -80,6 +80,7 @@ public class GlobalResources {
     private ArrayList<Serializable> inputBuffer = new ArrayList<>();
     private PatternDetector patternDetector = null;
     private Mat image = null;
+    private Calibration cali;
 
     private ImageSettings imageSettings = new ImageSettings();
 
@@ -395,19 +396,19 @@ public class GlobalResources {
         return calibrated;
     }
 
-    public void setCamXoffset(int x){
+    public void setCamXoffset(double x){
         this.camXoffset = x;
     }
 
-    public void setCamYoffset(int y){
+    public void setCamYoffset(double y){
         this.camYoffset = y;
     }
 
-    public int getCamXoffset(){
+    public double getCamXoffset(){
         return this.camXoffset;
     }
 
-    public int getCamYoffset(){
+    public double getCamYoffset(){
         return this.camYoffset;
     }
 
@@ -417,14 +418,6 @@ public class GlobalResources {
 
     public Context getContext(){
         return this.v;
-    }
-
-    public void setCalibrating(boolean cali) {
-        this.calibrating = cali;
-    }
-
-    public boolean getCalibrating(){
-        return this.calibrating;
     }
 
     public void setPictureWidth(int width){
@@ -441,5 +434,13 @@ public class GlobalResources {
 
     public int getPictureHeight(){
         return this.camPictureWidth;
+    }
+
+    public void setCali(Calibration cali){
+        this.cali = cali;
+    }
+
+    public Calibration getCalibration(){
+        return this.cali;
     }
 }

@@ -62,8 +62,6 @@ public class PositionCalculation {
         //Calculate z using the field of view of y (higher accuracy than x-axis)
         double zCoordinate = fieldOfViewX / (2 * Math.tan(Math.toRadians(phiX / 2)));
 
-        //Log.d(TAG, "phi: " + phiX);
-
         Point centerPattern = calculateCenterPattern();
 
         //Set the origin of the coordinate system of the image in the center of the sensor
@@ -80,21 +78,20 @@ public class PositionCalculation {
         Calibrated --> Take into account (Values have been calculated)
 
         Using the GlobalResources getCamXoffset & getCamYoffset
-         */
         if(GlobalResources.getInstance().getCalibrated()) {
-            centerPattern.x -= (5.35 / scaleFactor);
-            centerPattern.y -= (2 / scaleFactor);
+            centerPattern.x -= (GlobalResources.getInstance().getCamXoffset() / scaleFactor);
+            centerPattern.y -= (GlobalResources.getInstance().getCamYoffset() / scaleFactor);
         }
-        else{
-            //centerPattern.x = 1;
-            //centerPattern.y = 1;
+        */
+
+        if(GlobalResources.getInstance().getCalibrated()) {
+            centerPattern.x -= (GlobalResources.getInstance().getCamXoffset());
+            centerPattern.y -= (GlobalResources.getInstance().getCamYoffset());
         }
 
         //Take the translated error of the camera into account
+        //Because of the Calibration we will implement, this method will probably not be needed anymore
 
-        /*
-        Because of the Calibration we will implement, this method will probably not be needed anymore
-         */
         /*
         double ex = (CameraConstants.getInstance().getEx() / CameraConstants.getInstance().getHeight()) * zCoordinate;
         double ey = (CameraConstants.getInstance().getEy() / CameraConstants.getInstance().getHeight()) * zCoordinate;
@@ -127,9 +124,6 @@ public class PositionCalculation {
         ycp = patternCoordinates.getNum(3).y;
         xdp = patternCoordinates.getNum(4).x;
         ydp = patternCoordinates.getNum(4).y;
-        //Log.d(TAG, "Xposities: 1: " + xap + " 2: " + xbp + " 3: " + xcp + " 4:" + xdp);
-        //Log.d(TAG, "Yposities: 1: " + yap + " 2: " + ybp + " 3: " + ycp + " 4:" + ydp);
-
     }
 
     private Point calculateCenterPattern(){
@@ -150,10 +144,6 @@ public class PositionCalculation {
         scaleFactor = patternSide/patternSidePx;
 
         fieldOfViewX = (patternSide / patternSidePx) * canvasXSize;
-
-        //Log.d(TAG, "Scalefactor: " + scaleFactor);
-        //Log.d(TAG, "canvasXsize: " + canvasXSize);
-        //Log.d(TAG, "fieldOfViewX= " + fieldOfViewX);
     }
 
     //TODO: this is called twice every run (once by PositionCalculation.patternToReal, once by PatternDetector.calculateCoordinates)
@@ -199,14 +189,7 @@ public class PositionCalculation {
 
         double rotationAngle= Math.toDegrees(Math.atan2(sin, cos));
 
-        /*
-        if(corner4.y > corner1.y)
-            rotationAngle = 360 - Math.toDegrees(Math.acos(cos));
-        else
-            rotationAngle = Math.toDegrees(Math.acos(cos));
-         */
-
-        rotationAngle = (rotationAngle + 180 + 360)%360;
+        rotationAngle = (rotationAngle + 360)%360;
 
 
 

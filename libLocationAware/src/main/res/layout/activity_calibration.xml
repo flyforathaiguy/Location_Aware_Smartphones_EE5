@@ -7,7 +7,8 @@
     tools:context="be.groept.emedialab.util.Calibration">
 
     <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/angleView" />
 
     <Button
         android:layout_width="wrap_content"
@@ -17,6 +18,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="145dp"
-        android:onClick="calibrate" />
+        android:onClick="calibrate"
+        android:clickable="true"
+        android:enabled="true" />
 
 </RelativeLayout>

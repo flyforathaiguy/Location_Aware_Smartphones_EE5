@@ -20,10 +20,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/lst_server_connections" />
-
-    <!--<ListView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/listView3"
-        android:layout_marginTop="52dp" />-->
+        android:text="Connect"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="145dp"
+        android:onClick="Connect" />
+
 </LinearLayout>

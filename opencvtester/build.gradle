@@ -32,4 +32,5 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile project(':libLocationAware')
     compile 'com.android.support:appcompat-v7:23.1.1'
+    compile project(':libraries:opencv')
 }

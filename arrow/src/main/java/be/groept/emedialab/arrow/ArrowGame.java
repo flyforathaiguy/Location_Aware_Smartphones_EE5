@@ -2,6 +2,7 @@ package be.groept.emedialab.arrow;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Looper;
@@ -23,6 +24,7 @@ import be.groept.emedialab.communications.DataHandler;
 import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
 import be.groept.emedialab.server.data.Position;
+import be.groept.emedialab.util.Calibration;
 import be.groept.emedialab.util.GlobalResources;
 
 /**
@@ -184,6 +186,7 @@ public class ArrowGame extends AppCompatActivity {
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
         hide();
+        Log.d(TAG, " Arrow onResume called");
     }
 
     /**
@@ -193,9 +196,20 @@ public class ArrowGame extends AppCompatActivity {
     protected void onPause(){
         super.onPause();
         if(GlobalResources.getInstance().getPatternDetector() != null) {
-            //if(GlobalResources.getInstance().getCalibrating() == false)
-            GlobalResources.getInstance().getPatternDetector().destroy();
+            if(GlobalResources.getInstance().getCalibrated() == true) {
+                GlobalResources.getInstance().getPatternDetector().destroy();
+            }
         }
+        Log.d(TAG, " Arrow onPause Called");
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if(GlobalResources.getInstance().getPatternDetector() != null) {
+                GlobalResources.getInstance().getPatternDetector().destroy();
+        }
+        Log.d(TAG, " Arrow onDestroy called");
     }
 
     /**
@@ -208,7 +222,7 @@ public class ArrowGame extends AppCompatActivity {
             case TYPE_CO: // only run by client
                 otherPosition = (Position) dataPacket.getOptionalData();
                 updateRotation();
-                Log.d(TAG, "RECEIVED COORDINATES FROM SERVER: " + otherPosition);
+                //Log.d(TAG, "RECEIVED COORDINATES FROM SERVER: " + otherPosition);
                 updatePosition(otherPosition, otherPositionTextView, "Other");
                 break;
             case TYPE_TIMESTAMP_FROM_CLIENT:

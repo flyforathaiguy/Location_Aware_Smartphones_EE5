@@ -1,15 +1,18 @@
 package be.groept.emedialab.image_manipulation;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import be.groept.emedialab.math.PositionCalculation;
+import be.groept.emedialab.util.Calibration;
 import be.groept.emedialab.util.GlobalResources;
 
 /**
@@ -78,6 +81,18 @@ public class RunPatternDetector {
     private void setupCamera(PatternDetector patternDetector){
         if(patternDetector != null){
             patternDetector.setup();
+            //Check if the system is calibrated
+            if (GlobalResources.getInstance().getCalibrated() == false){
+                //Log.d(TAG, "Not Calibrated");
+                //Log.d(TAG, "Made calibration class");
+                //Log.d(TAG, "Context: " + GlobalResources.getInstance().getContext());
+                Intent intent = new Intent(GlobalResources.getInstance().getContext(), Calibration.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //Log.d(TAG, "Made intent");
+                GlobalResources.getInstance().getContext().startActivity(intent);
+               // Log.d(TAG, "Launched intent");
+            }
+            //GlobalResources.getInstance().getCalibration().enableButton();
         }
     }
 }

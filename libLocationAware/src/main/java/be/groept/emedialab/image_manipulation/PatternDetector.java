@@ -2,6 +2,7 @@ package be.groept.emedialab.image_manipulation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.provider.Settings;
@@ -30,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,17 +50,20 @@ import java.util.regex.Pattern;
 public class PatternDetector{
 
     private static final String TAG = "PatternDetectorTag";
-    private static final long sampleRate = 200;
+    private static final long sampleRate = 500;
     private final static boolean DEBUG = false;
 
     private PositionCalculation calc;
-    //private VideoCapture mCamera;
     private Camera mCamera;
     private PatternDetectorAlgorithmInterface patternDetectorAlgorithm;
+    private Calibration cali;
     private boolean isPaused = false;
     private ArrayList<Long> averageTime = new ArrayList<>();
+    private boolean handledPicture = true;
+    private boolean runRunnable = true;
 
-    private CameraBridgeViewBase.CvCameraViewFrame cam;
+    //ScheduledExecutorService executor;
+    ExecutorService executor;
 
     private Camera.PictureCallback jpegCallBack;
 
@@ -69,36 +74,74 @@ public class PatternDetector{
      * '0' = back facing camera.
      * '1' = front facing camera.
      */
-    private int camera = 1;
+    private int cameraNum = 1;
 
     //for debugging purposes
     private int picCount = 0;
 
-    private Runnable cameraRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                //if(GlobalResources.getInstance().getCalibrated()) {
-                    if (mCamera != null) {
-                        long startTime;
-                        if (DEBUG) {
-                            startTime = System.currentTimeMillis();
-                        }
-                         Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
-                         patternAndImagePair = pair();
+    private Thread cameraThread = new Thread(){
+        public void run(){
+            while (runRunnable) {
+                //first check if the last picture has been fully handled, to prevent overloading the camera
+                if (handledPicture == true) {
+                    try {
+                        //if(GlobalResources.getInstance().getCalibrated()) {
+                        if (mCamera != null) {
+                            long startTime;
+                            if (DEBUG) {
+                                startTime = System.currentTimeMillis();
+                            }
+                            handledPicture = false;
+                            Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
+                            patternAndImagePair = pair();
 
-                         calculateCoordinates(patternAndImagePair.element1);
+                            calculateCoordinates(patternAndImagePair.element1);
                             if (DEBUG) {
                                 timeMeasure(startTime);
                             }
-                         System.gc();
+                            System.gc();
+                        }
+                        //}
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                //}
-            } catch (Exception e) {
-                e.printStackTrace();
+                }
             }
         }
     };
+
+   /* private Runnable cameraRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while (runRunnable) {
+                //first check if the last picture has been fully handled, to prevent overloading the camera
+                if (handledPicture == true) {
+                    try {
+                        //if(GlobalResources.getInstance().getCalibrated()) {
+                        if (mCamera != null) {
+                            long startTime;
+                            if (DEBUG) {
+                                startTime = System.currentTimeMillis();
+                            }
+                            handledPicture = false;
+                            Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
+                            patternAndImagePair = pair();
+
+                            calculateCoordinates(patternAndImagePair.element1);
+                            if (DEBUG) {
+                                timeMeasure(startTime);
+                            }
+                            System.gc();
+                        }
+                        //}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    };
+    */
 
     public PatternDetector(int camera, boolean newAlgorithm) {
         if(newAlgorithm){
@@ -117,9 +160,14 @@ public class PatternDetector{
 
     private void calculateCoordinates(PatternCoordinates patternCoordinates) {
         Point3D deviceCoordinates = calc.patternToReal(patternCoordinates); //Calculate the position of this device.
-        Position devicePosition = new Position(deviceCoordinates.getX(), deviceCoordinates.getY(), deviceCoordinates.getZ(), calc.calculateRotation(patternCoordinates));
+        double angle = calc.calculateRotation(patternCoordinates);
+        Position devicePosition = new Position(deviceCoordinates.getX(), deviceCoordinates.getY(), deviceCoordinates.getZ(), angle);
         devicePosition.setFoundPattern(patternCoordinates.getPatternFound());
         GlobalResources.getInstance().updateOwnPosition(devicePosition);
+
+        if(GlobalResources.getInstance().getCalibrated() == false){
+            cali.updateAngle(angle);
+        }
     }
 
     /**
@@ -133,7 +181,11 @@ public class PatternDetector{
             mCamera = null;
         }
 
-        mCamera = Camera.open(camera);
+        mCamera = Camera.open(cameraNum);
+
+        rgba = new Mat();
+        grey = new Mat();
+        binary = new Mat();
 
         try{
             //Using a dummy texture --> Results in no camera visible on screen
@@ -141,9 +193,21 @@ public class PatternDetector{
 
             //Getting & Setting Camera parameters
             Camera.Parameters param = mCamera.getParameters();
-            param.set("rotation", 270);
-            param.set("orientation", "portrait");
+
+            /*
+            if(GlobalResources.getInstance().getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+                param.set("orientation", "portrait");
+                param.set("rotation", 90);
+            }
+            if(GlobalResources.getInstance().getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                param.set("orientation", "landscape");
+                param.set("rotation", 90);
+            }
+            */
+
             param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            //param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            //mCamera.autoFocus(null);
             mCamera.setParameters(param);
         } catch (IOException e){
             e.printStackTrace();
@@ -160,31 +224,6 @@ public class PatternDetector{
             public void onPictureTaken(byte[] data, Camera camera)
             {
 
-                //For debugging purposes: write picture to SDCard (1 in every 21 pictures)
-
-                if(picCount==20){
-                    picCount = 0;
-                    FileOutputStream outStream = null;
-                    try{
-                        outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", System.currentTimeMillis()));
-                        outStream.write(data);
-                        outStream.close();
-                        Log.d(TAG, "onPictureTaken - wrote bytes: " + data.length);
-                    } catch(FileNotFoundException e){
-                        Log.d(TAG, "fileNotFoundException");
-                        e.printStackTrace();
-                    } catch (IOException e){
-                        Log.d(TAG, "IOException");
-                        e.printStackTrace();
-                    } finally{
-                        Log.d(TAG, "finally");
-                    }
-
-                }
-                picCount++;
-                Log.d(TAG, "picCount: " + picCount);
-
-
                 mCamera.stopPreview();
                 try {
                     mCamera.setPreviewTexture(new SurfaceTexture(10));
@@ -196,50 +235,27 @@ public class PatternDetector{
 
                 //Create Mat Object from data
                 try{
-                    rgba = new Mat();
                     rgba = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
-                    grey = new Mat();
+                    if(cameraNum ==1){
+                        Core.flip(rgba, rgba, 1);
+                    }
+                    // Convert to grey-scale.
                     Imgproc.cvtColor(rgba, grey, Imgproc.COLOR_RGB2GRAY);
-                    binary = new Mat();
+                    // Threshold the grey-scale to binary
                     Imgproc.threshold(grey, binary, 80, 255, Imgproc.THRESH_BINARY);
                 } catch (Exception e){
                     Log.d(TAG, "Exception in Mat: " + e.toString() + " message: " + e.getMessage());
                 }
+                handledPicture = true;
             }
         };
 
-/*
-        //Check if the system is calibrated
-        if (GlobalResources.getInstance().getCalibrated() == false){
-            Log.d(TAG, "Not Calibrated");
-            Log.d(TAG, "Made calibration class");
-            Log.d(TAG, "Context: " + GlobalResources.getInstance().getContext());
-            Intent intent = new Intent(GlobalResources.getInstance().getContext(), Calibration.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d(TAG, "Made intent");
-            GlobalResources.getInstance().getContext().startActivity(intent);
-            Log.d(TAG, "Launched intent");
+        //this.cali = GlobalResources.getInstance().getCalibration();
 
+        runRunnable = true;
+        cameraThread.start();
+        //executor.scheduleAtFixedRate(cameraRunnable, 0, sampleRate, TimeUnit.MILLISECONDS);
 
-                        /* Here it should call the Calibration class
-                        Giving as parameter the patternAndImagePair.element1
-                        The Calibration should define the X & Y offset of the camera to the center of the phone
-                        and place these values in GlobalResources so that PositionCalculation can access them.
-                        Also a bool var should be uses so the system knows whether or not it is calibrating, also placed in GlobalResources
-                         */
-        //}
-
-
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(cameraRunnable, 0, sampleRate, TimeUnit.MILLISECONDS);
-    }
-
-    public Point3D getCoordinates(){
-        Log.d(TAG, "getCoordinates mCamera:" + mCamera);
-            Tuple<PatternCoordinates, Mat> patternAndImagePair = pair();
-            Point3D devCoordinates = calc.patternToReal(patternAndImagePair.element1);
-            return devCoordinates;
     }
 
     /**
@@ -247,6 +263,7 @@ public class PatternDetector{
      */
     public void destroy(){
         Log.d(TAG, "onDestroy called");
+        runRunnable = false;
             if (mCamera != null) {
                 mCamera.stopPreview();
                 mCamera.release();
@@ -254,6 +271,10 @@ public class PatternDetector{
             }
             isPaused = true;
             // TODO stop executorService
+
+            //executor.shutdown();
+         cameraThread.stop();
+
     }
 
     public boolean isPaused(){
@@ -265,14 +286,14 @@ public class PatternDetector{
     }
 
     public int getCamera() {
-        return camera;
+        return cameraNum;
     }
 
     private void setCamera(int camera) {
         if(camera != 0 && camera != 1){
             throw new IllegalArgumentException("Invalid value: camera should be 0 or 1.");
         }else{
-            this.camera = camera;
+            this.cameraNum = camera;
         }
     }
 
@@ -292,37 +313,14 @@ public class PatternDetector{
     }
 
     private Tuple<PatternCoordinates, Mat> pair(){
-        //Mat rgba = new Mat();
-        //Mat gray = new Mat();
-        //Mat binary = new Mat();
-        //mCamera.retrieve(rgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
 
-        /*if(camera == 1) {
-            //Flip the image around the openCv x-axis (== Calc y-axis) if the front facing camera is used.
-            //See: http://answers.opencv.org/question/8804/ipad-camera-input-is-rotated-180-degrees/
-            Core.flip(rgba, rgba, 1);
-            Core.flip(rgba, rgba, 0);
-        }
-        */
         //Take a picture with the camera, this also handles the Mat objects
         mCamera.takePicture(null, null, jpegCallBack);
-
-        // Convert to grey-scale.
-        //Imgproc.cvtColor(rgba, gray, Imgproc.COLOR_RGB2GRAY);
-
-        // Threshold the grey-scale to binary
-        //Imgproc.threshold(gray, binary, 80, 255, Imgproc.THRESH_BINARY);
 
         Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
         switch(GlobalResources.getInstance().getImageSettings().getBackgroundMode()){
             case ImageSettings.BACKGROUND_MODE_RGB:
-                Log.d(TAG, "rgba mat: " + rgba);
-                Log.d(TAG, "grey mat: " + grey);
-                Log.d(TAG, "binary mat: " + binary);
                 patternAndImagePair = patternDetectorAlgorithm.find(rgba, binary, false);
-                //Log.d(TAG, "patternAndImagePair: " + patternAndImagePair);
-                //Log.d(TAG, "patternAndImagePair element2: " + patternAndImagePair.element2);
-                Log.d(TAG, "patternAndImagePair element1: " + patternAndImagePair.element1);
                 break;
             case ImageSettings.BACKGROUND_MODE_GRAYSCALE:
                 patternAndImagePair = patternDetectorAlgorithm.find(grey, binary, true);
@@ -332,5 +330,9 @@ public class PatternDetector{
         }
         GlobalResources.getInstance().updateImage(patternAndImagePair.element2);
         return patternAndImagePair;
+    }
+
+    public void setCalibration(Calibration cali){
+        this.cali = cali;
     }
 }

@@ -6,38 +6,56 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import be.groept.emedialab.R;
 import be.groept.emedialab.image_manipulation.PatternCoordinates;
+import be.groept.emedialab.server.data.Position;
 
 
 public class Calibration extends AppCompatActivity {
 
-    private int firstX, firstY, secondX, secondY;
-    private Point3D firstCoordinates, secondCoordinates = null;
-    private boolean firstCoordinatesReceived = false;
+    private Position firstPosition, secondPosition = null;
+    private boolean firstPositionReceived = false;
+    private double angle;
+    private TextView text;
+    private Button button;
 
-    private static final String TAG = "Calibration";
+    private static final String TAG = "ArrowGame";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calibration);
-        GlobalResources.getInstance().setCalibrating(true);
+        GlobalResources.getInstance().setCalibrated(false);
+
+        GlobalResources.getInstance().setCali(this);
+
+        text = (TextView) findViewById(R.id.angleView);
+        button = (Button) findViewById(R.id.button);
+
+        GlobalResources.getInstance().getPatternDetector().setCalibration(this);
     }
 
     public void calibrate(View v){
-        if(firstCoordinatesReceived == false){
-            Point3D firstCoordinates = GlobalResources.getInstance().getPatternDetector().getCoordinates();
-            this.firstCoordinates = firstCoordinates;
-            firstCoordinatesReceived = true;
-            Log.d(TAG, "First Coordinates in Calibration set");
+        if(firstPositionReceived == false){
+            firstPosition = GlobalResources.getInstance().getDevice().getPosition();
+            if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getY())) {
+
+                firstPositionReceived = true;
+                Log.d(TAG, "First Coordinates in Calibration set: x= " + firstPosition.getX() + " y=" + firstPosition.getY() + " angle= " + firstPosition.getRotation());
+            }
         }
         else{
-            Point3D secondCoordinates = GlobalResources.getInstance().getPatternDetector().getCoordinates();
-            this.secondCoordinates = secondCoordinates;
-            Log.d(TAG, "Second Coordinates in Calibration set");
-            calculateCamOffset();
+            secondPosition = GlobalResources.getInstance().getDevice().getPosition();
+
+            if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getY())) {
+
+                Log.d(TAG, "Second Coordinates in Calibration set: x= " + secondPosition.getX() + " y=" + secondPosition.getY() + " angle= " + secondPosition.getRotation());
+
+                calculateCamOffset();
+            }
         }
 
         /*
@@ -45,14 +63,73 @@ public class Calibration extends AppCompatActivity {
         Set the GlobalResources value for calibrated system to true
         Set the GlobalResources setCamXoffset & setCamYoffset to the calculated values
          */
-
-        GlobalResources.getInstance().setCalibrated(true);
     }
 
     private void calculateCamOffset(){
-        Log.d(TAG, "Calculated camOffset");
+        double xCenter, yCenter;
+
+        xCenter = (firstPosition.getX() + secondPosition.getX())/2;
+        yCenter = (firstPosition.getY() + secondPosition.getY())/2;
+
+        //Determine if the camera is on the left or right side of the phone
+
+        //Left side: the signes of firstX - secondX and firstY - secondY have to be the opposite of each other
+        if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
+            xCenter = -Math.abs(firstPosition.getX() - xCenter);
+        }
+
+        else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
+            //this means the camera is on the right side of the phone
+            xCenter = Math.abs(firstPosition.getX() - xCenter);
+        }
+
+        else{
+            //this means the camera is in the center of the phone
+            xCenter = 0;
+        }
+
+        yCenter = Math.abs(firstPosition.getY() - yCenter);
+
+        GlobalResources.getInstance().setCamXoffset(xCenter);
+        GlobalResources.getInstance().setCamYoffset(yCenter);
+
         GlobalResources.getInstance().setCalibrated(true);
+
         finish();
+        Log.d(TAG, "Calculated camOffset");
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //if(GlobalResources.getInstance().getCalibrated() == true)
+        GlobalResources.getInstance().getPatternDetector().destroy();
+        Log.d(TAG, " Cali onDestroy called");
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if(GlobalResources.getInstance().getPatternDetector() != null) {
+                GlobalResources.getInstance().getPatternDetector().destroy();
+        }
+        Log.d(TAG, " Cali onPause called");
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
+            GlobalResources.getInstance().getPatternDetector().setup();
+        Log.d(TAG, " Cali onResume called");
+    }
+    public void updateAngle(double angle){
+        this.angle = angle;
+        text.setText(String.format("Angle: %.1f°", angle));
+    }
+
+    public void enableButton(){
+        button.setEnabled(true);
+    }
 }
