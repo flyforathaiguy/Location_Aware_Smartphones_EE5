@@ -40,7 +40,8 @@
     <application>
         <activity
             android:name=".util.Calibration"
-            android:label="@string/title_activity_calibration" >
+            android:label="@string/title_activity_calibration"
+            >
         </activity>
     </application>
 

@@ -45,6 +45,9 @@ public class ArrowGame extends AppCompatActivity {
     private TextView otherPositionTextView;
     private Position otherPosition = null;
 
+    private Thread runPatternThread;
+    final Activity activity = this;
+
     /**
      * Handles different kinds of messages depending on the state which the device is in.
      * Calls UpdateRotation() and updatePosition() whenever the device is ready to update it's coordinates.
@@ -103,18 +106,16 @@ public class ArrowGame extends AppCompatActivity {
 
         GlobalResources.getInstance().setHandler(handler);
 
-        final Activity activity = this;
+        hide();
+    }
 
-        //Will continuously call the RunPatternDetector class
-        Runnable runnable = new Runnable() {
+    private Thread getThread(){
+        return new Thread() {
             @Override
             public void run() {
                 new RunPatternDetector(activity);
             }
         };
-        runnable.run();
-
-        hide();
     }
 
     /**
@@ -147,7 +148,7 @@ public class ArrowGame extends AppCompatActivity {
             if (angle < 0)
                 angle += 360;
 
-            Log.d(TAG, "Angle: " + angle);
+            //Log.d(TAG, "Angle: " + angle);
             mImageView.setRotation(angle + 180 + (float) currPosition.getRotation());
         }
     }
@@ -183,10 +184,19 @@ public class ArrowGame extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
-            GlobalResources.getInstance().getPatternDetector().setup();
-        hide();
+
+        //Will continuously call the RunPatternDetector class
+        runPatternThread = getThread();
+        runPatternThread.run();
+
         Log.d(TAG, " Arrow onResume called");
+        /*
+        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused()) {
+            Log.d(TAG, "Arrow calling patternDetector setup");
+            GlobalResources.getInstance().getPatternDetector().setup();
+            hide();
+        }
+        */
     }
 
     /**

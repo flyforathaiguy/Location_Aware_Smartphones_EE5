@@ -35,11 +35,13 @@ public class Calibration extends AppCompatActivity {
         text = (TextView) findViewById(R.id.angleView);
         button = (Button) findViewById(R.id.button);
 
-        GlobalResources.getInstance().getPatternDetector().setCalibration(this);
+        //GlobalResources.getInstance().getPatternDetector().setCalibration(this);
     }
 
     public void calibrate(View v){
+        Log.d(TAG, "Button pressed");
         if(firstPositionReceived == false){
+            Log.d(TAG, "firstPos");
             firstPosition = GlobalResources.getInstance().getDevice().getPosition();
             if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getY())) {
 
@@ -48,6 +50,7 @@ public class Calibration extends AppCompatActivity {
             }
         }
         else{
+            Log.d(TAG, "second pos");
             secondPosition = GlobalResources.getInstance().getDevice().getPosition();
 
             if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getY())) {
@@ -103,18 +106,16 @@ public class Calibration extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //if(GlobalResources.getInstance().getCalibrated() == true)
-        GlobalResources.getInstance().getPatternDetector().destroy();
         Log.d(TAG, " Cali onDestroy called");
     }
 
     @Override
     protected void onPause(){
         super.onPause();
+        Log.d(TAG, " Cali onPause called");
         if(GlobalResources.getInstance().getPatternDetector() != null) {
                 GlobalResources.getInstance().getPatternDetector().destroy();
         }
-        Log.d(TAG, " Cali onPause called");
     }
 
     @Override
@@ -124,6 +125,7 @@ public class Calibration extends AppCompatActivity {
             GlobalResources.getInstance().getPatternDetector().setup();
         Log.d(TAG, " Cali onResume called");
     }
+
     public void updateAngle(double angle){
         this.angle = angle;
         text.setText(String.format("Angle: %.1f°", angle));
@@ -131,5 +133,9 @@ public class Calibration extends AppCompatActivity {
 
     public void enableButton(){
         button.setEnabled(true);
+    }
+
+    public TextView getAngleView(){
+        return this.text;
     }
 }

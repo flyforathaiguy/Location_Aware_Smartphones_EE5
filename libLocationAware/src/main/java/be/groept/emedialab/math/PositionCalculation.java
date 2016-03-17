@@ -69,7 +69,7 @@ public class PositionCalculation {
         centerPattern.y -= GlobalResources.getInstance().getPictureHeight()/2;
 
         //Flip over x-axis
-        centerPattern.y *= -1;
+        //centerPattern.x *= -1;
 
         //Factor in screen offset
         /*
@@ -189,7 +189,7 @@ public class PositionCalculation {
 
         double rotationAngle= Math.toDegrees(Math.atan2(sin, cos));
 
-        rotationAngle = (rotationAngle + 360)%360;
+        rotationAngle = (rotationAngle + 180 + 360)%360;
 
 
 

@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,23 +50,25 @@ import java.util.regex.Pattern;
  */
 public class PatternDetector{
 
-    private static final String TAG = "PatternDetectorTag";
+    private static final String TAG = "ArrowGame";
     private static final long sampleRate = 500;
     private final static boolean DEBUG = false;
 
     private PositionCalculation calc;
     private Camera mCamera;
     private PatternDetectorAlgorithmInterface patternDetectorAlgorithm;
-    private Calibration cali;
+    //private Calibration cali;
     private boolean isPaused = false;
     private ArrayList<Long> averageTime = new ArrayList<>();
-    private boolean handledPicture = true;
+    //private boolean handledPicture = true;
     private boolean runRunnable = true;
+    private int sleepTime = 300;
 
     //ScheduledExecutorService executor;
-    ExecutorService executor;
+    //ExecutorService executor;
 
     private Camera.PictureCallback jpegCallBack;
+    private Camera.AutoFocusCallback autoFocusCallback;
 
     private Mat rgba, grey, binary;
 
@@ -79,36 +82,7 @@ public class PatternDetector{
     //for debugging purposes
     private int picCount = 0;
 
-    private Thread cameraThread = new Thread(){
-        public void run(){
-            while (runRunnable) {
-                //first check if the last picture has been fully handled, to prevent overloading the camera
-                if (handledPicture == true) {
-                    try {
-                        //if(GlobalResources.getInstance().getCalibrated()) {
-                        if (mCamera != null) {
-                            long startTime;
-                            if (DEBUG) {
-                                startTime = System.currentTimeMillis();
-                            }
-                            handledPicture = false;
-                            Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
-                            patternAndImagePair = pair();
-
-                            calculateCoordinates(patternAndImagePair.element1);
-                            if (DEBUG) {
-                                timeMeasure(startTime);
-                            }
-                            System.gc();
-                        }
-                        //}
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    };
+    //private Thread cameraThread;
 
    /* private Runnable cameraRunnable = new Runnable() {
         @Override
@@ -165,9 +139,11 @@ public class PatternDetector{
         devicePosition.setFoundPattern(patternCoordinates.getPatternFound());
         GlobalResources.getInstance().updateOwnPosition(devicePosition);
 
+        /*
         if(GlobalResources.getInstance().getCalibrated() == false){
-            cali.updateAngle(angle);
+            cali.getAngleView().setText(String.format("Angle: %.1f°", angle));
         }
+        */
     }
 
     /**
@@ -176,10 +152,13 @@ public class PatternDetector{
      */
     public void setup() {
 
+        //Release any possible previous cameras
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;
         }
+
+        Log.d(TAG, "runRunnable = true");
 
         mCamera = Camera.open(cameraNum);
 
@@ -193,19 +172,10 @@ public class PatternDetector{
 
             //Getting & Setting Camera parameters
             Camera.Parameters param = mCamera.getParameters();
+             param.set("orientation", "landscape");
+             param.set("rotation", 270);
 
-            /*
-            if(GlobalResources.getInstance().getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-                param.set("orientation", "portrait");
-                param.set("rotation", 90);
-            }
-            if(GlobalResources.getInstance().getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-                param.set("orientation", "landscape");
-                param.set("rotation", 90);
-            }
-            */
-
-            param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            //param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             //param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
             //mCamera.autoFocus(null);
             mCamera.setParameters(param);
@@ -214,23 +184,53 @@ public class PatternDetector{
             Log.d(TAG, "Error in PatternDetector Setup");
         }
 
-        mCamera.startPreview();
-
         GlobalResources.getInstance().setPictureWidth(mCamera.getParameters().getPictureSize().width);
         GlobalResources.getInstance().setPictureHeight(mCamera.getParameters().getPictureSize().height);
+
+        //This is called when the camera has autofocussed
+        /*
+        autoFocusCallback = new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                Log.d(TAG, "autofocus called");
+                mCamera.takePicture(null, null, jpegCallBack);
+            }
+        };
+        */
 
         //This is called when the camera takes a picture (in the pair() method)
         jpegCallBack = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera)
             {
+                List<String> supportedFocusModes = mCamera.getParameters().getSupportedFocusModes();
+                Log.d(TAG, "Focus mode: \n");
+                for(int i = 0; i < supportedFocusModes.size();i ++){
+                    Log.d(TAG, supportedFocusModes.get(i) + "\n");
 
-                mCamera.stopPreview();
-                try {
-                    mCamera.setPreviewTexture(new SurfaceTexture(10));
-                } catch (Exception e){
-                    Log.d(TAG, "Exception setting preview texture)");
                 }
-                mCamera.startPreview();
+               // Log.d(TAG, "Current focus mode: " + mCamera.getParameters().getFocusMode());
+
+               // Log.d(TAG, "onPictureTaken called");
+                mCamera.stopPreview();
+
+
+                /*
+                if(picCount >=19) {
+                    picCount = 0;
+                    FileOutputStream outStream = null;
+                    try {
+                        String dir_path = "";// set your directory path here
+                        outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", System.currentTimeMillis()));
+                        outStream.write(data);
+                        outStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                picCount++;
+                */
 
 
                 //Create Mat Object from data
@@ -239,6 +239,7 @@ public class PatternDetector{
                     if(cameraNum ==1){
                         Core.flip(rgba, rgba, 1);
                     }
+
                     // Convert to grey-scale.
                     Imgproc.cvtColor(rgba, grey, Imgproc.COLOR_RGB2GRAY);
                     // Threshold the grey-scale to binary
@@ -246,16 +247,60 @@ public class PatternDetector{
                 } catch (Exception e){
                     Log.d(TAG, "Exception in Mat: " + e.toString() + " message: " + e.getMessage());
                 }
-                handledPicture = true;
+                //handledPicture = true;
+
+                //Handle the picture
+                Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
+                patternAndImagePair = pair();
+                calculateCoordinates(patternAndImagePair.element1);
+
+                try {
+                    mCamera.setPreviewTexture(new SurfaceTexture(10));
+                } catch (Exception e){
+                    Log.d(TAG, "Exception setting preview texture)");
+                }
+
+                mCamera.startPreview();
+                //camera.autoFocus(autoFocusCallback);
+
+
             }
         };
 
+
+        mCamera.startPreview();
+        //mCamera.autoFocus(autoFocusCallback);
+
+        Thread takePic = new Thread(){
+            public void run(){
+                while(runRunnable) {
+                    mCamera.takePicture(null, null, jpegCallBack);
+                    //refreshCamera();
+                    updateSleepTime();
+                    try {
+                        this.sleep(sleepTime);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        takePic.start();
+
         //this.cali = GlobalResources.getInstance().getCalibration();
+    }
 
-        runRunnable = true;
-        cameraThread.start();
-        //executor.scheduleAtFixedRate(cameraRunnable, 0, sampleRate, TimeUnit.MILLISECONDS);
-
+    private void updateSleepTime(){
+        //Decrement
+        if(GlobalResources.getInstance().getDevice().getPosition().getFoundPattern() == true){
+            sleepTime = Math.max(200, sleepTime - 50);
+        }
+        else{
+            //Increment
+            sleepTime = Math.min(1000, sleepTime + 50);
+        }
+        Log.d(TAG, "SleepTime: " + sleepTime);
     }
 
     /**
@@ -263,7 +308,9 @@ public class PatternDetector{
      */
     public void destroy(){
         Log.d(TAG, "onDestroy called");
+
         runRunnable = false;
+
             if (mCamera != null) {
                 mCamera.stopPreview();
                 mCamera.release();
@@ -272,8 +319,10 @@ public class PatternDetector{
             isPaused = true;
             // TODO stop executorService
 
-            //executor.shutdown();
-         cameraThread.stop();
+
+        Log.d(TAG, "runRunnable = false");
+        GlobalResources.getInstance().setPatternDetector(null);
+        System.gc();
 
     }
 
@@ -315,7 +364,7 @@ public class PatternDetector{
     private Tuple<PatternCoordinates, Mat> pair(){
 
         //Take a picture with the camera, this also handles the Mat objects
-        mCamera.takePicture(null, null, jpegCallBack);
+        //mCamera.takePicture(null, null, jpegCallBack);
 
         Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
         switch(GlobalResources.getInstance().getImageSettings().getBackgroundMode()){
@@ -332,7 +381,10 @@ public class PatternDetector{
         return patternAndImagePair;
     }
 
+    /*
     public void setCalibration(Calibration cali){
         this.cali = cali;
     }
+    */
+
 }

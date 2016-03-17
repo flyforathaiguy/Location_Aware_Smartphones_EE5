@@ -18,9 +18,11 @@ import be.groept.emedialab.util.GlobalResources;
 /**
  * Class to set up the pattern detector when game is started
  */
+
 public class RunPatternDetector {
 
     private Activity activity;
+    private static final String TAG = "ArrowGame";
 
     public RunPatternDetector(Activity activity){
         this.activity = activity;
@@ -44,7 +46,7 @@ public class RunPatternDetector {
     }
 
     private void onOpenCVSuccessLoad(){
-        if(GlobalResources.getInstance().getPatternDetector() == null)
+        //if(GlobalResources.getInstance().getPatternDetector() == null)
             setupPatternDetector();
     }
 
@@ -79,9 +81,12 @@ public class RunPatternDetector {
     }
 
     private void setupCamera(PatternDetector patternDetector){
+        Log.d(TAG, "RunPatternDetector setupCamera");
         if(patternDetector != null){
+            Log.d(TAG, "RunPatternDetector calling patternDetector setup");
             patternDetector.setup();
             //Check if the system is calibrated
+            /*
             if (GlobalResources.getInstance().getCalibrated() == false){
                 //Log.d(TAG, "Not Calibrated");
                 //Log.d(TAG, "Made calibration class");
@@ -93,6 +98,7 @@ public class RunPatternDetector {
                // Log.d(TAG, "Launched intent");
             }
             //GlobalResources.getInstance().getCalibration().enableButton();
+            */
         }
     }
 }
