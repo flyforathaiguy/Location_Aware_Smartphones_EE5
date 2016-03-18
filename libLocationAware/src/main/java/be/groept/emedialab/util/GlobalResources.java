@@ -47,6 +47,7 @@ public class GlobalResources {
      * updated to the new activity, so that it can know what has to be done.
      */
     private Handler handler = null;
+    private Handler caliHandler = null;
 
     /**
      * Information about THIS device.
@@ -192,6 +193,15 @@ public class GlobalResources {
 
     public Handler getHandler(){
         return handler;
+    }
+
+    public void setCalibrationHandler(Handler caliHandler){
+        Log.d(TAG, "Calibration handler is updated");
+        this.caliHandler = caliHandler;
+    }
+
+    public Handler getCalibrationHandler(){
+        return caliHandler;
     }
 
     /**
@@ -374,6 +384,14 @@ public class GlobalResources {
         }else{
             Log.e(TAG, "Handler is null!");
         }
+        if(dataType == DataHandler.DATA_TYPE_OWN_POS_UPDATED) {
+            if (caliHandler != null) {
+                Message msg = caliHandler.obtainMessage();
+                msg.what = dataType;
+                msg.obj = obj;
+                caliHandler.sendMessage(msg);
+            }
+        }
     }
 
     public void updateImage(Mat image){
@@ -433,7 +451,7 @@ public class GlobalResources {
     }
 
     public int getPictureHeight(){
-        return this.camPictureWidth;
+        return this.camPictureHeight;
     }
 
     public void setCali(Calibration cali){

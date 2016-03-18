@@ -46,7 +46,6 @@ public class RunPatternDetector {
     }
 
     private void onOpenCVSuccessLoad(){
-        //if(GlobalResources.getInstance().getPatternDetector() == null)
             setupPatternDetector();
     }
 
@@ -86,19 +85,17 @@ public class RunPatternDetector {
             Log.d(TAG, "RunPatternDetector calling patternDetector setup");
             patternDetector.setup();
             //Check if the system is calibrated
-            /*
+
             if (GlobalResources.getInstance().getCalibrated() == false){
-                //Log.d(TAG, "Not Calibrated");
-                //Log.d(TAG, "Made calibration class");
-                //Log.d(TAG, "Context: " + GlobalResources.getInstance().getContext());
+                Log.d(TAG, "Not Calibrated");
+                Log.d(TAG, "Made calibration class");
+                Log.d(TAG, "Context: " + GlobalResources.getInstance().getContext());
                 Intent intent = new Intent(GlobalResources.getInstance().getContext(), Calibration.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                //Log.d(TAG, "Made intent");
+                Log.d(TAG, "Made intent");
                 GlobalResources.getInstance().getContext().startActivity(intent);
-               // Log.d(TAG, "Launched intent");
+                Log.d(TAG, "Launched intent");
             }
-            //GlobalResources.getInstance().getCalibration().enableButton();
-            */
         }
     }
 }

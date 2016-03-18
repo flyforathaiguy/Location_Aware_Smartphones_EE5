@@ -68,8 +68,8 @@ public class PositionCalculation {
         centerPattern.x -= GlobalResources.getInstance().getPictureWidth()/2;
         centerPattern.y -= GlobalResources.getInstance().getPictureHeight()/2;
 
-        //Flip over x-axis
-        //centerPattern.x *= -1;
+        //Flip over y-axis
+        centerPattern.y *= -1;
 
         //Factor in screen offset
         /*

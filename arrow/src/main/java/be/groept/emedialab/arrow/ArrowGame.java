@@ -185,6 +185,10 @@ public class ArrowGame extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        ownPositionTextView = (TextView) findViewById(R.id.ownPosition);
+        otherPositionTextView = (TextView) findViewById(R.id.otherPosition);
+        hide();
+
         //Will continuously call the RunPatternDetector class
         runPatternThread = getThread();
         runPatternThread.run();

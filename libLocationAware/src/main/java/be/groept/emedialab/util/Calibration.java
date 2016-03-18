@@ -1,6 +1,10 @@
 package be.groept.emedialab.util;
 
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -8,8 +12,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.Serializable;
 
 import be.groept.emedialab.R;
+import be.groept.emedialab.communications.DataHandler;
+import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.PatternCoordinates;
 import be.groept.emedialab.server.data.Position;
 
@@ -24,6 +33,17 @@ public class Calibration extends AppCompatActivity {
 
     private static final String TAG = "ArrowGame";
 
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg){
+            super.handleMessage(msg);
+            if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
+                //Update the Position & Rotation on the screen
+                updatePosition((Position) msg.obj);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +55,11 @@ public class Calibration extends AppCompatActivity {
         text = (TextView) findViewById(R.id.angleView);
         button = (Button) findViewById(R.id.button);
 
-        //GlobalResources.getInstance().getPatternDetector().setCalibration(this);
+        GlobalResources.getInstance().setCalibrationHandler(handler);
+    }
+
+    public void updatePosition(Position position){
+        text.setText(String.format("Own Location: (%.2f, %.2f, %.2f) %.1f°", position.getX(), position.getY(), position.getZ(), position.getRotation()));
     }
 
     public void calibrate(View v){
@@ -76,7 +100,7 @@ public class Calibration extends AppCompatActivity {
 
         //Determine if the camera is on the left or right side of the phone
 
-        //Left side: the signes of firstX - secondX and firstY - secondY have to be the opposite of each other
+        //Left side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             xCenter = -Math.abs(firstPosition.getX() - xCenter);
         }
@@ -91,6 +115,8 @@ public class Calibration extends AppCompatActivity {
             xCenter = 0;
         }
 
+        Toast.makeText(this, "Cam offset calculated to: x=" + xCenter + " y= " + yCenter, Toast.LENGTH_LONG);
+
         yCenter = Math.abs(firstPosition.getY() - yCenter);
 
         GlobalResources.getInstance().setCamXoffset(xCenter);
@@ -101,7 +127,6 @@ public class Calibration extends AppCompatActivity {
         finish();
         Log.d(TAG, "Calculated camOffset");
     }
-
 
     @Override
     protected void onDestroy() {
@@ -124,18 +149,5 @@ public class Calibration extends AppCompatActivity {
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
         Log.d(TAG, " Cali onResume called");
-    }
-
-    public void updateAngle(double angle){
-        this.angle = angle;
-        text.setText(String.format("Angle: %.1f°", angle));
-    }
-
-    public void enableButton(){
-        button.setEnabled(true);
-    }
-
-    public TextView getAngleView(){
-        return this.text;
     }
 }
