@@ -110,12 +110,10 @@ public class Calibration extends AppCompatActivity {
             xCenter = Math.abs(firstPosition.getX() - xCenter);
         }
 
-        else{
+        else {
             //this means the camera is in the center of the phone
             xCenter = 0;
         }
-
-        Toast.makeText(this, "Cam offset calculated to: x=" + xCenter + " y= " + yCenter, Toast.LENGTH_LONG);
 
         yCenter = Math.abs(firstPosition.getY() - yCenter);
 
@@ -146,8 +144,10 @@ public class Calibration extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
+        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused()){
             GlobalResources.getInstance().getPatternDetector().setup();
+            Log.d(TAG, "Cali called setup");
+        }
         Log.d(TAG, " Cali onResume called");
     }
 }

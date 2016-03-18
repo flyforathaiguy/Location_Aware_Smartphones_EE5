@@ -317,12 +317,12 @@ public class PatternDetector{
                 mCamera.release();
                 mCamera = null;
             }
-            isPaused = true;
-            // TODO stop executorService
+        isPaused = true;
+        // TODO stop executorService
 
 
         Log.d(TAG, "runRunnable = false");
-        GlobalResources.getInstance().setPatternDetector(null);
+        //GlobalResources.getInstance().setPatternDetector(null);
         System.gc();
     }
 
