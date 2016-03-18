@@ -184,6 +184,7 @@ public class ArrowGame extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, " Arrow onResume called");
 
         ownPositionTextView = (TextView) findViewById(R.id.ownPosition);
         otherPositionTextView = (TextView) findViewById(R.id.otherPosition);
@@ -193,7 +194,6 @@ public class ArrowGame extends AppCompatActivity {
         runPatternThread = getThread();
         runPatternThread.run();
 
-        Log.d(TAG, " Arrow onResume called");
         /*
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused()) {
             Log.d(TAG, "Arrow calling patternDetector setup");
@@ -209,12 +209,12 @@ public class ArrowGame extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        Log.d(TAG, " Arrow onPause Called");
         if(GlobalResources.getInstance().getPatternDetector() != null) {
             if(GlobalResources.getInstance().getCalibrated() == true) {
                 GlobalResources.getInstance().getPatternDetector().destroy();
             }
         }
-        Log.d(TAG, " Arrow onPause Called");
     }
 
     @Override

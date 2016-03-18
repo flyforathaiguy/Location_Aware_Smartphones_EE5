@@ -225,10 +225,12 @@ public class PatternDetector{
                 //Create Mat Object from data
                 try{
                     rgba = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
+                    /*
                     Log.d(TAG, "Mat width: " + rgba.width());
                     Log.d(TAG, "Mat height: " + rgba.height());
                     Log.d(TAG, "Camera width: " + GlobalResources.getInstance().getPictureWidth());
                     Log.d(TAG, "Camera height: " + GlobalResources.getInstance().getPictureHeight());
+                    */
                     if(cameraNum ==1){
                         /*
                         0 = X-axis
@@ -322,8 +324,11 @@ public class PatternDetector{
 
 
         Log.d(TAG, "runRunnable = false");
-        //GlobalResources.getInstance().setPatternDetector(null);
         System.gc();
+    }
+
+    public void setPatternNull(){
+        GlobalResources.getInstance().setPatternDetector(null);
     }
 
     public boolean isPaused(){

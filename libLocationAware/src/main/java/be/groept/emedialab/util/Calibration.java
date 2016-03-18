@@ -110,7 +110,7 @@ public class Calibration extends AppCompatActivity {
             xCenter = Math.abs(firstPosition.getX() - xCenter);
         }
 
-        else {
+        else{
             //this means the camera is in the center of the phone
             xCenter = 0;
         }
@@ -139,15 +139,15 @@ public class Calibration extends AppCompatActivity {
         if(GlobalResources.getInstance().getPatternDetector() != null) {
                 GlobalResources.getInstance().getPatternDetector().destroy();
         }
+        if(GlobalResources.getInstance().getCalibrated())
+            GlobalResources.getInstance().getPatternDetector().setPatternNull();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused()){
+        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
-            Log.d(TAG, "Cali called setup");
-        }
         Log.d(TAG, " Cali onResume called");
     }
 }
