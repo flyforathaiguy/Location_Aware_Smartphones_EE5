@@ -13,7 +13,7 @@ import org.opencv.core.Point;
  * Computes the x,y,z coordinates of the device using the outline of the detected pattern.
  */
 public class PositionCalculation {
-    private static final String TAG = "PatternDetectorTag";
+    private static final String TAG = "ArrowGame";
 
     //Defines the corner points of the pattern in pixels
     private double xap, xbp, xcp, xdp;
@@ -65,11 +65,14 @@ public class PositionCalculation {
         Point centerPattern = calculateCenterPattern();
 
         //Set the origin of the coordinate system of the image in the center of the sensor
+        //X should be the largest value, Y the smallest
+        Log.d(TAG, "Picture Width: " + GlobalResources.getInstance().getPictureWidth());
+        Log.d(TAG, "Picture Height: " + GlobalResources.getInstance().getPictureHeight());
         centerPattern.x -= GlobalResources.getInstance().getPictureWidth()/2;
         centerPattern.y -= GlobalResources.getInstance().getPictureHeight()/2;
 
         //Flip over y-axis
-        centerPattern.y *= -1;
+        //centerPattern.y *= -1;
 
         //Factor in screen offset
         /*
@@ -78,15 +81,15 @@ public class PositionCalculation {
         Calibrated --> Take into account (Values have been calculated)
 
         Using the GlobalResources getCamXoffset & getCamYoffset
-        if(GlobalResources.getInstance().getCalibrated()) {
-            centerPattern.x -= (GlobalResources.getInstance().getCamXoffset() / scaleFactor);
-            centerPattern.y -= (GlobalResources.getInstance().getCamYoffset() / scaleFactor);
-        }
+        Happens in pixel values
         */
 
         if(GlobalResources.getInstance().getCalibrated()) {
-            centerPattern.x -= (GlobalResources.getInstance().getCamXoffset());
-            centerPattern.y -= (GlobalResources.getInstance().getCamYoffset());
+            Log.d(TAG, "Used calibrated offset");
+            Log.d(TAG, "X offset: cm: " + GlobalResources.getInstance().getCamXoffset() + " pixel: " + GlobalResources.getInstance().getCamXoffset()/scaleFactor);
+            Log.d(TAG, "Y offset: cm: " + GlobalResources.getInstance().getCamYoffset() + "pixel: "  + GlobalResources.getInstance().getCamYoffset()/scaleFactor);
+            centerPattern.x -= (GlobalResources.getInstance().getCamXoffset()/scaleFactor);
+            centerPattern.y -= (GlobalResources.getInstance().getCamYoffset()/scaleFactor);
         }
 
         //Take the translated error of the camera into account
@@ -171,7 +174,7 @@ public class PositionCalculation {
 
         //Calculate rotation with the y-axis of the image coordinate system with the vertical sides of the pattern
         //Needs to be -480 because we flipped the y-axis
-        Vector yAxis = new Vector(0, -GlobalResources.getInstance().getPictureHeight());
+        Vector yAxis = new Vector(0, GlobalResources.getInstance().getPictureHeight());
         Vector side12 = new Vector(corner2.x - corner1.x, corner2.y - corner1.y);
         Vector side43 = new Vector(corner3.x - corner4.x, corner3.y - corner4.y);
         yAxis.normalize();
@@ -189,10 +192,7 @@ public class PositionCalculation {
 
         double rotationAngle= Math.toDegrees(Math.atan2(sin, cos));
 
-        rotationAngle = (rotationAngle + 180 + 360)%360;
-
-
-
+        rotationAngle = (rotationAngle + 360 - 90)%360;
 
         return rotationAngle;
 

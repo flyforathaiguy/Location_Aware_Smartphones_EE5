@@ -78,41 +78,6 @@ public class PatternDetector{
     //for debugging purposes
     private int picCount = 0;
 
-    //private Thread cameraThread;
-
-   /* private Runnable cameraRunnable = new Runnable() {
-        @Override
-        public void run() {
-            while (runRunnable) {
-                //first check if the last picture has been fully handled, to prevent overloading the camera
-                if (handledPicture == true) {
-                    try {
-                        //if(GlobalResources.getInstance().getCalibrated()) {
-                        if (mCamera != null) {
-                            long startTime;
-                            if (DEBUG) {
-                                startTime = System.currentTimeMillis();
-                            }
-                            handledPicture = false;
-                            Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
-                            patternAndImagePair = pair();
-
-                            calculateCoordinates(patternAndImagePair.element1);
-                            if (DEBUG) {
-                                timeMeasure(startTime);
-                            }
-                            System.gc();
-                        }
-                        //}
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    };
-    */
-
     public PatternDetector(int camera, boolean newAlgorithm) {
         if(newAlgorithm){
             patternDetectorAlgorithm = new PatternDetectorAlgorithm(5);
@@ -152,6 +117,7 @@ public class PatternDetector{
 
         mCamera = Camera.open(cameraNum);
 
+        //Initialize the Mat objects
         rgba = new Mat();
         grey = new Mat();
         binary = new Mat();
@@ -163,7 +129,7 @@ public class PatternDetector{
             //Getting & Setting Camera parameters
             Camera.Parameters param = mCamera.getParameters();
              param.set("orientation", "landscape");
-             param.set("rotation", 270);
+             param.set("rotation", 180);
 
             mCamera.setParameters(param);
         } catch (IOException e){
@@ -171,19 +137,9 @@ public class PatternDetector{
             Log.d(TAG, "Error in PatternDetector Setup");
         }
 
+        //These variables are used in the PositionCalculation class
         GlobalResources.getInstance().setPictureWidth(mCamera.getParameters().getPictureSize().width);
         GlobalResources.getInstance().setPictureHeight(mCamera.getParameters().getPictureSize().height);
-
-        //This is called when the camera has autofocussed
-        /*
-        autoFocusCallback = new Camera.AutoFocusCallback() {
-            @Override
-            public void onAutoFocus(boolean success, Camera camera) {
-                Log.d(TAG, "autofocus called");
-                mCamera.takePicture(null, null, jpegCallBack);
-            }
-        };
-        */
 
         //This is called when the camera takes a picture (in the pair() method)
         jpegCallBack = new Camera.PictureCallback() {
@@ -198,11 +154,15 @@ public class PatternDetector{
                 }
                 */
                // Log.d(TAG, "Current focus mode: " + mCamera.getParameters().getFocusMode());
-
                // Log.d(TAG, "onPictureTaken called");
+
+                Log.d(TAG, "Horizontal view: " + (mCamera.getParameters().getHorizontalViewAngle()));
+                Log.d(TAG, "Vertical view: " + (mCamera.getParameters().getVerticalViewAngle()));
+
+
                 mCamera.stopPreview();
 
-
+                //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
                 /*
                 if(picCount >=19) {
                     picCount = 0;
@@ -221,9 +181,9 @@ public class PatternDetector{
                 picCount++;
                 */
 
-
                 //Create Mat Object from data
                 try{
+                    //Convert the picture to a Mat object
                     rgba = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
                     /*
                     Log.d(TAG, "Mat width: " + rgba.width());
@@ -247,7 +207,6 @@ public class PatternDetector{
                 } catch (Exception e){
                     Log.d(TAG, "Exception in Mat: " + e.toString() + " message: " + e.getMessage());
                 }
-                //handledPicture = true;
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
@@ -268,6 +227,8 @@ public class PatternDetector{
 
         mCamera.startPreview();
 
+        //Different thread, takes pictures & runs the pattern recognition, reruns for as long as runRunnable is true
+        //To not overload the camera, use the handledPicture variable
         Thread takePic = new Thread(){
             public void run(){
                 while(runRunnable) {
@@ -278,8 +239,20 @@ public class PatternDetector{
                         } catch (Exception e){
                             e.printStackTrace();
                             Log.d(TAG, "Error when trying to take a picture");
+
+                            //If error, restart the camera
+                            mCamera.stopPreview();
+                            try {
+                                mCamera.setPreviewTexture(new SurfaceTexture(10));
+                            } catch (Exception f){
+                                Log.d(TAG, "Exception setting preview texture after picture error");
+                            }
+
+                            mCamera.startPreview();
+                            handledPicture = true;
                         }
                         //refreshCamera();
+                        //Update the time that the thread has to sleep, depends on the status of the last taken picture
                         updateSleepTime();
                         System.gc();
                     }
@@ -294,6 +267,7 @@ public class PatternDetector{
         takePic.start();
     }
 
+    //Update the sleep time for the takePic thread, increment is no picture is detected, otherwise decrement
     private void updateSleepTime(){
         //Decrement
         if(GlobalResources.getInstance().getDevice().getPosition().getFoundPattern() == true){
@@ -327,6 +301,7 @@ public class PatternDetector{
         System.gc();
     }
 
+    //Gets called when the system is calibrated & destroyed by Calibration class
     public void setPatternNull(){
         GlobalResources.getInstance().setPatternDetector(null);
     }
@@ -369,7 +344,6 @@ public class PatternDetector{
     private Tuple<PatternCoordinates, Mat> pair(){
 
         //Take a picture with the camera, this also handles the Mat objects
-        //mCamera.takePicture(null, null, jpegCallBack);
 
         Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
         switch(GlobalResources.getInstance().getImageSettings().getBackgroundMode()){

@@ -186,8 +186,6 @@ public class ArrowGame extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, " Arrow onResume called");
 
-        ownPositionTextView = (TextView) findViewById(R.id.ownPosition);
-        otherPositionTextView = (TextView) findViewById(R.id.otherPosition);
         hide();
 
         //Will continuously call the RunPatternDetector class

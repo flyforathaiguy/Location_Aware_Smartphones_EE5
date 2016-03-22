@@ -66,6 +66,7 @@ public class Calibration extends AppCompatActivity {
         Log.d(TAG, "Button pressed");
         if(firstPositionReceived == false){
             Log.d(TAG, "firstPos");
+            //Position is in centimeters
             firstPosition = GlobalResources.getInstance().getDevice().getPosition();
             if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getY())) {
 
