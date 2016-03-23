@@ -68,7 +68,7 @@ public class Calibration extends AppCompatActivity {
             Log.d(TAG, "firstPos");
             //Position is in centimeters
             firstPosition = GlobalResources.getInstance().getDevice().getPosition();
-            if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getY())) {
+            if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getZ())) {
 
                 firstPositionReceived = true;
                 Log.d(TAG, "First Coordinates in Calibration set: x= " + firstPosition.getX() + " y=" + firstPosition.getY() + " angle= " + firstPosition.getRotation());
@@ -78,7 +78,7 @@ public class Calibration extends AppCompatActivity {
             Log.d(TAG, "second pos");
             secondPosition = GlobalResources.getInstance().getDevice().getPosition();
 
-            if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getY())) {
+            if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getZ())) {
 
                 Log.d(TAG, "Second Coordinates in Calibration set: x= " + secondPosition.getX() + " y=" + secondPosition.getY() + " angle= " + secondPosition.getRotation());
 
@@ -96,19 +96,22 @@ public class Calibration extends AppCompatActivity {
     private void calculateCamOffset(){
         double xCenter, yCenter;
 
-        xCenter = (firstPosition.getX() + secondPosition.getX())/2;
-        yCenter = (firstPosition.getY() + secondPosition.getY())/2;
+        //xCenter = (firstPosition.getX() + secondPosition.getX())/2;
+        //yCenter = (firstPosition.getY() + secondPosition.getY())/2;
+        Log.d(TAG, "Cali Positions");
+        Log.d(TAG, "First: x= " + firstPosition.getX() + " y= " + firstPosition.getY());
+        Log.d(TAG, "Second: x= " + secondPosition.getX() + " y= " + secondPosition.getY());
 
         //Determine if the camera is on the left or right side of the phone
 
-        //Left side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
+        //Right side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            xCenter = -Math.abs(firstPosition.getX() - xCenter);
+            xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            //this means the camera is on the right side of the phone
-            xCenter = Math.abs(firstPosition.getX() - xCenter);
+            //this means the camera is on the left side of the phone
+            xCenter = -Math.abs((firstPosition.getX() - secondPosition.getX())/2);
         }
 
         else{
@@ -116,10 +119,11 @@ public class Calibration extends AppCompatActivity {
             xCenter = 0;
         }
 
-        yCenter = Math.abs(firstPosition.getY() - yCenter);
+        yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+        //yCenter = Math.abs(firstPosition.getY() - yCenter);
 
-        GlobalResources.getInstance().setCamXoffset(xCenter);
-        GlobalResources.getInstance().setCamYoffset(yCenter);
+        GlobalResources.getInstance().setCamXoffset(yCenter);
+        GlobalResources.getInstance().setCamYoffset(xCenter);
 
         GlobalResources.getInstance().setCalibrated(true);
 

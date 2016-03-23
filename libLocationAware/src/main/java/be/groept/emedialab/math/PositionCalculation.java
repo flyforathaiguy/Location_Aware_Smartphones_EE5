@@ -63,16 +63,19 @@ public class PositionCalculation {
         double zCoordinate = fieldOfViewX / (2 * Math.tan(Math.toRadians(phiX / 2)));
 
         Point centerPattern = calculateCenterPattern();
+        Log.d(TAG, "First: x= " + centerPattern.x + " y= " + centerPattern.y);
 
         //Set the origin of the coordinate system of the image in the center of the sensor
         //X should be the largest value, Y the smallest
-        Log.d(TAG, "Picture Width: " + GlobalResources.getInstance().getPictureWidth());
-        Log.d(TAG, "Picture Height: " + GlobalResources.getInstance().getPictureHeight());
         centerPattern.x -= GlobalResources.getInstance().getPictureWidth()/2;
         centerPattern.y -= GlobalResources.getInstance().getPictureHeight()/2;
+        Log.d(TAG, "Second: x= " + centerPattern.x + " y= " + centerPattern.y);
 
-        //Flip over y-axis
-        //centerPattern.y *= -1;
+        //Flip over y-axis & x-axis
+        centerPattern.x *= -1;
+        centerPattern.y *= -1;
+        Log.d(TAG, "Third: x= " + centerPattern.x + " y= " + centerPattern.y);
+        //Log.d(TAG, "ScaleFactor: "+ scaleFactor);
 
         //Factor in screen offset
         /*
@@ -87,7 +90,7 @@ public class PositionCalculation {
         if(GlobalResources.getInstance().getCalibrated()) {
             Log.d(TAG, "Used calibrated offset");
             Log.d(TAG, "X offset: cm: " + GlobalResources.getInstance().getCamXoffset() + " pixel: " + GlobalResources.getInstance().getCamXoffset()/scaleFactor);
-            Log.d(TAG, "Y offset: cm: " + GlobalResources.getInstance().getCamYoffset() + "pixel: "  + GlobalResources.getInstance().getCamYoffset()/scaleFactor);
+            Log.d(TAG, "Y offset: cm: " + GlobalResources.getInstance().getCamYoffset() + " pixel: "  + GlobalResources.getInstance().getCamYoffset()/scaleFactor);
             centerPattern.x -= (GlobalResources.getInstance().getCamXoffset()/scaleFactor);
             centerPattern.y -= (GlobalResources.getInstance().getCamYoffset()/scaleFactor);
         }
@@ -99,6 +102,7 @@ public class PositionCalculation {
         double ex = (CameraConstants.getInstance().getEx() / CameraConstants.getInstance().getHeight()) * zCoordinate;
         double ey = (CameraConstants.getInstance().getEy() / CameraConstants.getInstance().getHeight()) * zCoordinate;
         */
+
         double ex = 0;
         double ey = 0;
         Point translated = new Point(
@@ -114,8 +118,9 @@ public class PositionCalculation {
         //Convert pixel values to real values
         double xCoordinate = rotated.x * scaleFactor;
         double yCoordinate = rotated.y * scaleFactor;
+        Log.d(TAG, "Fourth: x= " + xCoordinate + " y= " + yCoordinate);
 
-        return new Point3D(-xCoordinate, -yCoordinate, zCoordinate);
+        return new Point3D(xCoordinate, yCoordinate, zCoordinate);
     }
 
     private void initPixelValues(PatternCoordinates patternCoordinates){
@@ -152,6 +157,7 @@ public class PositionCalculation {
     //TODO: this is called twice every run (once by PositionCalculation.patternToReal, once by PatternDetector.calculateCoordinates)
     public double calculateRotation(PatternCoordinates pixelPatternCoordinates){
 
+        /*
         Point corner1 = pixelPatternCoordinates.getNum(1);
         Point corner2 = pixelPatternCoordinates.getNum(2);
         Point corner3 = pixelPatternCoordinates.getNum(3);
@@ -192,53 +198,62 @@ public class PositionCalculation {
 
         double rotationAngle= Math.toDegrees(Math.atan2(sin, cos));
 
-        rotationAngle = (rotationAngle + 360 - 90)%360;
+        rotationAngle = (rotationAngle + 360)%360;
 
         return rotationAngle;
+    */
 
 
-        /*
         Point corner1 = pixelPatternCoordinates.getNum(1);
         Point corner2 = pixelPatternCoordinates.getNum(2);
         Point corner3 = pixelPatternCoordinates.getNum(3);
         Point corner4 = pixelPatternCoordinates.getNum(4);
-        Log.d(TAG, "4 points calc rotation: 1: " + corner1 + " 2: " + corner2 + " 3: " + corner3 + " 4: " + corner4);
+        //Log.d(TAG, "4 points calc rotation: 1: " + corner1 + " 2: " + corner2 + " 3: " + corner3 + " 4: " + corner4);
 
         //Calculate rotation with the x-axis of the image coordinate system with the horizontal sides of the pattern
-        Vector xAxis = new Vector(GlobalResources.getInstance().getPictureWidth(), 0);
+        Vector xAxis = new Vector(-GlobalResources.getInstance().getPictureWidth(), 0);
         Vector side14 = new Vector(corner4.x - corner1.x, corner4.y - corner1.y);
         Vector side23 = new Vector(corner3.x - corner2.x, corner3.y - corner2.y);
 
         double cos14 = side14.dotProduct(xAxis)/(side14.getLength() * xAxis.getLength());
         double cos23 = side23.dotProduct(xAxis)/(side23.getLength() * xAxis.getLength());
-        Log.d(TAG, "cos14: " + cos14);
-        Log.d(TAG, "cos23: " + cos23);
+        //Log.d(TAG, "cos14: " + cos14);
+        //Log.d(TAG, "cos23: " + cos23);
 
         //Calculate rotation with the y-axis of the image coordinate system with the vertical sides of the pattern
         //Needs to be -480 because we flipped the y-axis
-        Vector yAxis = new Vector(0, -GlobalResources.getInstance().getPictureHeight());
+        Vector yAxis = new Vector(0, GlobalResources.getInstance().getPictureHeight());
         Vector side12 = new Vector(corner2.x - corner1.x, corner2.y - corner1.y);
         Vector side43 = new Vector(corner3.x - corner4.x, corner3.y - corner4.y);
 
         double cos12 = side12.dotProduct(yAxis)/(side12.getLength() * yAxis.getLength());
         double cos43 = side43.dotProduct(yAxis)/(side43.getLength() * yAxis.getLength());
 
-        Log.d(TAG, "cos12: " + cos12);
-        Log.d(TAG, "cos43: " + cos43);
+        //Log.d(TAG, "cos12: " + cos12);
+        //Log.d(TAG, "cos43: " + cos43);
 
         double cos = (cos14 + cos23 + cos12 + cos43)/4;
 
-        Log.d(TAG, "cos: " + cos);
+        //Log.d(TAG, "cos: " + cos);
 
         double rotationAngle;
-        if(corner4.y > corner1.y)
-            rotationAngle = 360 - Math.toDegrees(Math.acos(cos));
-        else
-            rotationAngle = Math.toDegrees(Math.acos(cos));
 
-        Log.d(TAG, "Rotation " + rotationAngle);
+        if(corner4.y > corner1.y){
+            rotationAngle = (90 + 360 - Math.toDegrees(Math.acos(cos)))%360;
+            //Log.d(TAG, "Angle 1");
+        }
+
+        else {
+            rotationAngle = Math.toDegrees(Math.acos(cos));
+            rotationAngle+=90;
+            //Log.d(TAG, "Angle 2");
+        }
+
+        //rotationAngle = (Math.toDegrees(Math.acos(cos)) + 90 + 360)%360;
+
+        //Log.d(TAG, "Rotation " + rotationAngle);
 
         return rotationAngle;
-        */
+
     }
 }

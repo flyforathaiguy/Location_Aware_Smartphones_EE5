@@ -3,8 +3,10 @@ package be.groept.emedialab.image_manipulation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,17 +21,21 @@ import be.groept.emedialab.util.Point3D;
 import be.groept.emedialab.util.Tuple;
 
 import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 //import org.opencv.highgui.Highgui;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +43,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import static org.opencv.imgproc.Imgproc.warpAffine;
 
 /**
  * Grabs frames from the camera and gives them to the Pattern Detection Algorithm.
@@ -129,7 +137,7 @@ public class PatternDetector{
             //Getting & Setting Camera parameters
             Camera.Parameters param = mCamera.getParameters();
              param.set("orientation", "landscape");
-             param.set("rotation", 180);
+             param.set("rotation", 90);
 
             mCamera.setParameters(param);
         } catch (IOException e){
@@ -154,32 +162,9 @@ public class PatternDetector{
                 }
                 */
                // Log.d(TAG, "Current focus mode: " + mCamera.getParameters().getFocusMode());
-               // Log.d(TAG, "onPictureTaken called");
-
-                Log.d(TAG, "Horizontal view: " + (mCamera.getParameters().getHorizontalViewAngle()));
-                Log.d(TAG, "Vertical view: " + (mCamera.getParameters().getVerticalViewAngle()));
-
+                //Log.d(TAG, "onPictureTaken called");
 
                 mCamera.stopPreview();
-
-                //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
-                /*
-                if(picCount >=19) {
-                    picCount = 0;
-                    FileOutputStream outStream = null;
-                    try {
-                        String dir_path = "";// set your directory path here
-                        outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", System.currentTimeMillis()));
-                        outStream.write(data);
-                        outStream.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                picCount++;
-                */
 
                 //Create Mat Object from data
                 try{
@@ -191,14 +176,12 @@ public class PatternDetector{
                     Log.d(TAG, "Camera width: " + GlobalResources.getInstance().getPictureWidth());
                     Log.d(TAG, "Camera height: " + GlobalResources.getInstance().getPictureHeight());
                     */
-                    if(cameraNum ==1){
                         /*
                         0 = X-axis
                         1 = Y-axis
                         -1 = Y-axis & X-axis
                          */
-                        //Core.flip(rgba, rgba, 1);
-                    }
+                    Core.flip(rgba, rgba,1);
 
                     // Convert to grey-scale.
                     Imgproc.cvtColor(rgba, grey, Imgproc.COLOR_RGB2GRAY);
@@ -207,6 +190,69 @@ public class PatternDetector{
                 } catch (Exception e){
                     Log.d(TAG, "Exception in Mat: " + e.toString() + " message: " + e.getMessage());
                 }
+
+
+                //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
+
+                if(picCount >=5) {
+                    picCount = 0;
+                    FileOutputStream outStream = null;
+                    long time = System.currentTimeMillis();
+                    try {
+                        String dir_path = "";// set your directory path here
+                        outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", time));
+                        outStream.write(data);
+                        outStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    /*
+                    BufferedImage gray = new BufferedImage(rgba.width(), rgba.height(), BufferedImage.TYPE_BYTE_GRAY);
+
+                    // Get the BufferedImage's backing array and copy the pixels directly into it
+                    byte[] data = ((DataBufferByte) gray.getRaster().getDataBuffer()).getData();
+
+
+                    Mat image = Imgcodecs.imread("/Users/Sumit/Desktop/image.jpg");
+
+                    MatOfByte bytemat = new MatOfByte();
+
+                    Imgcodecs.imencode(".jpg", image, bytemat);
+
+                    byte[] bytes = bytemat.toArray();
+
+                    InputStream in = new ByteArrayInputStream(bytes);
+
+                    BufferedImage img = Imgcodecs.ImageIO.read(in);
+                    */
+
+                    Bitmap scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(rgba, scale);
+                    saveBitmap(scale, time);
+
+
+                    /*
+                    //Convert Mat's into Bitmap
+                    Bitmap tmp = Bitmap.createBitmap(rgba.rows(), rgba.cols(),
+                    Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(rgba, tmp);
+                    saveBitmap(tmp, time, 1);
+
+                    tmp = Bitmap.createBitmap(grey.rows(), grey.cols(),
+                    Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(grey, tmp);
+                    saveBitmap(tmp, time, 2);
+
+                    tmp = Bitmap.createBitmap(binary.rows(), binary.cols(),
+                    Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(binary, tmp);
+                    saveBitmap(tmp, time, 3);
+                    */
+                 }
+                picCount++;
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
@@ -255,6 +301,7 @@ public class PatternDetector{
                         //Update the time that the thread has to sleep, depends on the status of the last taken picture
                         updateSleepTime();
                         System.gc();
+                        //Log.d(TAG, "Sleeptime:" + sleepTime);
                     }
                     try {
                         this.sleep(sleepTime);
@@ -266,6 +313,23 @@ public class PatternDetector{
         };
         takePic.start();
     }
+
+
+    public void saveBitmap(Bitmap bm, float time)
+    {
+        try
+        {
+            FileOutputStream stream = new FileOutputStream((String.format("/sdcard/DCIM/Camera/%f.jpg", time + 1)));
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            stream.flush();
+            stream.close();
+        }
+        catch(Exception e)
+        {
+            Log.d(TAG, "Could not save" + e.toString());
+        }
+    }
+
 
     //Update the sleep time for the takePic thread, increment is no picture is detected, otherwise decrement
     private void updateSleepTime(){
