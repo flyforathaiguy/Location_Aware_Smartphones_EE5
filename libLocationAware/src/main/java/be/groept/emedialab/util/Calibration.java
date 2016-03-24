@@ -33,6 +33,8 @@ public class Calibration extends AppCompatActivity {
 
     private static final String TAG = "ArrowGame";
 
+    //Handler receives information about the device's own position.
+    //Has to happen via a handler since other threads cannot write to UI.
     Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg){
@@ -62,6 +64,7 @@ public class Calibration extends AppCompatActivity {
         text.setText(String.format("Own Location: (%.2f, %.2f, %.2f) %.1f°", position.getX(), position.getY(), position.getZ(), position.getRotation()));
     }
 
+    //Calibration procedure. Button is pressed twice, both time positions are saved to calibrate with
     public void calibrate(View v){
         Log.d(TAG, "Button pressed");
         if(firstPositionReceived == false){
@@ -117,11 +120,11 @@ public class Calibration extends AppCompatActivity {
         }
 
         xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
-        //yCenter = Math.abs(firstPosition.getY() - yCenter);
 
         GlobalResources.getInstance().setCamXoffset(yCenter);
         GlobalResources.getInstance().setCamYoffset(xCenter);
 
+        //Set the Calibration to true, so the calibrated offset will be used in PositionCalculation
         GlobalResources.getInstance().setCalibrated(true);
 
         finish();
@@ -141,6 +144,7 @@ public class Calibration extends AppCompatActivity {
         if(GlobalResources.getInstance().getPatternDetector() != null) {
                 GlobalResources.getInstance().getPatternDetector().destroy();
         }
+        //If the system is calibrated & onPause is called --> means the Activity is being killed --> Set PatternDetector to Null so the ArrowGame onResume thread can make a new one
         if(GlobalResources.getInstance().getCalibrated())
             GlobalResources.getInstance().getPatternDetector().setPatternNull();
     }
