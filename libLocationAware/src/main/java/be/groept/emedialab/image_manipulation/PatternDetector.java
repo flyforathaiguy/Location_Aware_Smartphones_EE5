@@ -193,7 +193,7 @@ public class PatternDetector{
 
 
                 //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
-
+                /*
                 if(picCount >=20) {
                     picCount = 0;
                     FileOutputStream outStream = null;
@@ -224,7 +224,7 @@ public class PatternDetector{
 
                 }
                 picCount++;
-
+                */
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
