@@ -194,7 +194,7 @@ public class PatternDetector{
 
                 //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
 
-                if(picCount >=5) {
+                if(picCount >=20) {
                     picCount = 0;
                     FileOutputStream outStream = null;
                     long time = System.currentTimeMillis();
@@ -209,50 +209,22 @@ public class PatternDetector{
                         e.printStackTrace();
                     }
 
-                    /*
-                    BufferedImage gray = new BufferedImage(rgba.width(), rgba.height(), BufferedImage.TYPE_BYTE_GRAY);
-
-                    // Get the BufferedImage's backing array and copy the pixels directly into it
-                    byte[] data = ((DataBufferByte) gray.getRaster().getDataBuffer()).getData();
-
-
-                    Mat image = Imgcodecs.imread("/Users/Sumit/Desktop/image.jpg");
-
-                    MatOfByte bytemat = new MatOfByte();
-
-                    Imgcodecs.imencode(".jpg", image, bytemat);
-
-                    byte[] bytes = bytemat.toArray();
-
-                    InputStream in = new ByteArrayInputStream(bytes);
-
-                    BufferedImage img = Imgcodecs.ImageIO.read(in);
-                    */
-
+                    //Convert Mat's into Bitmap
                     Bitmap scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
                     Utils.matToBitmap(rgba, scale);
-                    saveBitmap(scale, time);
+                    saveBitmap(scale, time, 1);
 
+                    scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(rgba, scale);
+                    saveBitmap(scale, time, 2);
 
-                    /*
-                    //Convert Mat's into Bitmap
-                    Bitmap tmp = Bitmap.createBitmap(rgba.rows(), rgba.cols(),
-                    Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(rgba, tmp);
-                    saveBitmap(tmp, time, 1);
+                    scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(rgba, scale);
+                    saveBitmap(scale, time, 3);
 
-                    tmp = Bitmap.createBitmap(grey.rows(), grey.cols(),
-                    Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(grey, tmp);
-                    saveBitmap(tmp, time, 2);
-
-                    tmp = Bitmap.createBitmap(binary.rows(), binary.cols(),
-                    Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(binary, tmp);
-                    saveBitmap(tmp, time, 3);
-                    */
-                 }
+                }
                 picCount++;
+
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
@@ -300,9 +272,7 @@ public class PatternDetector{
                         //refreshCamera();
                         //Update the time that the thread has to sleep, depends on the status of the last taken picture
                         updateSleepTime();
-                        System.gc();
-                        //Log.d(TAG, "Sleeptime:" + sleepTime);
-                    }
+                        System.gc();                    }
                     try {
                         this.sleep(sleepTime);
                     } catch (Exception e){
@@ -315,11 +285,11 @@ public class PatternDetector{
     }
 
 
-    public void saveBitmap(Bitmap bm, float time)
+    public void saveBitmap(Bitmap bm, float time, int num)
     {
         try
         {
-            FileOutputStream stream = new FileOutputStream((String.format("/sdcard/DCIM/Camera/%f.jpg", time + 1)));
+            FileOutputStream stream = new FileOutputStream((String.format("/sdcard/DCIM/Camera/%f.jpg", time + num)));
             bm.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             stream.flush();
             stream.close();

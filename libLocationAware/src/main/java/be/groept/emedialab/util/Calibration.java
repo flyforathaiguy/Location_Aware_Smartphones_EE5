@@ -96,14 +96,11 @@ public class Calibration extends AppCompatActivity {
     private void calculateCamOffset(){
         double xCenter, yCenter;
 
-        //xCenter = (firstPosition.getX() + secondPosition.getX())/2;
-        //yCenter = (firstPosition.getY() + secondPosition.getY())/2;
         Log.d(TAG, "Cali Positions");
         Log.d(TAG, "First: x= " + firstPosition.getX() + " y= " + firstPosition.getY());
         Log.d(TAG, "Second: x= " + secondPosition.getX() + " y= " + secondPosition.getY());
 
         //Determine if the camera is on the left or right side of the phone
-
         //Right side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
