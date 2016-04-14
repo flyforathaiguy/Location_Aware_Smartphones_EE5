@@ -70,6 +70,7 @@ public class PatternDetector{
     private boolean handledPicture = true;
     private boolean runRunnable = true;
     private int sleepTime = 300;
+    private int noPicCount = 0;
 
     private Camera.PictureCallback jpegCallBack;
     private Camera.AutoFocusCallback autoFocusCallback;
@@ -251,8 +252,9 @@ public class PatternDetector{
         Thread takePic = new Thread(){
             public void run(){
                 while(runRunnable) {
-                    if(handledPicture) {
+                    if(handledPicture || noPicCount > 30) {
                         handledPicture = false;
+                        noPicCount = 0;
                         try {
                             mCamera.takePicture(null, null, jpegCallBack);
                         } catch (Exception e){
@@ -274,6 +276,7 @@ public class PatternDetector{
                         //Update the time that the thread has to sleep, depends on the status of the last taken picture
                         updateSleepTime();
                         System.gc();                    }
+                    else noPicCount++;
                     try {
                         this.sleep(sleepTime);
                     } catch (Exception e){

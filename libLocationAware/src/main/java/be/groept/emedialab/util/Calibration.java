@@ -28,7 +28,7 @@ public class Calibration extends AppCompatActivity {
 
     private Position firstPosition, secondPosition = null;
     private boolean firstPositionReceived = false;
-    private double angle;
+    private double angle, wantedAngle;
     private TextView text, feedbackText;
     private Button button;
 
@@ -65,12 +65,17 @@ public class Calibration extends AppCompatActivity {
     public void updatePosition(Position position){
         text.setText(String.format(R.string.CalibrateOwnPosition + " (%.2f, %.2f, %.2f) %.1f°", position.getX(), position.getY(), position.getZ(), position.getRotation()));
 
-        angle = Math.abs(firstPosition.getRotation() - secondPosition.getRotation());
-        feedbackText.setText(String.format(R.string.CalibrateFeedback + "\n%.1f°", angle));
-        if(angle < 1.5)
-            feedbackText.setTextColor(Color.parseColor("green"));
-        else
-            feedbackText.setTextColor(Color.parseColor("red"));
+        if(firstPosition != null) {
+
+            wantedAngle = (firstPosition.getRotation() + 180)%360;
+
+            angle = Math.min(Math.abs(wantedAngle - position.getRotation()), Math.abs(360 - Math.abs(wantedAngle - position.getRotation())));
+            feedbackText.setText(String.format(R.string.CalibrateFeedback + "\n%.1f°", angle));
+            if (angle < 1.5)
+                feedbackText.setTextColor(Color.parseColor("green"));
+            else
+                feedbackText.setTextColor(Color.parseColor("red"));
+        }
     }
 
     //Calibration procedure. Button is pressed twice, both time positions are saved to calibrate with
@@ -93,7 +98,7 @@ public class Calibration extends AppCompatActivity {
             if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getZ())) {
 
                 //Difference in angles should not be greater than 1.5°
-                if(Math.abs(firstPosition.getRotation() - secondPosition.getRotation()) < 1.5) {
+                if(Math.min(Math.abs(wantedAngle - secondPosition.getRotation()), Math.abs(360 - Math.abs(wantedAngle - secondPosition.getRotation()))) < 1.5) {
                     Log.d(TAG, "Second Coordinates in Calibration set: x= " + secondPosition.getX() + " y=" + secondPosition.getY() + " angle= " + secondPosition.getRotation());
 
                     calculateCamOffset();
@@ -138,6 +143,7 @@ public class Calibration extends AppCompatActivity {
 
         //Set the Calibration to true, so the calibrated offset will be used in PositionCalculation
         GlobalResources.getInstance().setCalibrated(true);
+        GlobalResources.getInstance().setCalibrationHandler(null);
 
         finish();
         Log.d(TAG, "Calculated camOffset");
