@@ -62,5 +62,8 @@
     <string name="start">Start</string>
     <string name="title_activity_calibration">Calibration</string>
     <string name="hello_world">Hello world!</string>
+    <string name="CalibrateOwnPosition">Own Position:</string>
+    <string name="CalibrateButton">Calibrate</string>
+    <string name="CalibrateFeedback">Degrees to turn:</string>
 
 </resources>

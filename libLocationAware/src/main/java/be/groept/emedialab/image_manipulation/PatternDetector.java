@@ -138,6 +138,7 @@ public class PatternDetector{
             Camera.Parameters param = mCamera.getParameters();
              param.set("orientation", "landscape");
              param.set("rotation", 90);
+             param.setSceneMode(Camera.Parameters.SCENE_MODE_HDR);
 
             mCamera.setParameters(param);
         } catch (IOException e){

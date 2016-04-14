@@ -10,7 +10,8 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.highgui.Highgui;
+//import org.opencv.highgui.Highgui;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
@@ -151,7 +152,7 @@ public class PatternDetectorAlgorithmTest extends AndroidTestCase {
 
         File file = new File(getContext().getFilesDir() + "/" + filename);
 
-        return Highgui.imread(file.getAbsolutePath(), Highgui.CV_LOAD_IMAGE_COLOR);
+        return Imgcodecs.imread(file.getAbsolutePath(), Imgcodecs.CV_LOAD_IMAGE_COLOR);
     }
 
     /**

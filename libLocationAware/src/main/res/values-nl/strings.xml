@@ -47,6 +47,9 @@
     <string name="waiting_for_friends">Wachten op vrienden</string>
     <string name="waiting_for_game_start">Connectie gemaakt met de server\nWachten voor de start!</string>
     <string name="start">Start</string>
+    <string name="CalibrateOwnPosition">Eigen Positie:</string>
+    <string name="CalibrateButton">Calibreer</string>
+    <string name="CalibrateFeedback">Aantal graden nog te draaien:</string>
     <plurals name="numberOfDevicesNeeded">
         <item quantity="one">Je moet nog %d toestel verbinden</item>
         <item quantity="other">Je moet nog %d toestellen verbinden</item>
