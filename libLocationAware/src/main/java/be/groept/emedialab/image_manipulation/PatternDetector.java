@@ -252,7 +252,7 @@ public class PatternDetector{
         Thread takePic = new Thread(){
             public void run(){
                 while(runRunnable) {
-                    if(handledPicture || noPicCount > 30) {
+                    if(handledPicture) {
                         handledPicture = false;
                         noPicCount = 0;
                         try {
@@ -272,11 +272,28 @@ public class PatternDetector{
                             mCamera.startPreview();
                             handledPicture = true;
                         }
-                        //refreshCamera();
                         //Update the time that the thread has to sleep, depends on the status of the last taken picture
                         updateSleepTime();
-                        System.gc();                    }
+                        System.gc();
+                    }
                     else noPicCount++;
+
+                    //Possible the camera has encountered an error --> reset it
+                    if(noPicCount > 30){
+                        mCamera.stopPreview();
+                        mCamera.release();
+
+                        mCamera.open(cameraNum);
+
+                        try {
+                            mCamera.setPreviewTexture(new SurfaceTexture(10));
+                        } catch (Exception e){
+                            Log.d(TAG, "Exception setting preview texture)");
+                        }
+                        mCamera.startPreview();
+                        noPicCount = 0;
+
+                    }
                     try {
                         this.sleep(sleepTime);
                     } catch (Exception e){
