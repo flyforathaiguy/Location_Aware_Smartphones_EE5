@@ -63,14 +63,14 @@ public class Calibration extends AppCompatActivity {
     }
 
     public void updatePosition(Position position){
-        text.setText(String.format(R.string.CalibrateOwnPosition + " (%.2f, %.2f, %.2f) %.1f°", position.getX(), position.getY(), position.getZ(), position.getRotation()));
+        text.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", R.string.CalibrateOwnPosition, position.getX(), position.getY(), position.getZ(), position.getRotation()));
 
         if(firstPosition != null) {
 
             wantedAngle = (firstPosition.getRotation() + 180)%360;
 
             angle = Math.min(Math.abs(wantedAngle - position.getRotation()), Math.abs(360 - Math.abs(wantedAngle - position.getRotation())));
-            feedbackText.setText(String.format(R.string.CalibrateFeedback + "\n%.1f°", angle));
+            feedbackText.setText(String.format("%s \n%.1f°",R.string.CalibrateFeedback, angle));
             if (angle < 1.5)
                 feedbackText.setTextColor(Color.parseColor("green"));
             else
