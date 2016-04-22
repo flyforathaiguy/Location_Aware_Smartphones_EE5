@@ -23,6 +23,7 @@ public class RunPatternDetector {
 
     private Activity activity;
     private static final String TAG = "ArrowGame";
+    PatternDetector patternDetector = null;
 
     public RunPatternDetector(Activity activity){
         this.activity = activity;
@@ -63,7 +64,7 @@ public class RunPatternDetector {
 
     @SuppressWarnings("deprecation")
     private void setupPatternDetector(){
-        PatternDetector patternDetector = null;
+        patternDetector = null;
         try{
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
             double patternWidthCm = Double.parseDouble(sharedPref.getString("pattern_size", "18"));
@@ -86,14 +87,20 @@ public class RunPatternDetector {
         } catch (RuntimeException e){
             e.printStackTrace();
         }
-        setupCamera(patternDetector);
+        setupCamera();
     }
 
-    private void setupCamera(PatternDetector patternDetector){
+    private void setupCamera(){
         Log.d(TAG, "RunPatternDetector setupCamera");
         if(patternDetector != null){
             Log.d(TAG, "RunPatternDetector calling patternDetector setup");
-            patternDetector.setup();
+            Thread patternThread = new Thread() {
+                public void run() {
+                    patternDetector.setup();
+                }
+            };
+            patternThread.start();
+
             //Check if the system is calibrated
             Log.d(TAG, "calibrated =" + GlobalResources.getInstance().getCalibrated());
             if (GlobalResources.getInstance().getCalibrated() == false){
