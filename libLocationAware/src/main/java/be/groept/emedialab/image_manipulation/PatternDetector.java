@@ -1,51 +1,30 @@
 package be.groept.emedialab.image_manipulation;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.os.Environment;
-import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 
-import be.groept.emedialab.R;
 import be.groept.emedialab.math.PositionCalculation;
 import be.groept.emedialab.movement.MovementAccelerometer;
 import be.groept.emedialab.server.data.Position;
-import be.groept.emedialab.util.Calibration;
 import be.groept.emedialab.util.GlobalResources;
 import be.groept.emedialab.util.Point3D;
 import be.groept.emedialab.util.Tuple;
 
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-//import org.opencv.highgui.Highgui;
 import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-
-import static org.opencv.imgproc.Imgproc.warpAffine;
 
 /**
  * Grabs frames from the camera and gives them to the Pattern Detection Algorithm.
@@ -69,21 +48,14 @@ public class PatternDetector{
     private boolean isPaused = false;
     private ArrayList<Long> averageTime = new ArrayList<>();
     private boolean handledPicture = true;
-    private boolean runRunnable = true;
+    private boolean runThread = true;
     private int sleepTime = 300;
     private int noPicCount = 0;
-
     private Camera.PictureCallback jpegCallBack;
-    private Camera.AutoFocusCallback autoFocusCallback;
 
     private Mat rgba, grey, binary;
-
-    /**
-     * Indicates which camera should be used.
-     * '0' = back facing camera.
-     * '1' = front facing camera.
-     */
     private int cameraNum = 1;
+    private boolean debug = true;
 
     //for debugging purposes
     private int picCount = 0;
@@ -125,7 +97,7 @@ public class PatternDetector{
             mCamera = null;
         }
 
-        Log.d(TAG, "runRunnable = true");
+        Log.d(TAG, "runThread = true");
 
         mCamera = Camera.open(cameraNum);
 
@@ -158,35 +130,12 @@ public class PatternDetector{
         jpegCallBack = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera)
             {
-                /*
-                List<String> supportedFocusModes = mCamera.getParameters().getSupportedFocusModes();
-                Log.d(TAG, "Focus mode: \n");
-                for(int i = 0; i < supportedFocusModes.size();i ++){
-                    Log.d(TAG, supportedFocusModes.get(i) + "\n");
-
-                }
-                */
-               // Log.d(TAG, "Current focus mode: " + mCamera.getParameters().getFocusMode());
-                //Log.d(TAG, "onPictureTaken called");
-
                 mCamera.stopPreview();
 
                 //Create Mat Object from data
                 try{
                     //Convert the picture to a Mat object
                     rgba = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
-
-                    /*
-                    Log.d(TAG, "Mat width: " + rgba.width());
-                    Log.d(TAG, "Mat height: " + rgba.height());
-                    Log.d(TAG, "Camera width: " + GlobalResources.getInstance().getPictureWidth());
-                    Log.d(TAG, "Camera height: " + GlobalResources.getInstance().getPictureHeight());
-                    */
-                        /*
-                        0 = X-axis
-                        1 = Y-axis
-                        -1 = Y-axis & X-axis
-                         */
                     Core.flip(rgba, rgba,1);
 
                     // Convert to grey-scale.
@@ -197,40 +146,39 @@ public class PatternDetector{
                     Log.d(TAG, "Exception in Mat: " + e.toString() + " message: " + e.getMessage());
                 }
 
+                //For debugging: write the taken picture to the SD card (1 out of every 21 pics)
+                if(debug) {
+                    if (picCount >= 20) {
+                        picCount = 0;
+                        FileOutputStream outStream = null;
+                        long time = System.currentTimeMillis();
+                        try {
+                            String dir_path = "";// set your directory path here
+                            outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", time));
+                            outStream.write(data);
+                            outStream.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
+                        //Convert Mat's into Bitmap and then save them to the SD card
+                        Bitmap scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(rgba, scale);
+                        saveBitmap(scale, time, 1);
 
-                if(picCount >=20) {
-                    picCount = 0;
-                    FileOutputStream outStream = null;
-                    long time = System.currentTimeMillis();
-                    try {
-                        String dir_path = "";// set your directory path here
-                        outStream = new FileOutputStream(String.format("/sdcard/DCIM/Camera/%d.jpg", time));
-                        outStream.write(data);
-                        outStream.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(rgba, scale);
+                        saveBitmap(scale, time, 2);
+
+                        scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(rgba, scale);
+                        saveBitmap(scale, time, 3);
+
                     }
-
-                    //Convert Mat's into Bitmap
-                    Bitmap scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(rgba, scale);
-                    saveBitmap(scale, time, 1);
-
-                    scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(rgba, scale);
-                    saveBitmap(scale, time, 2);
-
-                    scale = Bitmap.createBitmap(rgba.width(), rgba.height(), Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(rgba, scale);
-                    saveBitmap(scale, time, 3);
-
+                    picCount++;
                 }
-                picCount++;
-
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
@@ -245,17 +193,16 @@ public class PatternDetector{
 
                 mCamera.startPreview();
                 handledPicture = true;
-
             }
         };
 
         mCamera.startPreview();
 
-        //Different thread, takes pictures & runs the pattern recognition, reruns for as long as runRunnable is true
+        //Different thread, takes pictures & runs the pattern recognition, reruns for as long as runThread is true
         //To not overload the camera, use the handledPicture variable
         Thread takePic = new Thread(){
             public void run(){
-                while(runRunnable) {
+                while(runThread) {
                     if(handledPicture) {
                         handledPicture = false;
                         noPicCount = 0;
@@ -282,7 +229,10 @@ public class PatternDetector{
                     }
                     else noPicCount++;
 
-                    //Possibly the camera has encountered an error --> reset it
+                    /*
+                    If there has not been taken a picture in a long time, it is possible that the camera has encountered and has to be reset.
+                    This happens here
+                     */
                     if(noPicCount > 40){
                         mCamera.stopPreview();
                         mCamera.release();
@@ -306,10 +256,12 @@ public class PatternDetector{
                 }
             }
         };
+        //Start the thread
         takePic.start();
     }
 
 
+    //Save the bitmap image to the SD card
     public void saveBitmap(Bitmap bm, float time, int num)
     {
         try
@@ -325,7 +277,6 @@ public class PatternDetector{
         }
     }
 
-
     //Update the sleep time for the takePic thread, increment is no picture is detected, otherwise decrement
     private void updateSleepTime(){
         //Decrement
@@ -336,7 +287,6 @@ public class PatternDetector{
             //Increment
             sleepTime = Math.min(1000, sleepTime + 50);
         }
-        //Log.d(TAG, "SleepTime: " + sleepTime);
     }
 
     /**
@@ -344,8 +294,7 @@ public class PatternDetector{
      */
     public void destroy(){
         Log.d(TAG, "onDestroy called");
-
-        runRunnable = false;
+        runThread = false;
 
             if (mCamera != null) {
                 mCamera.stopPreview();
@@ -355,8 +304,7 @@ public class PatternDetector{
         isPaused = true;
         // TODO stop executorService
 
-
-        Log.d(TAG, "runRunnable = false");
+        Log.d(TAG, "runThread = false");
         System.gc();
     }
 
@@ -401,7 +349,6 @@ public class PatternDetector{
     }
 
     private Tuple<PatternCoordinates, Mat> pair(){
-
         //Take a picture with the camera, this also handles the Mat objects
 
         Tuple<PatternCoordinates, Mat> patternAndImagePair = null;

@@ -62,6 +62,7 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCalibrationHandler(handler);
     }
 
+    //Update the position that is represented on the screen as user feedback
     public void updatePosition(Position position){
         text.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
 

@@ -59,7 +59,7 @@ public class RunPatternDetector {
             if(ci.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 return i;
         }
-        return -1;
+        return 1;
     }
 
     @SuppressWarnings("deprecation")
@@ -102,6 +102,7 @@ public class RunPatternDetector {
             patternThread.start();
 
             //Check if the system is calibrated
+            //If not, launch the calibration class with a new intent (UI thread)
             Log.d(TAG, "calibrated =" + GlobalResources.getInstance().getCalibrated());
             if (GlobalResources.getInstance().getCalibrated() == false){
                 Log.d(TAG, "Not Calibrated");
