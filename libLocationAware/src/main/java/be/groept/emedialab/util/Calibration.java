@@ -123,12 +123,12 @@ public class Calibration extends AppCompatActivity {
         //Determine if the camera is on the left or right side of the phone
         //Right side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            yCenter = -Math.abs((firstPosition.getY() - secondPosition.getY())/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             //this means the camera is on the left side of the phone
-            yCenter = -Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
         }
 
         else{

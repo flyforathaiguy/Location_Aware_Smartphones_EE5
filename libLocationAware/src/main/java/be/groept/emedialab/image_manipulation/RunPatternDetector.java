@@ -49,6 +49,18 @@ public class RunPatternDetector {
             setupPatternDetector();
     }
 
+    private int getFrontCamIndex(){
+        //Select camera
+        //If there is no front facing camera, use back camera
+        Camera.CameraInfo ci = new Camera.CameraInfo();
+        for(int i = 0; i < Camera.getNumberOfCameras(); i++){
+            Camera.getCameraInfo(i, ci);
+            if(ci.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                return i;
+        }
+        return -1;
+    }
+
     @SuppressWarnings("deprecation")
     private void setupPatternDetector(){
         PatternDetector patternDetector = null;
@@ -57,9 +69,7 @@ public class RunPatternDetector {
             double patternWidthCm = Double.parseDouble(sharedPref.getString("pattern_size", "18"));
             boolean newAlgorithm = sharedPref.getBoolean("new_algorithm", true);
 
-            //Select camera
-            //If there is no front facing camera, use back camera
-            int cameraSelection = (Camera.getNumberOfCameras() < 2) ? 0 : 1;
+            int cameraSelection = getFrontCamIndex();
 
             Camera camera = Camera.open(cameraSelection);
             Camera.Parameters params = camera.getParameters();
@@ -85,7 +95,7 @@ public class RunPatternDetector {
             Log.d(TAG, "RunPatternDetector calling patternDetector setup");
             patternDetector.setup();
             //Check if the system is calibrated
-
+            Log.d(TAG, "calibrated =" + GlobalResources.getInstance().getCalibrated());
             if (GlobalResources.getInstance().getCalibrated() == false){
                 Log.d(TAG, "Not Calibrated");
                 Log.d(TAG, "Made calibration class");

@@ -138,7 +138,7 @@ public class PatternDetectorAlgorithm implements PatternDetectorAlgorithmInterfa
                         RotatedRect rotatedInner = Imgproc.minAreaRect(mMOP2fInner);
 
                         // Check the ratio is proportional
-                        // double ratio = rotatedOuter.size.area()/rotatedInner.size.area();
+                        //double ratio = rotatedOuter.size.area()/rotatedInner.size.area();
                         double ratio = Imgproc.contourArea(outerContour) / Imgproc.contourArea(innerContour);
                         if((ratio > 4) && (ratio < 16)){
                             // Check if the inner square is inside the outer square
@@ -351,7 +351,7 @@ public class PatternDetectorAlgorithm implements PatternDetectorAlgorithmInterfa
     private List<MatOfPoint> getBigContours(List<MatOfPoint> contours){
         List<MatOfPoint> bigContours = new ArrayList<>();
         for(MatOfPoint contour : contours){
-            if(Imgproc.contourArea(contour) > 20){
+            if(Imgproc.contourArea(contour) > 10){
                 bigContours.add(contour);
             }
         }

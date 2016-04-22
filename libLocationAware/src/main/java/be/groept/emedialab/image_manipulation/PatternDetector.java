@@ -89,8 +89,10 @@ public class PatternDetector{
 
     public PatternDetector(int camera, boolean newAlgorithm) {
         if(newAlgorithm){
+            Log.d(TAG, "Old algorithm");
             patternDetectorAlgorithm = new PatternDetectorAlgorithm(5);
         }else{
+            Log.d(TAG, "New algorithm");
             patternDetectorAlgorithm = new PatternDetectorAlgorithmOld();
         }
         setCamera(camera);
@@ -195,7 +197,7 @@ public class PatternDetector{
 
 
                 //For debugging: write the taken picture to the SD card (1 out of every 20 pics)
-                /*
+
                 if(picCount >=20) {
                     picCount = 0;
                     FileOutputStream outStream = null;
@@ -226,7 +228,7 @@ public class PatternDetector{
 
                 }
                 picCount++;
-                */
+
 
                 //Handle the picture
                 Tuple<PatternCoordinates, Mat> patternAndImagePair = null;
@@ -278,8 +280,8 @@ public class PatternDetector{
                     }
                     else noPicCount++;
 
-                    //Possible the camera has encountered an error --> reset it
-                    if(noPicCount > 30){
+                    //Possibly the camera has encountered an error --> reset it
+                    if(noPicCount > 40){
                         mCamera.stopPreview();
                         mCamera.release();
 
@@ -288,7 +290,7 @@ public class PatternDetector{
                         try {
                             mCamera.setPreviewTexture(new SurfaceTexture(10));
                         } catch (Exception e){
-                            Log.d(TAG, "Exception setting preview texture)");
+                            Log.d(TAG, "Exception setting preview texture");
                         }
                         mCamera.startPreview();
                         noPicCount = 0;
@@ -310,7 +312,7 @@ public class PatternDetector{
     {
         try
         {
-            FileOutputStream stream = new FileOutputStream((String.format("/sdcard/DCIM/Camera/%f.jpg", time + num)));
+            FileOutputStream stream = new FileOutputStream((String.format("/sdcard/DCIM/Camera/%f.jpg", (time + num))));
             bm.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             stream.flush();
             stream.close();

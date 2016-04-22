@@ -103,12 +103,17 @@ public class PositionCalculation {
         double ey = (CameraConstants.getInstance().getEy() / CameraConstants.getInstance().getHeight()) * zCoordinate;
         */
 
+        /*
         double ex = 0;
         double ey = 0;
         Point translated = new Point(
                 centerPattern.x + ex,
                 centerPattern.y + ey
         );
+        */
+
+        Point translated = new Point(centerPattern.x, centerPattern.y);
+
         double rotation = calculateRotation(pattern);
         Point rotated = new Point(
                 translated.x * Math.cos(Math.toRadians(rotation)) + translated.y * Math.sin(Math.toRadians(rotation)),
