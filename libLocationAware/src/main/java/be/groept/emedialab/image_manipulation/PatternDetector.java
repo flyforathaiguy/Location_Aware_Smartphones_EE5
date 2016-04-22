@@ -32,6 +32,7 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -174,6 +175,7 @@ public class PatternDetector{
                 try{
                     //Convert the picture to a Mat object
                     rgba = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
+
                     /*
                     Log.d(TAG, "Mat width: " + rgba.width());
                     Log.d(TAG, "Mat height: " + rgba.height());

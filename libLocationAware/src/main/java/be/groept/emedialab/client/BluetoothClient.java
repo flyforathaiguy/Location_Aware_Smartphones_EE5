@@ -1,5 +1,6 @@
 package be.groept.emedialab.client;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
@@ -88,9 +89,14 @@ public class BluetoothClient extends AsyncTask<Void, String, Void> {
     public boolean start() throws ConnectionException {//invoking the thread's start()
         try {
             Log.i(TAG, "[ - ] Bluetooth connecting...");
-
             // Creating a socket by using the same UUID defined by the server.
             socket = device.createRfcommSocketToServiceRecord(UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"));
+
+            // Cancel discovery because it will slow down the connection
+            BluetoothAdapter mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+            mBluetoothAdapter.cancelDiscovery();
+
+
             socket.connect();//connecting to a partner device.
 
             if (socket.isConnected()) {
