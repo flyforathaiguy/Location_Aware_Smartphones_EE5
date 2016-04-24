@@ -65,5 +65,6 @@
     <string name="CalibrateOwnPosition">Own Position:</string>
     <string name="CalibrateButton">Calibrate</string>
     <string name="CalibrateFeedback">Degrees to turn:</string>
+    <string name="angleoffset">Set angle offset</string>
 
 </resources>

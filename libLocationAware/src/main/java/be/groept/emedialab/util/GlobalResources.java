@@ -60,6 +60,7 @@ public class GlobalResources {
     private Context v;
     private boolean calibrated = false;
     private int camPictureWidth, camPictureHeight;
+    private int angleOffset = 0;
 
     /**
      * Only Positions of other Devices.
@@ -460,5 +461,13 @@ public class GlobalResources {
 
     public Calibration getCalibration(){
         return this.cali;
+    }
+
+    public void setAngleOffset(int angle){
+        this.angleOffset = angle;
+    }
+
+    public int getAngleOffset(){
+        return this.angleOffset;
     }
 }

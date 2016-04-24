@@ -50,6 +50,7 @@
     <string name="CalibrateOwnPosition">Eigen Positie:</string>
     <string name="CalibrateButton">Calibreer</string>
     <string name="CalibrateFeedback">Aantal graden nog te draaien:</string>
+    <string name="angleoffset">Zet de hoek offset</string>
     <plurals name="numberOfDevicesNeeded">
         <item quantity="one">Je moet nog %d toestel verbinden</item>
         <item quantity="other">Je moet nog %d toestellen verbinden</item>
