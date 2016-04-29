@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import be.groept.emedialab.communications.ClientBluetoothConnection;
@@ -83,6 +84,7 @@ public class GlobalResources {
     private PatternDetector patternDetector = null;
     private Mat image = null;
     private Calibration cali;
+    private List<String> receivedList = new ArrayList<>();
 
     private ImageSettings imageSettings = new ImageSettings();
 
@@ -97,7 +99,7 @@ public class GlobalResources {
      * calls this functions, other threads block until the first thread is finished.
      * @return The singleton of GlobalResources
      */
-    public static synchronized GlobalResources getInstance(){
+    public synchronized static GlobalResources getInstance(){
         if(instance == null){
             instance = new GlobalResources();
         }
@@ -401,6 +403,14 @@ public class GlobalResources {
 
     public Mat getImage(){
         return image;
+    }
+
+    public void addReceivedList(String address){
+        receivedList.add(address);
+    }
+
+    public List<String> getReceivedList(){
+        return this.receivedList;
     }
 
     public ImageSettings getImageSettings(){

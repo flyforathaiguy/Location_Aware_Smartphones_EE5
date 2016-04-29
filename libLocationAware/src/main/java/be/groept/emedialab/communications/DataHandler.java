@@ -66,6 +66,11 @@ public class DataHandler {
                     String serializedObject = dataInputStream.readUTF();
                     GlobalResources.getInstance().writeDataToInputBuffer(serializableFromString(serializedObject));
                     Log.d(TAG, "Read in dataPacket: " + serializableFromString(serializedObject).toString());
+
+                    //For the color game, the deviceAddress has to be known as well --> include device Address in List containing Adddresses from which TYPE_DATA_PACKET is received
+                    GlobalResources.getInstance().addReceivedList(deviceAddress);
+
+
                     break;
 
                 default:
