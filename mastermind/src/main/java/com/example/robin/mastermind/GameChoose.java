@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.core.Point;
@@ -44,6 +45,7 @@ public class GameChoose extends ActionBarActivity {
     private int ownColor;
     private Button button;
     private ImageView imageViewRED, imageViewBLUE, imageViewGREEN, imageViewYELLOW;
+    private TextView feedbackText;
     private String TAG = "GameChoose";
 
     //All ownColor values for sending to other device
@@ -201,6 +203,9 @@ public class GameChoose extends ActionBarActivity {
         //Get background frame
         frame = (FrameLayout) findViewById(R.id.Frame);
 
+        //Get feedback text
+        feedbackText = (TextView) findViewById(R.id.feedbackText);
+
         //Get accept button
         button = (Button) findViewById(R.id.acceptButton);
         button.setOnClickListener(new View.OnClickListener() {
@@ -233,6 +238,18 @@ public class GameChoose extends ActionBarActivity {
                 this.ownColor = Color.YELLOW;
                 break;
             default: break;
+        }
+    }
+
+    private void updateText(){
+
+        Position position = GlobalResources.getInstance().getDevice().getPosition();
+        if(position.getFoundPattern()){
+            feedbackText.setTextColor(Color.parseColor("green"));
+            feedbackText.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(be.groept.emedialab.R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
+
+        }else{
+            feedbackText.setTextColor(Color.parseColor("red"));
         }
     }
 
@@ -294,6 +311,9 @@ public class GameChoose extends ActionBarActivity {
                     leaveGame(mContentView);
                 }
                 */
+            }
+            else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
+                updateText();
             }
         }
     };
