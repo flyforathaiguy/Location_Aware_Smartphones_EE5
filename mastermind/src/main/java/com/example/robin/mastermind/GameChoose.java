@@ -1,11 +1,11 @@
 package com.example.robin.mastermind;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 
 import be.groept.emedialab.communications.DataHandler;
@@ -42,17 +41,22 @@ import be.groept.emedialab.util.GlobalResources;
 public class GameChoose extends ActionBarActivity {
 
     private FrameLayout frame;
-    private int color;
+    private int ownColor;
     private Button button;
     private ImageView imageViewRED, imageViewBLUE, imageViewGREEN, imageViewYELLOW;
     private String TAG = "GameChoose";
 
-    //All color values for sending to other device
+    //All ownColor values for sending to other device
     private static final int COLOR = 0;
-    private static final int COLOR_BLUE = Color.BLUE;
-    private static final int COLOR_RED = Color.RED;
-    private static final int COLOR_YELLOW = Color.YELLOW;
-    private static final int COLOR_GREEN = Color.GREEN;
+    private static final int LAUNCH_FEEDBACK = 1;
+    private static final int LAUNCH_WIN = 2;
+    private static final int ALL_CORRECT = 0;
+    private static final int CORRECT_COLOR = 1;
+    private static final int CORRECT_POS = 2;
+    private static final int ALL_WRONG = 3;
+
+    //boolean to check whether or not feedback has started (for the onPause and onResume methods)
+    private boolean launchedFeedback = false;
 
     //Lists that contains the devices with their gamePosition and gameColor
     Map<String, Integer> deviceSequence = new HashMap<>();
@@ -142,7 +146,7 @@ public class GameChoose extends ActionBarActivity {
                     case 3: color = Color.YELLOW;
                         break;
                 }
-                //Put device and color in the deviceColors list
+                //Put device and ownColor in the deviceColors list
                 deviceColors.put(devicesList.get(count), color);
             }
 
@@ -210,29 +214,33 @@ public class GameChoose extends ActionBarActivity {
     }
 
     private void updateColor(int color){
-        //Update the color in the background of the screen, as well as the variable in this class
+        //Update the ownColor in the background of the screen, as well as the variable in this class
         switch(color){
             case Color.RED:
                 frame.setBackgroundColor(Color.RED);
-                this.color = Color.RED;
+                this.ownColor = Color.RED;
                 break;
             case Color.BLUE:
                 frame.setBackgroundColor(Color.BLUE);
-                this.color = Color.BLUE;
+                this.ownColor = Color.BLUE;
                 break;
             case Color.GREEN:
                 frame.setBackgroundColor(Color.GREEN);
-                this.color = Color.GREEN;
+                this.ownColor = Color.GREEN;
                 break;
             case Color.YELLOW:
                 frame.setBackgroundColor(Color.YELLOW);
-                this.color = Color.YELLOW;
+                this.ownColor = Color.YELLOW;
                 break;
             default: break;
         }
     }
 
     private void acceptButton(){
+
+        //Only accept when the user has actually chosen a color
+        if(ownColor == 0)
+            return;
 
         //Disable all buttons
         button.setClickable(false);
@@ -241,17 +249,17 @@ public class GameChoose extends ActionBarActivity {
         imageViewGREEN.setClickable(false);
         imageViewYELLOW.setClickable(false);
 
-        //If you're a client, send your color to the master
+        //If you're a client, send your ownColor to the master
         if(GlobalResources.getInstance().getClient() == true) {
             //Send data of type DATA_PACKET, DataPacket itself is of type COLOR
-            GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(COLOR, color));
+            GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(COLOR, ownColor));
         }
 
         //If you're the master, check if all colors are in, calculate the correct positions & colors
         else{
             //Add your own pair to the list
             //ownpos is filled in rather than the device address because as master you do not need the devices address
-            DeviceColorPair pair = new DeviceColorPair("ownpos", color);
+            DeviceColorPair pair = new DeviceColorPair("ownpos", ownColor);
             confirmedPairs.add(pair);
             checkAllColorsIn();
         }
@@ -265,16 +273,16 @@ public class GameChoose extends ActionBarActivity {
             Log.d(TAG, "Handler called");
             //Data packet incoming
             if(msg.what == DataHandler.DATA_TYPE_DATA_PACKET){
-                //Datapacket = the color that one of the phones has
-                //When one of the phones sends his color, this means that this color for this phone is final
-                //So it can be put in a list, to check later on for correct position & color
+                //Datapacket = the ownColor that one of the phones has
+                //When one of the phones sends his ownColor, this means that this ownColor for this phone is final
+                //So it can be put in a list, to check later on for correct position & ownColor
                 Serializable data;
                 if((data = GlobalResources.getInstance().readData()) != null){
                     handleData((DataPacket) data);
                 }
             }else if(msg.what == DataHandler.DATA_TYPE_COORDINATES) {
                 //If coordinates are received, nothing special has to be done,
-                //Only when all devices have sent their color, the coordinates will be used, these
+                //Only when all devices have sent their ownColor, the coordinates will be used, these
                 //will be asked from
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
                   //Don't know yet, probalby end the game
@@ -290,15 +298,36 @@ public class GameChoose extends ActionBarActivity {
         }
     };
 
-    private void checkAllColorsIn(){
+    private void handleData(DataPacket dataPacket){
+        Log.d(TAG, "Reading datapacket of type " + dataPacket.getDataType());
+        //Always read in the string from the sender of the data, to maintain data usage
+        switch(dataPacket.getDataType()){
+            case COLOR:
+                //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
+                DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int)dataPacket.getOptionalData());
+                confirmedPairs.add(pair);
+                checkAllColorsIn();
+                break;
+            case LAUNCH_FEEDBACK:
+                launchFeedbackIntent((int) dataPacket.getOptionalData());
+                break;
+            case LAUNCH_WIN:
+                launchWinIntent();
+            default:
+                break;
+        }
+        //Remove address at last index since we do not need it
+        //Should be the only one in the list ( list.size() == 1 --> index 0)
+        GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+    }
 
-        int correctPairs = 0, correctPositions = 0, correctColors = 0;
+    private void checkAllColorsIn(){
 
         //Check if all colors are in
         if( confirmedPairs.size() != high + 1)
             return;
 
-        //Check how many full correct pairs there are (meaning position + color are correct)
+        //Check how many full correct pairs there are (meaning position + ownColor are correct)
         Map<String, Position> actualPositions = GlobalResources.getInstance().getDevices();
         //Add own position to the Map
         actualPositions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
@@ -314,35 +343,110 @@ public class GameChoose extends ActionBarActivity {
 
         List<String> lineOrder = new ArrayList<>(line.keySet());
 
+        int fullMatches = 0, correctPosCount = 0, correctColorCount = 0;
+
         //TODO: Check if all devices have position, not NaN
         //Is line incrementing or decrementing order (suppose for now left -> right)?
         for(int i = 0; i <= high; i++){
 
-            if(lineOrder.get(i).equals( getKeyByValue(deviceSequence, i) )){
-                //TODO: Check if colors also match
+            //Get the key from value
+            String key = getKeyByValue(deviceSequence, i);
+
+            //Position matches the wanted position
+            if(lineOrder.get(i).equals( key )){
+
+                //Check if colors also match
+                if (checkColorMatch(key)){
+                    fullMatches++;
+                }
+
+                //Color did not match the wanted ownColor, only position was correct
+                else{
+                    correctPosCount++;
+                }
             }
 
+            //Position did not match, check if colors match
+            else {
+                if(checkColorMatch(key))
+                    correctColorCount++;
+            }
+        }
 
+        //TODO: Send message to other phones to launch the Win Activity
+        //Get the list of other devices, need their String to send data packet
+        Map<String, Position> deviceList = GlobalResources.getInstance().getDevices();
 
+        if(fullMatches == high){
+            //Send the information to launch the Win Activity to other devices
+            for(Map.Entry<String, Position> entry : deviceList.entrySet()){
+                GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
+            }
+
+            //Master: Launch the Win activity
+            launchWinIntent();
+        }
+
+        //Send message to other phones to launch the FeedBack Activity
+        else{
+            //Send the data packet to other devices
+            for(Map.Entry<String, Position> entry : deviceList.entrySet()){
+                //First send out full matches, then correct positions, then correct colors, then all wrong
+                if(fullMatches > 0){
+                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_CORRECT));
+                    fullMatches--;
+                }
+                else if(correctPosCount>0){
+                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_POS));
+                    correctPosCount--;
+                }
+                else if(correctColorCount>0){
+                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_COLOR));
+                    correctColorCount--;
+                }
+                else{
+                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_WRONG));
+                }
+            }
+
+            //Launch the feedback for self
+            //Checking for full matches not necessary (otherwise fullMatches == high would have been true)
+            if(correctPosCount>0){
+                launchFeedbackIntent(CORRECT_POS);
+            }
+            else if(correctColorCount>0){
+                launchFeedbackIntent(CORRECT_COLOR);
+            }
+            else{
+                launchFeedbackIntent(ALL_WRONG);
+            }
         }
     }
 
-    private void handleData(DataPacket dataPacket){
-        Log.d(TAG, "Reading datapacket of type " + dataPacket.getDataType());
-        //Always read in the string from the sender of the data, to maintain data usage
-        switch(dataPacket.getDataType()){
-            case COLOR:
-                //Make new DeviceColorPair containing the address of the device from which the color was sent, as well as the color
-                DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int)dataPacket.getOptionalData());
-                confirmedPairs.add(pair);
-                checkAllColorsIn();
-                break;
-            default:
-                break;
+    private void launchFeedbackIntent(int feedbackType){
+        launchedFeedback = true;
+        Intent intent = new Intent(getBaseContext(), Feedback.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("feedback", feedbackType);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    private void launchWinIntent(){
+        Intent intent = new Intent(getBaseContext(), WinActivity.class);
+        startActivity(intent);
+    }
+
+    private boolean checkColorMatch(String key){
+        for(int index = 0; index < confirmedPairs.size(); index++){
+            if(confirmedPairs.get(index).getDeviceAddress().equals(key)){
+                //Color matches the wanted ownColor
+                if(confirmedPairs.get(index).getColor() == deviceColors.get(key).intValue()){
+                    return true;
+                }
+            }
         }
-        //Remove address at last index since we do not need it
-        //Should be the only one in the list ( list.size() == 1 --> index 0)
-        GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+        return false;
     }
 
     //Generic sorting function
@@ -355,7 +459,6 @@ public class GameChoose extends ActionBarActivity {
                 return (o1.getValue()).compareTo(o2.getValue());
             }
         });
-
         HashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Map.Entry<K, V> entry : list)
         {
@@ -364,12 +467,11 @@ public class GameChoose extends ActionBarActivity {
         return result;
     }
 
-    //Generic function to get Key by Value in Map
-    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
-        for (Map.Entry<T, E> entry : map.entrySet()) {
-            if (Objects.equals(value, entry.getValue())) {
+    //Get the Key from the Map by Value
+    public String getKeyByValue(Map<String, Integer> map, int value){
+        for(Map.Entry<String, Integer> entry : map.entrySet()){
+            if(entry.getValue().intValue() == value)
                 return entry.getKey();
-            }
         }
         return null;
     }
@@ -390,6 +492,18 @@ public class GameChoose extends ActionBarActivity {
         super.onResume();
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
+
+        //Coming back from the feedback screen?
+        if(launchedFeedback == true){
+            //Re-enable all buttons
+            button.setClickable(true);
+            imageViewRED.setClickable(true);
+            imageViewBLUE.setClickable(true);
+            imageViewGREEN.setClickable(true);
+            imageViewYELLOW.setClickable(true);
+
+            launchedFeedback = false;
+        }
     }
 
     @Override
