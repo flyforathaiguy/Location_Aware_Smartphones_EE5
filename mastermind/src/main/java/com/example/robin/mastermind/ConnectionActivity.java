@@ -29,7 +29,7 @@ public class ConnectionActivity extends FragmentActivity implements PartyReadyLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ConnectionActivity);
+        setContentView(R.layout.activity_connection);
         mContentView = findViewById(R.id.fullscreen_content);
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
