@@ -13,13 +13,14 @@ import android.widget.Button;
 import be.groept.emedialab.util.GlobalResources;
 
 public class Start extends AppCompatActivity{
+
 private View mContentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_setup);
+        setContentView(R.layout.cover_fragment);
         GlobalResources.getInstance().getDevice().setMac(BluetoothAdapter.getDefaultAdapter().getAddress());
         mContentView = findViewById(R.id.coverLayout);
         Button createButton = (Button) findViewById(R.id.create);
