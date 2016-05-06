@@ -4,5 +4,14 @@
     <string name="app_name">Mastermind</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="ThemeTitle">MASTER MAIND</string>
+    <string name="Rules">Rules</string>
+    <string name="Join">Join game</string>
+    <string name="Create">create new</string>
+    <string name="rules">Rules</string>
+    <string name="join">Join game</string>
+    <string name="create">create new</string>
+    <string name="title">MASTER MAIND</string>
+    <string name="mastermind">MASTER MIND</string>
 
 </resources>
