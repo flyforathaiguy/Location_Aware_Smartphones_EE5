@@ -42,7 +42,7 @@ import be.groept.emedialab.util.GlobalResources;
 public class GameChoose extends ActionBarActivity {
 
     private FrameLayout frame;
-    private int ownColor;
+    private int ownColor = 0;
     private Button button;
     private ImageView imageViewRED, imageViewBLUE, imageViewGREEN, imageViewYELLOW;
     private TextView feedbackText;
@@ -52,10 +52,10 @@ public class GameChoose extends ActionBarActivity {
     private static final int COLOR = 0;
     private static final int LAUNCH_FEEDBACK = 1;
     private static final int LAUNCH_WIN = 2;
-    private static final int ALL_CORRECT = 0;
-    private static final int CORRECT_COLOR = 1;
-    private static final int CORRECT_POS = 2;
-    private static final int ALL_WRONG = 3;
+    public static final int ALL_CORRECT = 0;
+    public static final int CORRECT_COLOR = 1;
+    public static final int CORRECT_POS = 2;
+    public static final int ALL_WRONG = 3;
 
     //boolean to check whether or not feedback has started (for the onPause and onResume methods)
     private boolean launchedFeedback = false;
@@ -67,7 +67,8 @@ public class GameChoose extends ActionBarActivity {
 
     //Integers for random variable calculation
     int low = 0;
-    int high = 3;
+    //High = number of connected devices (clients) + 1 (master)
+    int high = GlobalResources.getInstance().getDevices().size() + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,13 +114,13 @@ public class GameChoose extends ActionBarActivity {
         for(int i = 0; i <= high; i++){
             randoms[i] = 20;
         }
-        //Assign a random position (0 to 3, the sequence in which they have to be)
+        //Assign a random position (low to high, the sequence in which they have to be)
         int count = 0;
         int color = 0;
         int randomInt;
         Random random = new Random();
         while(true){
-            //Generate random int between 0 and 3, both inclusive
+            //Generate random int between 0 and 3, (low and high) both inclusive
              randomInt = (random.nextInt(high - low + 1) + low);
             //Check if this random variable already exists in the randoms array
             for(int i = 0; i <= high; i++){
@@ -132,8 +133,9 @@ public class GameChoose extends ActionBarActivity {
             if(contains == false){
                 randoms[count] = randomInt;
                 deviceSequence.put(devicesList.get(count), randomInt);
-                //Generate random int between 0 and 3, both inclusive
-                randomInt = (int) (random.nextInt(high - low + 1) + low);
+                //Generate random int between low and hugh, both inclusive, this time for color
+                //Does not check to see if this color already exists since the same color can occur multiple times
+                randomInt = (random.nextInt(high - low + 1) + low);
                 switch(randomInt){
                     //Take 0 for red
                     case 0: color = Color.RED;
@@ -154,7 +156,7 @@ public class GameChoose extends ActionBarActivity {
 
             count++;
             //Check if the the entire list is populated
-            if(count > 3)
+            if(count >= high)
                 break;
         }
 
@@ -183,7 +185,7 @@ public class GameChoose extends ActionBarActivity {
         });
 
         //For the Green Color
-        imageViewGREEN = (ImageView) findViewById(R.id.imageViewBLUE);
+        imageViewGREEN = (ImageView) findViewById(R.id.imageViewGREEN);
         imageViewGREEN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +194,7 @@ public class GameChoose extends ActionBarActivity {
         });
 
         //For the Yellow Color
-        imageViewYELLOW = (ImageView) findViewById(R.id.imageViewBLUE);
+        imageViewYELLOW = (ImageView) findViewById(R.id.imageViewYELLOW);
         imageViewYELLOW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -276,8 +278,18 @@ public class GameChoose extends ActionBarActivity {
         else{
             //Add your own pair to the list
             //ownpos is filled in rather than the device address because as master you do not need the devices address
-            DeviceColorPair pair = new DeviceColorPair("ownpos", ownColor);
-            confirmedPairs.add(pair);
+            //Perhaps this is executed after re-enabling the button when not all devices knew their position --> Do not add own color again
+            boolean addPair = true;
+            for(DeviceColorPair pair : confirmedPairs){
+                if(pair.getDeviceAddress().equals("ownpos")){
+                    addPair = false;
+                    break;
+                }
+            }
+            if(addPair){
+                DeviceColorPair pair = new DeviceColorPair("ownpos", ownColor);
+                confirmedPairs.add(pair);
+            }
             checkAllColorsIn();
         }
     }
@@ -302,6 +314,7 @@ public class GameChoose extends ActionBarActivity {
                 //Only when all devices have sent their ownColor, the coordinates will be used, these
                 //will be asked from
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
+                // TODO: Wat als device disconnect?
                   //Don't know yet, probalby end the game
                 /*
                 BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
@@ -326,6 +339,7 @@ public class GameChoose extends ActionBarActivity {
                 //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
                 DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int)dataPacket.getOptionalData());
                 confirmedPairs.add(pair);
+                //Only master receives color from other devices
                 checkAllColorsIn();
                 break;
             case LAUNCH_FEEDBACK:
@@ -344,13 +358,25 @@ public class GameChoose extends ActionBarActivity {
     private void checkAllColorsIn(){
 
         //Check if all colors are in
-        if( confirmedPairs.size() != high + 1)
+        if( confirmedPairs.size() != high + 1){
+            Toast toast = Toast.makeText(this, "Not all colors are in yet!", Toast.LENGTH_LONG);
+            toast.show();
             return;
+        }
 
         //Check how many full correct pairs there are (meaning position + ownColor are correct)
         Map<String, Position> actualPositions = GlobalResources.getInstance().getDevices();
         //Add own position to the Map
         actualPositions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
+        //Check if all devices know their position (not unknown with last position)
+        for(Map.Entry<String, Position> object : actualPositions.entrySet()){
+            if(object.getValue().getFoundPattern() == false){
+                button.setClickable(true);
+                Toast toast = Toast.makeText(this, "Not all devices know their position!", Toast.LENGTH_LONG);
+                toast.show();
+                return;
+            }
+        }
         LinkedHashMap<String, Point> line = DistanceCalculation.getLine(actualPositions);
 
         //If not all devices know their position, re-enable button on master phone to try again later and show this with a toast message
@@ -365,7 +391,6 @@ public class GameChoose extends ActionBarActivity {
 
         int fullMatches = 0, correctPosCount = 0, correctColorCount = 0;
 
-        //TODO: Check if all devices have position, not NaN
         //Is line incrementing or decrementing order (suppose for now left -> right)?
         for(int i = 0; i <= high; i++){
 
@@ -445,7 +470,7 @@ public class GameChoose extends ActionBarActivity {
 
     private void launchFeedbackIntent(int feedbackType){
         launchedFeedback = true;
-        Intent intent = new Intent(getBaseContext(), Feedback.class);
+        Intent intent = new Intent(getBaseContext(), Feedback_activity.class);
         Bundle bundle = new Bundle();
         bundle.putInt("feedback", feedbackType);
         intent.putExtras(bundle);

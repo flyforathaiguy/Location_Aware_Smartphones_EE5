@@ -26,14 +26,6 @@ public class Feedback_activity extends ActionBarActivity {
     private ImageView correct;
     private ImageView error;
     private ImageView position;
-
-    public int color;
-
-    public final static int GREEN = 0;
-    public final static int YELLOW_POSITION = 1;
-    public final static int YELLOW_COLOR = 2;
-    public final static int RED = 3;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,10 +39,7 @@ public class Feedback_activity extends ActionBarActivity {
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
-            Bundle bundle2 = new Bundle();
-            bundle2.putInt("Color", color);
-
-            chooseColor(bundle2);
+           chooseColor(bundle);
         }
         hide();
     }
@@ -69,28 +58,28 @@ public class Feedback_activity extends ActionBarActivity {
     public void chooseColor(Bundle bundle) {
 
         int i = bundle.getInt("Color");
-        if (i == GREEN) {
+        if (i == GameChoose.ALL_CORRECT) {
             background.setBackgroundColor(Color.GREEN);
             colorize.setVisibility(View.INVISIBLE);
             error.setVisibility(View.INVISIBLE);
             position.setVisibility(View.INVISIBLE);
             moveImage(correct);
 
-        } else if (i == YELLOW_POSITION) {
+        } else if (i == GameChoose.CORRECT_POS) {
             background.setBackgroundColor(Color.YELLOW);
             colorize.setVisibility(View.INVISIBLE);
             error.setVisibility(View.INVISIBLE);
             correct.setVisibility(View.INVISIBLE);
             moveImage(position);
 
-        } else if (i == YELLOW_COLOR) {
+        } else if (i == GameChoose.CORRECT_COLOR) {
             background.setBackgroundColor(Color.YELLOW);
             correct.setVisibility(View.INVISIBLE);
             error.setVisibility(View.INVISIBLE);
             position.setVisibility(View.INVISIBLE);
             moveImage(colorize);
 
-        } else if (i == RED) {
+        } else if (i == GameChoose.ALL_WRONG) {
             background.setBackgroundColor(Color.RED);
             colorize.setVisibility(View.INVISIBLE);
             correct.setVisibility(View.INVISIBLE);
