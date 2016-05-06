@@ -52,6 +52,7 @@ public class GameChoose extends ActionBarActivity {
     private static final int COLOR = 0;
     private static final int LAUNCH_FEEDBACK = 1;
     private static final int LAUNCH_WIN = 2;
+    private static final int END_GAME = 3;
     public static final int ALL_CORRECT = 0;
     public static final int CORRECT_COLOR = 1;
     public static final int CORRECT_POS = 2;
@@ -316,6 +317,7 @@ public class GameChoose extends ActionBarActivity {
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
                 // TODO: Wat als device disconnect?
                   //Don't know yet, probalby end the game
+                endGame();
                 /*
                 BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
                 Log.e(TAG, "Device " + bluetoothDevice.getAddress() + " disconnected!");
@@ -347,6 +349,8 @@ public class GameChoose extends ActionBarActivity {
                 break;
             case LAUNCH_WIN:
                 launchWinIntent();
+            case END_GAME:
+                endGame();
             default:
                 break;
         }
@@ -557,5 +561,25 @@ public class GameChoose extends ActionBarActivity {
         PatternDetector patternDetector = GlobalResources.getInstance().getPatternDetector();
         if(patternDetector != null)
             patternDetector.destroy();
+    }
+
+    private void endGame(){
+        //Send to all other devices the information to end the game
+        if(GlobalResources.getInstance().getClient() == false){
+            for(Map.Entry<String, Position> entry : GlobalResources.getInstance().getDevices().entrySet()){
+                GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(END_GAME));
+            }
+        }
+
+        //Show toast saying that a device has disconnected and ending the game
+        Toast toast = Toast.makeText(this, "A device has disconnected, ending the game!", Toast.LENGTH_LONG);
+        toast.show();
+
+        PatternDetector patternDetector = GlobalResources.getInstance().getPatternDetector();
+        if(patternDetector != null)
+            patternDetector.destroy();
+
+        GlobalResources.getInstance().setContext(null);
+        finish();
     }
 }
