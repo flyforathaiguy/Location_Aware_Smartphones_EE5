@@ -20,7 +20,7 @@ private View mContentView;
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.cover_fragment);
+        setContentView(R.layout.activity_start);
         GlobalResources.getInstance().getDevice().setMac(BluetoothAdapter.getDefaultAdapter().getAddress());
         mContentView = findViewById(R.id.coverLayout);
         Button createButton = (Button) findViewById(R.id.create);
