@@ -13,5 +13,7 @@
     <string name="create">create new</string>
     <string name="title">MASTER MAIND</string>
     <string name="mastermind">MASTER MIND</string>
+    <string name="restart">Restart</string>
+    <string name="exit">Exit</string>
 
 </resources>
