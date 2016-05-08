@@ -49,7 +49,7 @@
             android:layout_height="81dp"
             android:text="@string/restart"
             android:id="@+id/restart"
-            android:layout_gravity="center_horizontal|top"
+            android:layout_gravity="left|bottom"
             />
 
     </FrameLayout>
