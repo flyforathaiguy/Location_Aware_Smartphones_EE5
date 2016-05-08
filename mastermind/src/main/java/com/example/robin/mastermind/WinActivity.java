@@ -71,10 +71,9 @@ public class WinActivity  extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);//terminate
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("restart", false);
-            System.exit(1);
+
+
+            finish();
             //intent.putExtras(bundle);
             //WinActivity.this.startActivity(intent);
 
