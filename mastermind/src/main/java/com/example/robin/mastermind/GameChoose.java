@@ -114,11 +114,11 @@ public class GameChoose extends Activity {
         List<String> devicesList = new ArrayList<>(connectedDevices.keySet());
         //Add own device to the list
         devicesList.add("ownpos");
-        int[] randoms = new int[high + 1];
+        int[] randoms = new int[high];
         boolean contains = false;
 
         //Fill the array with out of range numbers
-        for(int i = 0; i <= high; i++){
+        for(int i = 0; i < high; i++){
             randoms[i] = 20;
         }
         //Assign a random position (low to high, the sequence in which they have to be)
@@ -347,6 +347,7 @@ public class GameChoose extends Activity {
                 //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
                 DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int)dataPacket.getOptionalData());
                 confirmedPairs.add(pair);
+                Log.d(TAG, "Color: " + dataPacket.getOptionalData());
                 //Only master receives color from other devices
                 checkAllColorsIn();
                 break;
