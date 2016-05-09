@@ -73,4 +73,5 @@
         android:id="@+id/positionText"
         android:layout_gravity="center_horizontal|top"
         android:background="#ff84fffa" />
+
 </FrameLayout>

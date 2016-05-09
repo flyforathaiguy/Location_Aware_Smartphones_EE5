@@ -93,12 +93,18 @@ public class GameChoose extends ActionBarActivity {
 
         //Set click listeners for the four different colours
         setClickListeners();
+        Log.d(TAG, "clickListeners set");
 
         //Only the master has to do this
         if(GlobalResources.getInstance().getClient() == false) {
             //Calculate the lists for the game
             calculateGame();
         }
+        Log.d(TAG, "Calculated game");
+        Log.d(TAG, "DeviceSequence:");
+        Log.d(TAG, deviceSequence.toString());
+        Log.d(TAG, "DeviceColors:");
+        Log.d(TAG, deviceColors.toString());
     }
 
     private void calculateGame(){
@@ -207,7 +213,7 @@ public class GameChoose extends ActionBarActivity {
         frame = (FrameLayout) findViewById(R.id.Frame);
 
         //Get feedback text
-        feedbackText = (TextView) findViewById(R.id.feedbackText);
+        feedbackText = (TextView) findViewById(R.id.positionText);
 
         //Get accept button
         button = (Button) findViewById(R.id.acceptButton);
