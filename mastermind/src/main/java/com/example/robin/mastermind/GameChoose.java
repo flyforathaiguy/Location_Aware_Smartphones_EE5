@@ -58,6 +58,8 @@ public class GameChoose extends Activity {
     public static final int CORRECT_POS = 2;
     public static final int ALL_WRONG = 3;
 
+    final Activity activity = this;
+
     //boolean to check whether or not feedback has started (for the onPause and onResume methods)
     private boolean launchedFeedback = false;
 
@@ -82,7 +84,6 @@ public class GameChoose extends Activity {
         GlobalResources.getInstance().setContext(getBaseContext());
 
         //Launch the pattern detector in a different runnable
-        final Activity activity = this;
         Runnable runnablePattern = new Runnable() {
             @Override
             public void run() {
@@ -130,7 +131,7 @@ public class GameChoose extends Activity {
             //Generate random int between 0 and 3, (low and high) both inclusive
              randomInt = (random.nextInt(high - low + 1) + low);
             //Check if this random variable already exists in the randoms array
-            for(int i = 0; i <= high; i++){
+            for(int i = 0; i < high; i++){
                 if(randoms[i] == randomInt){
                     contains = true;
                     break;
@@ -369,7 +370,7 @@ public class GameChoose extends Activity {
     private void checkAllColorsIn(){
 
         //Check if all colors are in
-        if( confirmedPairs.size() != high + 1){
+        if( confirmedPairs.size() != high){
             Toast toast = Toast.makeText(this, "Not all colors are in yet!", Toast.LENGTH_LONG);
             toast.show();
             return;
@@ -549,6 +550,10 @@ public class GameChoose extends Activity {
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
 
+        //Will continuously call the RunPatternDetector class
+        Thread runPatternThread = getThread();
+        runPatternThread.run();
+
         //Coming back from the feedback screen?
         if(launchedFeedback == true){
             //Re-enable all buttons
@@ -588,5 +593,14 @@ public class GameChoose extends Activity {
 
         GlobalResources.getInstance().setContext(null);
         finish();
+    }
+
+    private Thread getThread(){
+        return new Thread() {
+            @Override
+            public void run() {
+                new RunPatternDetector(activity);
+            }
+        };
     }
 }
