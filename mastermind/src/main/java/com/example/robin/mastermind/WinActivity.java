@@ -1,6 +1,7 @@
 package com.example.robin.mastermind;
 
 //import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,7 +14,7 @@ import android.widget.ImageView;
 /**
  * Created by Robin on 28/04/2016.
  */
-public class WinActivity  extends AppCompatActivity {
+public class WinActivity  extends Activity {
     ImageView fail,congra;
     private View mContentView;
     private boolean robin_argument;
@@ -112,10 +113,7 @@ public class WinActivity  extends AppCompatActivity {
 
 
     private void hide() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
+
         if (Build.VERSION.SDK_INT >= 21) {
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN

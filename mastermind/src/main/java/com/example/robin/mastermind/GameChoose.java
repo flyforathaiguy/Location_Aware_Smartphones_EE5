@@ -129,7 +129,7 @@ public class GameChoose extends Activity {
         Random random = new Random();
         while(true){
             //Generate random int between 0 and 3, (low and high) both inclusive
-             randomInt = (random.nextInt(high - low + 1) + low);
+             randomInt = (random.nextInt(high - low ) + low);
             //Check if this random variable already exists in the randoms array
             for(int i = 0; i < high; i++){
                 if(randoms[i] == randomInt){
@@ -160,9 +160,10 @@ public class GameChoose extends Activity {
                 }
                 //Put device and ownColor in the deviceColors list
                 deviceColors.put(devicesList.get(count), color);
+                count++;
             }
+            contains = false;
 
-            count++;
             //Check if the the entire list is populated
             if(count >= high)
                 break;
@@ -364,7 +365,9 @@ public class GameChoose extends Activity {
         }
         //Remove address at last index since we do not need it
         //Should be the only one in the list ( list.size() == 1 --> index 0)
-        GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+        Log.d(TAG, "received list size: " + GlobalResources.getInstance().getReceivedList().size());
+        if(GlobalResources.getInstance().getReceivedList().size() > 0)
+            GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
     }
 
     private void checkAllColorsIn(){
@@ -382,6 +385,7 @@ public class GameChoose extends Activity {
         actualPositions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
         //Check if all devices know their position (not unknown with last position)
         for(Map.Entry<String, Position> object : actualPositions.entrySet()){
+            Log.d(TAG, "pattern found: " + object.getValue().getFoundPattern());
             if(object.getValue().getFoundPattern() == false){
                 button.setClickable(true);
                 Toast toast = Toast.makeText(this, "Not all devices know their position!", Toast.LENGTH_LONG);
@@ -392,6 +396,8 @@ public class GameChoose extends Activity {
         LinkedHashMap<String, Point> line = DistanceCalculation.getLine(actualPositions);
 
         //If not all devices know their position, re-enable button on master phone to try again later and show this with a toast message
+        Log.d(TAG, "Line size: " + line.size());
+        Log.d(TAG, "actual size: " + actualPositions.size());
         if(line.size() != actualPositions.size()){
             button.setClickable(true);
             Toast toast = Toast.makeText(this, "Not all devices know their position!", Toast.LENGTH_LONG);
@@ -404,7 +410,7 @@ public class GameChoose extends Activity {
         int fullMatches = 0, correctPosCount = 0, correctColorCount = 0;
 
         //Is line incrementing or decrementing order (suppose for now left -> right)?
-        for(int i = 0; i <= high; i++){
+        for(int i = 0; i < high; i++){
 
             //Get the key from value
             String key = getKeyByValue(deviceSequence, i);
@@ -547,8 +553,8 @@ public class GameChoose extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
-            GlobalResources.getInstance().getPatternDetector().setup();
+        //if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
+        //    GlobalResources.getInstance().getPatternDetector().setup();
 
         //Will continuously call the RunPatternDetector class
         Thread runPatternThread = getThread();

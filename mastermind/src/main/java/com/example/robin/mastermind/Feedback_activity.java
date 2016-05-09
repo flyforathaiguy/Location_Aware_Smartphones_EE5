@@ -1,5 +1,6 @@
 package com.example.robin.mastermind;
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Build;
@@ -15,7 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-public class Feedback_activity extends ActionBarActivity {
+public class Feedback_activity extends Activity {
 
     //private RelativeLayout backgroundLayout;
     private View mContentView;

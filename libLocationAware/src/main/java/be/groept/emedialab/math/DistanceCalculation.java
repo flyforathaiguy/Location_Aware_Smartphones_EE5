@@ -29,14 +29,14 @@ import be.groept.emedialab.util.GlobalResources;
  */
 public class DistanceCalculation {
 
-    private final static String TAG = "DistanceCalculation";
+    private final static String TAG = "GameChoose";
 
     public static final double MARGIN_NARROW = 1.0;
     public static final double MARGIN_MIDDLE = 3.0;
     public static final double MARGIN_WIDE = 8.0;
 
-    private static final double DISTANCE_TOLERATION = 5.0;
-    private static final double DISTANCE_BETWEEN_TOLERATION = 12.0;
+    private static final double DISTANCE_TOLERATION = 30;
+    private static final double DISTANCE_BETWEEN_TOLERATION = 30;
     private static final double ANGLE_TOLERATION = 45;
 
     public static double getDistance(Point point1, Point point2){
@@ -316,7 +316,7 @@ public class DistanceCalculation {
         yAverage /= devices.size();
         rotAverage /= devices.size();
 
-        Log.d(TAG, "xAverage[" + xAverage +"] yAverage[" + yAverage + "] rotAverage[" + rotAverage + "]");
+        //Log.d(TAG, "xAverage[" + xAverage +"] yAverage[" + yAverage + "] rotAverage[" + rotAverage + "]");
 
         double numerator = 0.0;
         double denominator = 0.0;
@@ -332,7 +332,7 @@ public class DistanceCalculation {
         final double A = slope;
         double B = -1;
         double C = yIntercept;
-        Log.d(TAG, "Line: Ax + By + C = 0 -> " + A + "*x + " + B + "*y + " + C + " = 0");
+        //Log.d(TAG, "Line: Ax + By + C = 0 -> " + A + "*x + " + B + "*y + " + C + " = 0");
 
         boolean angleUnderflow = false;
         boolean angleOverflow = false;
@@ -358,8 +358,8 @@ public class DistanceCalculation {
 
         for(Map.Entry<String, Position> entry : devices.entrySet()){
 
-            double rotation = entry.getValue().getRotation();
-            boolean allowed = false;
+            //double rotation = entry.getValue().getRotation();
+            /*boolean allowed = false;
             if(!angleUnderflow && !angleOverflow){
                 if(rotation > minAngle && rotation < maxAngle){
                     allowed = true;
@@ -369,7 +369,8 @@ public class DistanceCalculation {
                     allowed = true;
                 }
             }
-            if(allowed){
+            */
+            if(true){
                 if(Double.isNaN(A)){ //A (rico) is NaN (Infinity) - perpendicular to x-axis (not a function!)
                     if(Math.abs(entry.getValue().getX()) < DISTANCE_TOLERATION){ //TODO: change to entry.getValue().getX() - xAverage
                         devicesInRow.put(entry.getKey(), new Point(xAverage, entry.getValue().getY()));
@@ -377,7 +378,7 @@ public class DistanceCalculation {
                         Log.e(TAG, "Device " + entry.getKey() + " is out of line!");
                     }
                 }else{ // A exists!
-                    Log.d(TAG, "A is not NotANumber");
+                    //Log.d(TAG, "A is not NotANumber");
                     double distance = Math.abs(A * entry.getValue().getX() + B * entry.getValue().getY() + C)/Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
                     //double distance = crossProduct(pointOne, pointTwo, new Point(entry.getValue().getX(), entry.getValue().getY())) / distance(pointOne, pointTwo);
                     if(distance < DISTANCE_TOLERATION){
@@ -394,10 +395,10 @@ public class DistanceCalculation {
                         double ap_ab = apx * abx + apy * aby;
                         double t = ap_ab / ab2;
                         Point point = new Point(pointOne.x + abx * t, pointOne.y + aby * t);
-                        Log.d(TAG, "Point: " + point);
+                        //Log.d(TAG, "Point: " + point);
                         devicesInRow.put(entry.getKey(), point);
                     }else{
-                        Log.e(TAG, "Device " + entry.getKey() + " is out of line!");
+                        //Log.e(TAG, "Device " + entry.getKey() + " is out of line!");
                     }
                 }
             }else{
@@ -423,7 +424,7 @@ public class DistanceCalculation {
         for(Map.Entry<String, Point> entry: entries){
             sortedMap.put(entry.getKey(), entry.getValue());
         }
-        Log.d(TAG, "Sorted: " + sortedMap.toString());
+        //Log.d(TAG, "Sorted: " + sortedMap.toString());
 
         // Check that the distance between the devices is small enough
         Iterator iterator = sortedMap.entrySet().iterator();
@@ -453,7 +454,7 @@ public class DistanceCalculation {
             finalMap = sortedMap;
         }
 
-        Log.d("FinalMap", finalMap.toString());
+        Log.d(TAG, "final map: " + finalMap.toString());
 
         return finalMap;
     }
