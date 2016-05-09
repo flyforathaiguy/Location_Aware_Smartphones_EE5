@@ -15,7 +15,7 @@
             android:layout_height="80dp"
             android:text="@string/exit"
             android:id="@+id/exit"
-            android:layout_gravity="right|bottom" />
+            android:layout_gravity="right|bottom"/>
 
         <ImageView
             android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             android:layout_gravity="center_horizontal|top"
             android:background="#f8f5f0"
             android:gravity="center_vertical|center_horizontal"
-            android:layout_marginTop="25dp" />
+            android:layout_marginTop="25dp"/>
 
         <ImageView
             android:layout_width="532dp"
@@ -49,8 +49,7 @@
             android:layout_height="81dp"
             android:text="@string/restart"
             android:id="@+id/restart"
-            android:layout_gravity="left|bottom"
-            />
+            android:layout_gravity="left|bottom"/>
 
     </FrameLayout>
 </RelativeLayout>
