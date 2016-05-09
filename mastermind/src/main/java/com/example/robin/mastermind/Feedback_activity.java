@@ -1,11 +1,13 @@
 package com.example.robin.mastermind;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-public class Feedback_activity extends Activity {
+public class Feedback_activity extends AppCompatActivity {
 
     //private RelativeLayout backgroundLayout;
     private View mContentView;
@@ -45,7 +47,13 @@ public class Feedback_activity extends Activity {
         hide();
     }
 
+    @SuppressLint("InlinedApi")
     private void hide(){
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null)
+            actionBar.hide();
+
+        //Lollipop and higher
         if(Build.VERSION.SDK_INT >= 21){
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN

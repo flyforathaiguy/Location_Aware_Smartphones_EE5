@@ -308,7 +308,7 @@ public class GameChoose extends Activity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "Handler called");
+            //Log.d(TAG, "Handler called");
             //Data packet incoming
             if(msg.what == DataHandler.DATA_TYPE_DATA_PACKET){
                 //Datapacket = the ownColor that one of the phones has
