@@ -578,12 +578,12 @@ public class GameChoose extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        //if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
-        //    GlobalResources.getInstance().getPatternDetector().setup();
+        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
+            GlobalResources.getInstance().getPatternDetector().setup();
 
         //Will continuously call the RunPatternDetector class
-        Thread runPatternThread = getThread();
-        runPatternThread.run();
+        //Thread runPatternThread = getThread();
+        //runPatternThread.run();
 
         //Coming back from the feedback screen?
         if(launchedFeedback == true){
