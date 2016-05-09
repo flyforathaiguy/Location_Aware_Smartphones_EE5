@@ -6,8 +6,6 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.Settings;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -120,6 +118,7 @@ public class GameChoose extends Activity {
             devicesList.add("ownpos");
         int[] randoms = new int[high];
         boolean contains = false;
+        Log.d(TAG, "deviceList size: " + devicesList.size());
 
         //Fill the array with out of range numbers
         for(int i = 0; i < high; i++){
@@ -581,10 +580,6 @@ public class GameChoose extends Activity {
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
 
-        //Will continuously call the RunPatternDetector class
-        //Thread runPatternThread = getThread();
-        //runPatternThread.run();
-
         //Coming back from the feedback screen?
         if(launchedFeedback == true){
             //Re-enable all buttons
@@ -595,6 +590,7 @@ public class GameChoose extends Activity {
             imageViewYELLOW.setClickable(true);
 
             launchedFeedback = false;
+            confirmedPairs.clear();
         }
     }
 

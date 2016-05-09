@@ -22,7 +22,7 @@ public class ConnectionActivity extends FragmentActivity implements PartyReadyLi
     private static final String TAG = "SecondActivity";
 
     public static final int minNumberOfDevices = 1;
-    public static final int maxNumberOfDevices = 2;
+    public static final int maxNumberOfDevices = 5;
 
     private View mContentView;
 

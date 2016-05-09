@@ -48,12 +48,7 @@ public class WinActivity  extends Activity {
         }
 
     }
-
-
 */
-
-
-
 
     Button restartButton = (Button) findViewById(R.id.restart);
     restartButton.setOnClickListener(new View.OnClickListener() {
@@ -81,11 +76,6 @@ public class WinActivity  extends Activity {
         }
     });
 
-
-
-
-
-
     hide();
 
 }
@@ -98,22 +88,13 @@ public class WinActivity  extends Activity {
 
             congra.setVisibility(View.VISIBLE);
             fail.setVisibility(View.INVISIBLE);
-
-
-        } else {
-
+       } else {
             congra.setVisibility(View.INVISIBLE);
             fail.setVisibility(View.VISIBLE);
-
-
         }
     }
 
-
-
-
     private void hide() {
-
         if (Build.VERSION.SDK_INT >= 21) {
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
