@@ -300,7 +300,7 @@ public class DistanceCalculation {
             Position pos = (Position) entry.getValue();
             if(!pos.getFoundPattern()){
                 it.remove();
-                Log.e(TAG, "Device " + entry.getKey() + "'s pattern is not found.");
+               // Log.e(TAG, "Device " + entry.getKey() + "'s pattern is not found.");
             }
         }
 

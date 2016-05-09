@@ -93,7 +93,7 @@ public class WinActivity  extends Activity {
 
     public void chooseColor(Bundle bundle) {//this class should be based on the feedback of robin result
 
-        int i = bundle.getInt("Color");
+        int i = bundle.getInt("feedback");
         if (i == GameChoose.ALL_CORRECT) {
 
             congra.setVisibility(View.VISIBLE);

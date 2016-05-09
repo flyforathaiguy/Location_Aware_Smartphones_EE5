@@ -1,6 +1,7 @@
 package com.example.robin.mastermind;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,7 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-public class Feedback_activity extends AppCompatActivity {
+public class Feedback_activity extends Activity {
 
     //private RelativeLayout backgroundLayout;
     private View mContentView;
@@ -44,14 +45,11 @@ public class Feedback_activity extends AppCompatActivity {
         if(bundle != null){
            chooseColor(bundle);
         }
-        hide();
+        //hide();
     }
 
     @SuppressLint("InlinedApi")
     private void hide(){
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null)
-            actionBar.hide();
 
         //Lollipop and higher
         if(Build.VERSION.SDK_INT >= 21){
@@ -66,7 +64,7 @@ public class Feedback_activity extends AppCompatActivity {
 
     public void chooseColor(Bundle bundle) {
 
-        int i = bundle.getInt("Color");
+        int i = bundle.getInt("feedback");
         if (i == GameChoose.ALL_CORRECT) {
             background.setBackgroundColor(Color.GREEN);
             colorize.setVisibility(View.INVISIBLE);

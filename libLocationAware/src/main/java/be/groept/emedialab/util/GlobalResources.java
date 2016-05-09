@@ -406,6 +406,7 @@ public class GlobalResources {
     }
 
     public void addReceivedList(String address){
+        Log.d(TAG, "Added to received list");
         receivedList.add(address);
     }
 

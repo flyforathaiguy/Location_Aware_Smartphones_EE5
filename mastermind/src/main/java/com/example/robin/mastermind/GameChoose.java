@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -95,6 +96,7 @@ public class GameChoose extends Activity {
         //Set click listeners for the four different colours
         setClickListeners();
         Log.d(TAG, "clickListeners set");
+        Log.d(TAG, "high is: " + high);
 
         //Only the master has to do this
         if(GlobalResources.getInstance().getClient() == false) {
@@ -114,7 +116,8 @@ public class GameChoose extends Activity {
         HashMap<String, Position> connectedDevices = (HashMap) GlobalResources.getInstance().getDevices();
         List<String> devicesList = new ArrayList<>(connectedDevices.keySet());
         //Add own device to the list
-        devicesList.add("ownpos");
+        if(connectedDevices.containsKey("ownpos") == false)
+            devicesList.add("ownpos");
         int[] randoms = new int[high];
         boolean contains = false;
 
@@ -347,11 +350,13 @@ public class GameChoose extends Activity {
         switch(dataPacket.getDataType()){
             case COLOR:
                 //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
-                DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int)dataPacket.getOptionalData());
-                confirmedPairs.add(pair);
-                Log.d(TAG, "Color: " + dataPacket.getOptionalData());
-                //Only master receives color from other devices
-                checkAllColorsIn();
+                if(GlobalResources.getInstance().getReceivedList().size() > 0) {
+                    DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int) dataPacket.getOptionalData());
+                    confirmedPairs.add(pair);
+                    Log.d(TAG, "Color: " + dataPacket.getOptionalData());
+                    //Only master receives color from other devices
+                    checkAllColorsIn();
+                }
                 break;
             case LAUNCH_FEEDBACK:
                 launchFeedbackIntent((int) dataPacket.getOptionalData());
@@ -396,8 +401,8 @@ public class GameChoose extends Activity {
         LinkedHashMap<String, Point> line = DistanceCalculation.getLine(actualPositions);
 
         //If not all devices know their position, re-enable button on master phone to try again later and show this with a toast message
-        Log.d(TAG, "Line size: " + line.size());
-        Log.d(TAG, "actual size: " + actualPositions.size());
+        //Log.d(TAG, "Line size: " + line.size());
+        //Log.d(TAG, "actual size: " + actualPositions.size());
         if(line.size() != actualPositions.size()){
             button.setClickable(true);
             Toast toast = Toast.makeText(this, "Not all devices know their position!", Toast.LENGTH_LONG);
@@ -406,6 +411,12 @@ public class GameChoose extends Activity {
         }
 
         List<String> lineOrder = new ArrayList<>(line.keySet());
+        Log.d(TAG, "lineOrder: " + lineOrder.toString());
+        Log.d(TAG, "gameOrder: " + deviceSequence.toString());
+        for(int i = 0; i < confirmedPairs.size(); i++) {
+            Log.d(TAG, "actual Color " + i + " " + confirmedPairs.get(i).getColor());
+        }
+        Log.d(TAG, "gameColors: " + deviceColors.toString());
 
         int fullMatches = 0, correctPosCount = 0, correctColorCount = 0;
 
@@ -436,9 +447,14 @@ public class GameChoose extends Activity {
             }
         }
 
+        Log.d(TAG, "Fullmatches: " + fullMatches);
+        Log.d(TAG, "CorrectPosCount: " + correctPosCount);
+        Log.d(TAG, "CorrectColorCount: " + correctColorCount);
+
         //TODO: Send message to other phones to launch the Win Activity
         //Get the list of other devices, need their String to send data packet
         Map<String, Position> deviceList = GlobalResources.getInstance().getDevices();
+        Log.d(TAG, "size devicelist: " + deviceList.size());
 
         if(fullMatches == high){
             //Send the information to launch the Win Activity to other devices
@@ -454,23 +470,30 @@ public class GameChoose extends Activity {
         else{
             //Send the data packet to other devices
             for(Map.Entry<String, Position> entry : deviceList.entrySet()){
-                //First send out full matches, then correct positions, then correct colors, then all wrong
-                if(fullMatches > 0){
-                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_CORRECT));
-                    fullMatches--;
-                }
-                else if(correctPosCount>0){
-                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_POS));
-                    correctPosCount--;
-                }
-                else if(correctColorCount>0){
-                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_COLOR));
-                    correctColorCount--;
-                }
-                else{
-                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_WRONG));
+                if(entry.getKey().equals("ownpos") == false) {
+                    //First send out full matches, then correct positions, then correct colors, then all wrong
+                    if (fullMatches > 0) {
+                        GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_CORRECT));
+                        fullMatches--;
+                        Log.d(TAG, "Correct full, entry: " + entry.getKey());
+                    } else if (correctPosCount > 0) {
+                        GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_POS));
+                        correctPosCount--;
+                        Log.d(TAG, "Correct Pos, entry: " + entry.getKey());
+                    } else if (correctColorCount > 0) {
+                        GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, CORRECT_COLOR));
+                        correctColorCount--;
+                        Log.d(TAG, "Correct color, entry: " + entry.getKey());
+                    } else {
+                        GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_FEEDBACK, ALL_WRONG));
+                        Log.d(TAG, "Correct nothing, entry: " + entry.getKey());
+                    }
                 }
             }
+
+            Log.d(TAG, "Fullmatches: " + fullMatches);
+            Log.d(TAG, "CorrectPosCount: " + correctPosCount);
+            Log.d(TAG, "CorrectColorCount: " + correctColorCount);
 
             //Launch the feedback for self
             //Checking for full matches not necessary (otherwise fullMatches == high would have been true)
@@ -545,7 +568,9 @@ public class GameChoose extends Activity {
         //If this Activity is paused due to the Calibration being launched, do not destroy pattern detector!
         if(GlobalResources.getInstance().getPatternDetector() != null) {
             if(GlobalResources.getInstance().getCalibrated() == true) {
-                GlobalResources.getInstance().getPatternDetector().destroy();
+                if(launchedFeedback == false) {
+                    GlobalResources.getInstance().getPatternDetector().destroy();
+                }
             }
         }
     }
