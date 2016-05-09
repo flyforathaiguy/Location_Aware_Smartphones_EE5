@@ -39,7 +39,7 @@ import be.groept.emedialab.server.data.Position;
 import be.groept.emedialab.util.DeviceColorPair;
 import be.groept.emedialab.util.GlobalResources;
 
-public class GameChoose extends ActionBarActivity {
+public class GameChoose extends Activity {
 
     private FrameLayout frame;
     private int ownColor = 0;
