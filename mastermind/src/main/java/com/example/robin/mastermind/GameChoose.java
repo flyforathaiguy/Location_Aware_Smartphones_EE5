@@ -594,11 +594,15 @@ public class GameChoose extends Activity {
             launchedFeedback = false;
 
             if(wonGame == true){
-                deviceColors.clear();
-                deviceSequence.clear();
                 wonGame = false;
+
+                //Only the master has to reset these
+                if(GlobalResources.getInstance().getClient() == false) {
+                    deviceColors.clear();
+                    deviceSequence.clear();
+                    confirmedPairs.clear();
+                }
             }
-            confirmedPairs.clear();
         }
     }
 

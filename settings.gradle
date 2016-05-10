@@ -1,1 +1,1 @@
-include ':libLocationAware', ':rank_em', ':animal_farm', ':arrow', ':libgdx-core', ':opencvtester', ':libraries:opencv', ':camtester', ':mastermind'
+include ':libLocationAware', ':rank_em', ':animal_farm', ':arrow', ':libgdx-core', ':opencvtester', ':libraries:opencv', ':camtester', ':mastermind', 'pattern_search'
