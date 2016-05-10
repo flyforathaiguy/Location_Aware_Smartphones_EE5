@@ -12,7 +12,8 @@
         android:text="OK"
         android:id="@+id/confirmButton"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="acceptButton" />
 
     <RatingBar
         android:layout_width="wrap_content"
@@ -57,4 +58,12 @@
         android:id="@+id/ratingFeedback"
         android:layout_above="@+id/ratingBar"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/positionText"
+        android:layout_above="@+id/textView2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="53dp" />
 </RelativeLayout>
