@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,14 +22,18 @@ import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.PatternDetector;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
 import be.groept.emedialab.server.data.Position;
+import be.groept.emedialab.util.DeviceColorPair;
 import be.groept.emedialab.util.GlobalResources;
 
 
 public class GameWindow extends Activity {
 
     private Button button;
-    private static final int END_GAME = 3;
     private TextView feedbackText;
+
+    private static final int END_GAME = 3;
+    private static final int POS_CONFIRM = 2;
+
 
     final Activity activity = this;
 
@@ -76,7 +81,7 @@ public class GameWindow extends Activity {
                 //and store them in a list
                 Serializable data;
                 if((data = GlobalResources.getInstance().readData()) != null){
-                    //handleData((DataPacket) data);
+                    handleData((DataPacket) data);
                 }
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
                 // TODO: Wat als device disconnect?
@@ -96,6 +101,29 @@ public class GameWindow extends Activity {
             }
         }
     };
+
+    private void handleData(DataPacket dataPacket){
+        //Always read in the string from the sender of the data, to maintain data usage
+        switch(dataPacket.getDataType()){
+            case POS_CONFIRM:
+                //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
+                if(GlobalResources.getInstance().getReceivedList().size() > 0) {
+                    DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int) dataPacket.getOptionalData());
+                }
+                break;
+            //case LAUNCH_WIN:
+                //launchWinIntent();
+            case END_GAME:
+                endGame();
+            default:
+                break;
+        }
+        //Remove address at last index since we do not need it
+        //Should be the only one in the list ( list.size() == 1 --> index 0)
+        //Log.d(TAG, "received list size: " + GlobalResources.getInstance().getReceivedList().size());
+        if(GlobalResources.getInstance().getReceivedList().size() > 0)
+            GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+    }
 
     private void confirmButton() {
 
