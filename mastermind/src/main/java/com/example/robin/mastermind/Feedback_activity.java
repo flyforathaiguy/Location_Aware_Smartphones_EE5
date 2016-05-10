@@ -87,7 +87,7 @@ public class Feedback_activity extends Activity {
             moveImage(colorize);
 
         } else if (i == GameChoose.ALL_WRONG) {
-            background.setBackgroundColor(Color.RED);
+            background.setBackgroundColor(Color.BLACK);
             colorize.setVisibility(View.INVISIBLE);
             correct.setVisibility(View.INVISIBLE);
             position.setVisibility(View.INVISIBLE);
@@ -101,13 +101,13 @@ public class Feedback_activity extends Activity {
         //Change the position of the image
         RelativeLayout.LayoutParams positionRules = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        positionRules.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        positionRules.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         image.setLayoutParams(positionRules);
 
         //Change the size of the image
         ViewGroup.LayoutParams sizeRules = image.getLayoutParams();
-        sizeRules.width = 450;
-        sizeRules.height = 300;
+        sizeRules.width = 600;
+        sizeRules.height = 450;
         image.setLayoutParams(sizeRules);
 
     }
