@@ -1,6 +1,7 @@
 package com.example.robin.pattern_search;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,6 +34,7 @@ public class GameWindow extends Activity {
 
     private static final int END_GAME = 3;
     private static final int POS_CONFIRM = 2;
+    private static final int LAUNCH_WIN = 1;
 
 
     final Activity activity = this;
@@ -84,20 +86,11 @@ public class GameWindow extends Activity {
                     handleData((DataPacket) data);
                 }
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
-                // TODO: Wat als device disconnect?
                 //Don't know yet, probalby end the game
                 endGame();
-                /*
-                BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
-                Log.e(TAG, "Device " + bluetoothDevice.getAddress() + " disconnected!");
-                sortedValues.remove(bluetoothDevice.getAddress());
-                if(sortedValues.size() <= SecondActivity.minNumberOfDevices){
-                    leaveGame(mContentView);
-                }
-                */
             }
             else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
-                //updateText();
+               // updateText();
             }
         }
     };
@@ -111,8 +104,8 @@ public class GameWindow extends Activity {
                     DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int) dataPacket.getOptionalData());
                 }
                 break;
-            //case LAUNCH_WIN:
-                //launchWinIntent();
+            case LAUNCH_WIN:
+                launchWinIntent();
             case END_GAME:
                 endGame();
             default:
@@ -123,6 +116,11 @@ public class GameWindow extends Activity {
         //Log.d(TAG, "received list size: " + GlobalResources.getInstance().getReceivedList().size());
         if(GlobalResources.getInstance().getReceivedList().size() > 0)
             GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+    }
+
+    private void launchWinIntent() {
+        Intent intent = new Intent(getBaseContext(), WinnerActivity.class);
+        startActivity(intent);
     }
 
     private void confirmButton() {
