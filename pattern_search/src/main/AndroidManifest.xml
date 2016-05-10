@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".WinnerActivity"
+            android:label="@string/title_activity_winner" >
+        </activity>
+        <activity
+            android:name=".ConnectionActivity"
+            android:label="@string/title_activity_connection" >
+        </activity>
+        <activity
+            android:name=".StartActivity"
+            android:label="@string/title_activity_start" >
+        </activity>
     </application>
 
 </manifest>

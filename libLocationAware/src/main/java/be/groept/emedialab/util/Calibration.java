@@ -107,7 +107,7 @@ public class Calibration extends AppCompatActivity {
 
             angle = Math.min(Math.abs(wantedAngle - position.getRotation()), Math.abs(360 - Math.abs(wantedAngle - position.getRotation())));
             feedbackText.setText(String.format("%s \n%.1f°",getText(R.string.CalibrateFeedback), angle));
-            if (angle < 1.5)
+            if (angle < 10)
                 feedbackText.setTextColor(Color.parseColor("green"));
             else
                 feedbackText.setTextColor(Color.parseColor("red"));
@@ -134,7 +134,7 @@ public class Calibration extends AppCompatActivity {
             if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getZ())) {
 
                 //Difference in angles should not be greater than 1.5°
-                if(Math.min(Math.abs(wantedAngle - secondPosition.getRotation()), Math.abs(360 - Math.abs(wantedAngle - secondPosition.getRotation()))) < 1.5) {
+                if(Math.min(Math.abs(wantedAngle - secondPosition.getRotation()), Math.abs(360 - Math.abs(wantedAngle - secondPosition.getRotation()))) < 10) {
                     Log.d(TAG, "Second Coordinates in Calibration set: x= " + secondPosition.getX() + " y=" + secondPosition.getY() + " angle= " + secondPosition.getRotation());
 
                     calculateCamOffset();

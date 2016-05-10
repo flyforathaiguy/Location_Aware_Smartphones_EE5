@@ -41,8 +41,7 @@
             android:layout_height="358dp"
             android:id="@+id/imageView3"
             android:src="@drawable/congra"
-            android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:layout_gravity="center"/>
 
         <Button
             android:layout_width="142dp"
