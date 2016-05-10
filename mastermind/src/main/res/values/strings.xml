@@ -15,6 +15,5 @@
     <string name="mastermind">MASTER MIND</string>
     <string name="restart">Restart</string>
     <string name="exit">Exit</string>
-    <string name="title_activity_rules">RulesActivity</string>
 
 </resources>

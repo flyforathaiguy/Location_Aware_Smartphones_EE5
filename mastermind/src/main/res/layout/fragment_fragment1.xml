@@ -1,0 +1,15 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.robin.mastermind.Rules.fragment1">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="The rules of this game of this game are similir to the ones of the original well-known Mastermind game. Each phone has to be in a certain position, and each phone should have to correct color, only then the game can be won. When all phones have confirmed their color, the master determines how many phones have the correct position, color, both or none. Then, feedback is sent to each phone. This feedback is not phone specific, meaning that if one phone shows the &quot;all correct&quot; screen, it does not mean that it is this specific phone that is all correct, it can be any phone. On the next screens, all possible feedback screens are shown.  Swipe right for more information."
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal|top" />
+</FrameLayout>

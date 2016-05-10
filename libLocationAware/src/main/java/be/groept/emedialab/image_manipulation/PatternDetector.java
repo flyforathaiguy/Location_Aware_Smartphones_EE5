@@ -55,7 +55,7 @@ public class PatternDetector{
 
     private Mat rgba, grey, binary;
     private int cameraNum = 1;
-    private boolean debug = true;
+    private boolean debug = false;
 
     //for debugging purposes
     private int picCount = 0;

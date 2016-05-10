@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.robin.mastermind.Rules.RulesActivity;
+
 import be.groept.emedialab.util.GlobalResources;
 
 public class Start extends AppCompatActivity{
@@ -30,8 +32,6 @@ private View mContentView;
                 Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean("create", true);
-                //bundle.putBoolean("join", false);
-                //bundle.putBoolean("rules", false);
                 intent.putExtras(bundle);
                 Start.this.startActivity(intent);
             }
@@ -44,7 +44,6 @@ private View mContentView;
                 Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean("create", false);
-                bundle.putBoolean("rules", false);
                 intent.putExtras(bundle);
                 Start.this.startActivity(intent);
             }
@@ -53,11 +52,7 @@ private View mContentView;
         rulesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("create", false);
-                bundle.putBoolean("join", false);
-                intent.putExtras(bundle);
+                Intent intent = new Intent(getBaseContext(), RulesActivity.class);
                 Start.this.startActivity(intent);
             }
         });

@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +41,7 @@ import be.groept.emedialab.util.GlobalResources;
 
 public class GameChoose extends Activity {
 
-    private FrameLayout frame;
+    private RelativeLayout frame;
     private int ownColor = 0;
     private Button button;
     private ImageView imageViewRED, imageViewBLUE, imageViewGREEN, imageViewYELLOW;
@@ -61,6 +62,7 @@ public class GameChoose extends Activity {
 
     //boolean to check whether or not feedback has started (for the onPause and onResume methods)
     private boolean launchedFeedback = false;
+    private boolean wonGame = false;
 
     //Lists that contains the devices with their gamePosition and gameColor
     Map<String, Integer> deviceSequence = new HashMap<>();
@@ -214,10 +216,10 @@ public class GameChoose extends Activity {
         });
 
         //Get background frame
-        frame = (FrameLayout) findViewById(R.id.Frame);
+        frame = (RelativeLayout) findViewById(R.id.frame);
 
         //Get feedback text
-        feedbackText = (TextView) findViewById(R.id.positionText);
+        feedbackText = (TextView) findViewById(R.id.feedbackText);
 
         //Get accept button
         button = (Button) findViewById(R.id.acceptButton);
@@ -225,9 +227,7 @@ public class GameChoose extends Activity {
             @Override
             public void onClick(View v) {
                 acceptButton();
-            }
-
-            ;
+            };
         });
     }
 
@@ -458,7 +458,8 @@ public class GameChoose extends Activity {
         if(fullMatches == high){
             //Send the information to launch the Win Activity to other devices
             for(Map.Entry<String, Position> entry : deviceList.entrySet()){
-                GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
+                if(entry.getKey().equals("ownpos") == false)
+                    GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
             }
 
             //Master: Launch the Win activity
@@ -518,6 +519,7 @@ public class GameChoose extends Activity {
     }
 
     private void launchWinIntent(){
+        wonGame = true;
         Intent intent = new Intent(getBaseContext(), WinActivity.class);
         startActivity(intent);
     }
@@ -567,7 +569,7 @@ public class GameChoose extends Activity {
         //If this Activity is paused due to the Calibration being launched, do not destroy pattern detector!
         if(GlobalResources.getInstance().getPatternDetector() != null) {
             if(GlobalResources.getInstance().getCalibrated() == true) {
-                if(launchedFeedback == false) {
+                if(launchedFeedback == false && wonGame == false) {
                     GlobalResources.getInstance().getPatternDetector().destroy();
                 }
             }
@@ -580,8 +582,8 @@ public class GameChoose extends Activity {
         if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
             GlobalResources.getInstance().getPatternDetector().setup();
 
-        //Coming back from the feedback screen?
-        if(launchedFeedback == true){
+        //Coming back from the feedback screen / won game screen?
+        if(launchedFeedback == true || wonGame == true){
             //Re-enable all buttons
             button.setClickable(true);
             imageViewRED.setClickable(true);
@@ -590,6 +592,12 @@ public class GameChoose extends Activity {
             imageViewYELLOW.setClickable(true);
 
             launchedFeedback = false;
+
+            if(wonGame == true){
+                deviceColors.clear();
+                deviceSequence.clear();
+                wonGame = false;
+            }
             confirmedPairs.clear();
         }
     }
