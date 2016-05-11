@@ -38,31 +38,4 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="76dp" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/angleOffsetBox"
-        android:layout_marginBottom="43dp"
-        android:enabled="true"
-        android:layout_above="@+id/button"
-        android:textStyle="italic"
-        android:autoText="false"
-        android:layout_alignLeft="@+id/button"
-        android:layout_alignStart="@+id/button"
-        android:layout_alignRight="@+id/angleView"
-        android:layout_alignEnd="@+id/angleView"
-        android:text="0" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/angleoffset"
-        android:id="@+id/textView"
-        android:layout_above="@+id/angleOffsetBox"
-        android:layout_alignRight="@+id/feedbackText"
-        android:layout_alignEnd="@+id/feedbackText" />
-
 </RelativeLayout>

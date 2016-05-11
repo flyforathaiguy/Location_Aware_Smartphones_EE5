@@ -254,9 +254,6 @@ public class PositionCalculation {
             //Log.d(TAG, "Angle 2");
         }
 
-        //Compensate with the possible angle offset given during calibration
-        rotationAngle = rotationAngle + GlobalResources.getInstance().getAngleOffset();
-
         //rotationAngle = (Math.toDegrees(Math.acos(cos)) + 90 + 360)%360;
 
         //Log.d(TAG, "Rotation " + rotationAngle);
