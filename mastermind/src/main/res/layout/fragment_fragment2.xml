@@ -5,23 +5,13 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <LinearLayout
-        android:orientation="vertical"
+    <TextView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center"
-            android:text="Feedback screen when both position and color on a phone are correct."
-            android:id="@+id/textView3" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView2"
-            android:src="@drawable/feedback_good" />
-    </LinearLayout>
+        android:layout_height="fill_parent"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="When all phones have confirmed their color, the master determines how many phones have the correct position, color, both or none.\nThen, feedback is sent to each phone. This feedback is not phone specific, meaning that if one phone shows the &quot;all correct&quot; screen, it does not mean that it is this specific phone that is all correct, it can be any phone.\nOn the next screens, all possible feedback screens are shown.\nSwipe right for more information."
+        android:id="@+id/textView7"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_margin="8dp"
+        android:textSize="22dp" />
 </FrameLayout>

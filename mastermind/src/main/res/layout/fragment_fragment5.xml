@@ -15,13 +15,13 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:gravity="center"
-            android:text="Feedback screen when neither the position nor the color of a phone is correct."
-            android:id="@+id/textView6" />
+            android:text="Feedback screen when only the color of a phone is correct, not its position."
+            android:id="@+id/textView5" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView6"
-            android:src="@drawable/feedback_bad" />
+            android:id="@+id/imageView5"
+            android:src="@drawable/feedback_color" />
     </LinearLayout>
 </FrameLayout>

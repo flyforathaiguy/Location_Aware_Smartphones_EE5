@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.example.robin.mastermind.R;
 
-public class fragment4 extends Fragment {
+public class fragment6 extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -17,8 +17,8 @@ public class fragment4 extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public static fragment4 newInstance(String param1, String param2) {
-        fragment4 fragment = new fragment4();
+    public static fragment6 newInstance(String param1, String param2) {
+        fragment6 fragment = new fragment6();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -26,7 +26,8 @@ public class fragment4 extends Fragment {
         return fragment;
     }
 
-    public fragment4() {
+    public fragment6() {
+
     }
 
     @Override
@@ -41,8 +42,7 @@ public class fragment4 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_fragment4, container, false);
+        return inflater.inflate(R.layout.fragment_fragment6, container, false);
     }
 
 
