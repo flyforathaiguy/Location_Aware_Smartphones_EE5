@@ -10,5 +10,6 @@
     <string name="patternsearch">PATTERN SEARCH</string>
     <string name="join">JOIN</string>
     <string name="create">CREATE</string>
+    <string name="rules">Rules</string>
 
 </resources>

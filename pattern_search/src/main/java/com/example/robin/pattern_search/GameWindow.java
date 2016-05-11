@@ -2,6 +2,7 @@ package com.example.robin.pattern_search;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -90,10 +91,21 @@ public class GameWindow extends Activity {
                 endGame();
             }
             else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
-               // updateText();
+               updateText();
             }
         }
     };
+    private void updateText(){
+
+        Position position = GlobalResources.getInstance().getDevice().getPosition();
+        if(position.getFoundPattern()){
+            //feedbackText.setTextColor(Color.parseColor("green"));
+            feedbackText.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(be.groept.emedialab.R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
+
+        }else{
+            feedbackText.setText("still.....");
+        }
+    }
 
     private void handleData(DataPacket dataPacket){
         //Always read in the string from the sender of the data, to maintain data usage
@@ -139,6 +151,7 @@ public class GameWindow extends Activity {
 
         //In this case you're the master
         else {
+
 
 
 
