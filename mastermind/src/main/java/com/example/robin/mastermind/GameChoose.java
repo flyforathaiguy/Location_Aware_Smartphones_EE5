@@ -592,6 +592,8 @@ public class GameChoose extends Activity {
             imageViewYELLOW.setClickable(true);
 
             launchedFeedback = false;
+            //Reset confirmedPairs list for next round
+            confirmedPairs.clear();
 
             if(wonGame == true){
                 wonGame = false;
@@ -600,7 +602,6 @@ public class GameChoose extends Activity {
                 if(GlobalResources.getInstance().getClient() == false) {
                     deviceColors.clear();
                     deviceSequence.clear();
-                    confirmedPairs.clear();
                 }
             }
         }
