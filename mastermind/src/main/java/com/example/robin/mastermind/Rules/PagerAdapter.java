@@ -3,6 +3,8 @@ package com.example.robin.mastermind.Rules;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 

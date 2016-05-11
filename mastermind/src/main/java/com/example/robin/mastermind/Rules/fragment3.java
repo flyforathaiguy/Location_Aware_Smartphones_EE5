@@ -1,6 +1,5 @@
 package com.example.robin.mastermind.Rules;
 
-
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -44,6 +43,4 @@ public class fragment3 extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_fragment3, container, false);
     }
-
-
 }

@@ -31,7 +31,7 @@ public class fragment5 extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment fragment5.
+     * @return A new instance of fragment fragment4.
      */
     // TODO: Rename and change types and number of parameters
     public static fragment5 newInstance(String param1, String param2) {

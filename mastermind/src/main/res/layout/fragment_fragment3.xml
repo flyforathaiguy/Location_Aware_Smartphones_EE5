@@ -8,20 +8,20 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:gravity="center"
-            android:text="Feedback screen when only the position of a phone is correct, not its color."
-            android:id="@+id/textView4" />
+            android:text="Feedback screen when both position and color on a phone are correct."
+            android:id="@+id/textView3" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView4"
-            android:src="@drawable/feedback_position" />
+            android:id="@+id/imageView2"
+            android:src="@drawable/feedback_good" />
     </LinearLayout>
 </FrameLayout>
