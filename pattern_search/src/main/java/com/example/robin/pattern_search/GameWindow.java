@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,14 +14,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import be.groept.emedialab.communications.DataHandler;
 import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.PatternDetector;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
 import be.groept.emedialab.server.data.Position;
-import be.groept.emedialab.util.DeviceColorPair;
 import be.groept.emedialab.util.GlobalResources;
 
 
@@ -34,6 +36,16 @@ public class GameWindow extends Activity {
     private static final int END_GAME = 3;
     private static final int POS_CONFIRM = 2;
 
+    //Bounds wherein the position can be randomly generated
+    private static final int LOWER_BOUND_X = -90;
+    private static final int UPPER_BOUND_X = 90;
+    private static final int LOWER_BOUND_Y = -90;
+    private static final int UPPER_BOUND_Y = 90;
+
+    private List<DevicePositionPair> confirmedPairs;
+    private List<DevicePositionPair> wantedPairs;
+
+    private final int nbDevices = GlobalResources.getInstance().getDevices().size() + 1;
 
     final Activity activity = this;
 
@@ -56,6 +68,11 @@ public class GameWindow extends Activity {
         };
         runnablePattern.run();
 
+        //Create the list
+        confirmedPairs = new ArrayList<>();
+
+        //Calculate the game
+        calculateGame();
 
         //Get accept button
         button = (Button) findViewById(R.id.confirmButton);
@@ -67,6 +84,9 @@ public class GameWindow extends Activity {
 
             ;
         });
+
+        //Get feedback text
+        feedbackText = (TextView) findViewById(R.id.feedbackText);
     }
 
     //Handler for signals, large parts of code taken from original Location Aware Smartphones project
@@ -79,25 +99,23 @@ public class GameWindow extends Activity {
             if(msg.what == DataHandler.DATA_TYPE_COORDINATES) {
                 //If coordinates are received, the master has to handle these coordinates
                 //and store them in a list
-                Serializable data;
-                if((data = GlobalResources.getInstance().readData()) != null){
-                    handleData((DataPacket) data);
-                }
+
             }else if(msg.what == DataHandler.DATA_TYPE_DEVICE_DISCONNECTED){
                 // TODO: Wat als device disconnect?
                 //Don't know yet, probalby end the game
                 endGame();
-                /*
-                BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
-                Log.e(TAG, "Device " + bluetoothDevice.getAddress() + " disconnected!");
-                sortedValues.remove(bluetoothDevice.getAddress());
-                if(sortedValues.size() <= SecondActivity.minNumberOfDevices){
-                    leaveGame(mContentView);
-                }
-                */
             }
             else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
                 //updateText();
+            }
+            else if(msg.what == DataHandler.DATA_TYPE_DATA_PACKET) {
+                //Datapacket = confirmation of the position of a phone
+                //When one of the phones sends his confirmation, this means that this position for this phone is final
+                //So it can be put in a list, to check later on
+                Serializable data;
+                if ((data = GlobalResources.getInstance().readData()) != null) {
+                    handleData((DataPacket) data);
+                }
             }
         }
     };
@@ -106,10 +124,11 @@ public class GameWindow extends Activity {
         //Always read in the string from the sender of the data, to maintain data usage
         switch(dataPacket.getDataType()){
             case POS_CONFIRM:
-                //Make new DeviceColorPair containing the address of the device from which the ownColor was sent, as well as the ownColor
-                if(GlobalResources.getInstance().getReceivedList().size() > 0) {
-                    DeviceColorPair pair = new DeviceColorPair(GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1), (int) dataPacket.getOptionalData());
-                }
+                //Make new DevicePositionPair containing the address of the device from which the position was sent, as well as the position
+                //Get the device address from the phone that confirmed its position
+                String device = GlobalResources.getInstance().getReceivedList().get(GlobalResources.getInstance().getReceivedList().size() - 1);
+                DevicePositionPair pair = new DevicePositionPair(device, GlobalResources.getInstance().getDevices().get(device));
+                confirmedPairs.add(pair);
                 break;
             //case LAUNCH_WIN:
                 //launchWinIntent();
@@ -125,26 +144,53 @@ public class GameWindow extends Activity {
             GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
     }
 
+    private void calculateGame(){
+
+        //Get all devices, current position of them does not matter
+        HashMap<String, Position> connectedDevices = (HashMap) GlobalResources.getInstance().getDevices();
+        List<String> devicesList = new ArrayList<>(connectedDevices.keySet());
+        //Add own device to the list
+        if(connectedDevices.containsKey("ownpos") == false)
+            devicesList.add("ownpos");
+
+        //Populate the wantedPairs list
+        Random random = new Random();
+        for(int i = 0; i < devicesList.size(); i++) {
+            //Generate random int between upper bound and lower bound, both inclusive
+            Position wantedPosition;
+            int randomX = (random.nextInt(UPPER_BOUND_X - LOWER_BOUND_X) + UPPER_BOUND_X);
+            int randomY = (random.nextInt(UPPER_BOUND_Y - LOWER_BOUND_Y) + UPPER_BOUND_Y);
+
+            //Z value and angle at 0°, do not actually matter
+            wantedPosition = new Position(randomX, randomY, 0, 0);
+            //Create new DevicePositionPair and add it to the wantedPairs list
+            DevicePositionPair pair = new DevicePositionPair(devicesList.get(i), wantedPosition);
+            wantedPairs.add(pair);
+        }
+
+        //TODO: What else has to happen?
+    }
+
     private void confirmButton() {
 
         button.setClickable(false);
-
-        //Get feedback text
-        feedbackText = (TextView) findViewById(R.id.positionText);
 
         //In this case you're the client
         if(GlobalResources.getInstance().getClient() == true) {
             //Send data of type DATA_PACKET, DataPacket itself is of type COLOR
             Position position = GlobalResources.getInstance().getDevice().getPosition();
-            GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_COORDINATES, new DataPacket(position));
+            GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(POS_CONFIRM));
         }
 
         //In this case you're the master
         else {
-
-
-
+            //TODO: calculate the distance for each phone to the wanted position
+            checkAllDevicesConfirmed();
         }
+
+    }
+
+    private void checkAllDevicesConfirmed(){
 
     }
 
@@ -168,26 +214,4 @@ public class GameWindow extends Activity {
         finish();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_game_window, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }

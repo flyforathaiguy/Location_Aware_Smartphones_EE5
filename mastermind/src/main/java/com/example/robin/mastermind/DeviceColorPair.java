@@ -1,4 +1,4 @@
-package be.groept.emedialab.util;
+package com.example.robin.mastermind;
 
 import java.io.Serializable;
 
