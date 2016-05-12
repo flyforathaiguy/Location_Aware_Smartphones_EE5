@@ -11,5 +11,6 @@
     <string name="patternsearch">Pattern Search</string>
     <string name="join">Join</string>
     <string name="create">Create</string>
+    <string name="game_window">Pattern Search</string>
 
 </resources>
