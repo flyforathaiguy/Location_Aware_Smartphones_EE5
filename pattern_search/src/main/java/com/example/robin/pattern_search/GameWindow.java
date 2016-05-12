@@ -289,7 +289,6 @@ public class GameWindow extends Activity {
         finish();
     }
 
-
     private void makeRandomLocation(){
 
         //Getting the position of the master
@@ -312,15 +311,14 @@ public class GameWindow extends Activity {
         while(Math.abs(masterX - randomNumberX) <= 12) {
 
             randomNumberX = (rand.nextInt(90)-45);
-            randomX = randomNumberX;
-
         }
+        randomX = randomNumberX;
 
         while(Math.abs(masterY - randomNumberY) <= 20) {
 
             randomNumberY = (rand.nextInt(130)-65);
-            randomY = randomNumberY;
         }
+        randomY = randomNumberY;
 
     }
 
