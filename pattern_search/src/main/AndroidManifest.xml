@@ -28,6 +28,10 @@
             android:name=".StartActivity"
             android:label="@string/title_activity_start" >
         </activity>
+        <activity
+            android:name=".LoserActivity"
+            android:label="@string/title_activity_loser" >
+        </activity>
     </application>
 
 </manifest>
