@@ -4,7 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import be.groept.emedialab.math.PositionCalculation;
 import be.groept.emedialab.movement.MovementAccelerometer;
@@ -109,14 +113,7 @@ public class PatternDetector{
         try{
             //Using a dummy texture --> Results in no camera visible on screen
             mCamera.setPreviewTexture(new SurfaceTexture(10));
-
-            //Getting & Setting Camera parameters
-            Camera.Parameters param = mCamera.getParameters();
-             param.set("orientation", "landscape");
-             param.set("rotation", 90);
-             param.setSceneMode(Camera.Parameters.SCENE_MODE_HDR);
-
-            mCamera.setParameters(param);
+            setParameters();
         } catch (IOException e){
             e.printStackTrace();
             Log.d(TAG, "Error in PatternDetector Setup");
@@ -187,6 +184,7 @@ public class PatternDetector{
 
                 try {
                     mCamera.setPreviewTexture(new SurfaceTexture(10));
+                    setParameters();
                 } catch (Exception e){
                     Log.d(TAG, "Exception setting preview texture)");
                 }
@@ -216,6 +214,7 @@ public class PatternDetector{
                             mCamera.stopPreview();
                             try {
                                 mCamera.setPreviewTexture(new SurfaceTexture(10));
+                                setParameters();
                             } catch (Exception f){
                                 Log.d(TAG, "Exception setting preview texture after picture error");
                             }
@@ -277,6 +276,24 @@ public class PatternDetector{
         }
     }
 
+    private void setParameters(){
+        //Getting & Setting Camera parameters
+        Camera.Parameters param = mCamera.getParameters();
+        param.set("orientation", "landscape");
+        //param.set("rotation", 90);
+        param.setSceneMode(Camera.Parameters.SCENE_MODE_HDR);
+
+        Display display = ((WindowManager)GlobalResources.getInstance().getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        if(display.getRotation() == Surface.ROTATION_0){
+            mCamera.setDisplayOrientation(90);
+        }
+        if(display.getRotation() == Surface.ROTATION_270){
+            mCamera.setDisplayOrientation(270);
+        }
+
+        mCamera.setParameters(param);
+    }
+
     //Update the sleep time for the takePic thread, increment is no picture is detected, otherwise decrement
     private void updateSleepTime(){
         //Decrement
@@ -302,7 +319,6 @@ public class PatternDetector{
                 mCamera = null;
             }
         isPaused = true;
-        // TODO stop executorService
 
         Log.d(TAG, "runThread = false");
         System.gc();

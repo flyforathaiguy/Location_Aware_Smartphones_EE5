@@ -104,6 +104,7 @@ public class RunPatternDetector {
             //Check if the system is calibrated
             //If not, launch the calibration class with a new intent (UI thread)
             Log.d(TAG, "calibrated =" + GlobalResources.getInstance().getCalibrated());
+
             /*
             if (GlobalResources.getInstance().getCalibrated() == false){
                 Log.d(TAG, "Not Calibrated");
@@ -116,6 +117,7 @@ public class RunPatternDetector {
                 Log.d(TAG, "Launched intent");
             }
             */
+
         }
     }
 }

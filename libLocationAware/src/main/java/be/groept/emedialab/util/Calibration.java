@@ -7,23 +7,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.Serializable;
 
 import be.groept.emedialab.R;
 import be.groept.emedialab.communications.DataHandler;
-import be.groept.emedialab.communications.DataPacket;
-import be.groept.emedialab.image_manipulation.PatternCoordinates;
 import be.groept.emedialab.server.data.Position;
 
 
@@ -61,40 +51,8 @@ public class Calibration extends AppCompatActivity {
 
         text = (TextView) findViewById(R.id.angleView);
         feedbackText = (TextView) findViewById(R.id.feedbackText);
-        angleText = (EditText) findViewById(R.id.angleOffsetBox);
 
         GlobalResources.getInstance().setCalibrationHandler(handler);
-
-        //Set the text listener for the angle offset edittext box
-        angleText.addTextChangedListener(new TextWatcher(){
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //Do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                try{
-                    angleOffset = Integer.parseInt(angleText.getText().toString());
-                    if(angleOffset>=0){
-                        angleOffset = angleOffset%360;
-                    }
-                    else{
-                        angleOffset = angleOffset%(-360);
-                    }
-                    GlobalResources.getInstance().setAngleOffset(angleOffset);
-                } catch (Exception e){
-                   GlobalResources.getInstance().setAngleOffset(0);
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //Do nothing
-            }
-        });
     }
 
     //Update the position that is represented on the screen as user feedback

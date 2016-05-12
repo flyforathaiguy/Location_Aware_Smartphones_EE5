@@ -1,5 +1,6 @@
 package com.example.robin.mastermind.Rules;
 
+
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ public class fragment2 extends Fragment {
     }
 
     public fragment2() {
+
     }
 
     @Override
@@ -40,7 +42,8 @@ public class fragment2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_fragment2, container, false);
     }
+
+
 }
