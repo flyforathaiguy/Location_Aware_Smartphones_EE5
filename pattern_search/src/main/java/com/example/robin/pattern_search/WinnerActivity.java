@@ -13,7 +13,6 @@ public class WinnerActivity extends ActionBarActivity {
 
     ImageView winner;
     private View mContentView;
-    private boolean robin_argument;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,32 +40,11 @@ public class WinnerActivity extends ActionBarActivity {
         Button exitButton = (Button) findViewById(R.id.exit);
         exitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v){
-
                 finish();
             }
-
-
         });
-
-
-
         hide();
     }
-
-    /*
-    public void chooseColor(Bundle bundle) {//this class should be based on the feedback of robin result
-
-        int i = bundle.getInt("feedback");
-        if (i == GameChoose.ALL_CORRECT) {
-
-            congra.setVisibility(View.VISIBLE);
-            fail.setVisibility(View.INVISIBLE);
-       } else {
-            congra.setVisibility(View.INVISIBLE);
-            fail.setVisibility(View.VISIBLE);
-        }
-    }
-    */
 
     private void hide() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -78,7 +56,5 @@ public class WinnerActivity extends ActionBarActivity {
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     }
-
-
 }
 
