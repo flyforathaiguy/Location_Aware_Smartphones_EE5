@@ -11,5 +11,6 @@
     <string name="join">JOIN</string>
     <string name="create">CREATE</string>
     <string name="rules">Rules</string>
+    <string name="StartButton">startbutton</string>
 
 </resources>
