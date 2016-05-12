@@ -10,6 +10,7 @@ public class DeviceColorPair implements Serializable {
     private String deviceAddress;
     private int color;
 
+    //Comment voor Robin
     public DeviceColorPair(String deviceAddress, int color){
         this.deviceAddress = deviceAddress;
         this.color = color;

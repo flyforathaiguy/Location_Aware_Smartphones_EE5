@@ -7,5 +7,6 @@
     <string name="title_activity_winner">WinnerActivity</string>
     <string name="title_activity_connection">ConnectionActivity</string>
     <string name="title_activity_start">StartActivity</string>
+    <string name="title_activity_loser">LoserActivity</string>
 
 </resources>
