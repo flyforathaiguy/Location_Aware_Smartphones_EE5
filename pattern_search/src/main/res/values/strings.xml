@@ -7,5 +7,9 @@
     <string name="title_activity_winner">WinnerActivity</string>
     <string name="title_activity_connection">ConnectionActivity</string>
     <string name="title_activity_start">StartActivity</string>
+    <string name="patternsearch">PATTERN SEARCH</string>
+    <string name="join">JOIN</string>
+    <string name="new">START NEW</string>
+    <string name="create">CREATE</string>
 
 </resources>
