@@ -7,10 +7,10 @@
     <string name="title_activity_winner">WinnerActivity</string>
     <string name="title_activity_connection">ConnectionActivity</string>
     <string name="title_activity_start">StartActivity</string>
-    <string name="patternsearch">PATTERN SEARCH</string>
-    <string name="join">JOIN</string>
-    <string name="create">CREATE</string>
-    <string name="rules">Rules</string>
-    <string name="StartButton">startbutton</string>
+    <string name="title_activity_loser">LoserActivity</string>
+    <string name="patternsearch">Pattern Search</string>
+    <string name="join">Join</string>
+    <string name="create">Create</string>
+    <string name="game_window">Pattern Search</string>
 
 </resources>

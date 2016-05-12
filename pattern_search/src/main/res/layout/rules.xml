@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    android:background="#ffffff">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+    </FrameLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rules"
+        android:id="@+id/rule"
+        android:layout_gravity="center_horizontal" />
+
+    <EditText
+        android:layout_width="361dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_gravity="center_horizontal"
+        android:text="This game is reaching a random point in our case target which is set by the master. Number of player is determined by the master. For every movement of  player the master informs to what farther they go towards the target but no direction. Every player have an attempt of 3. After finishing the attempt the player who is close to the target will win."
+        android:layout_weight="0.77"
+        android:background="#ffffff" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start_Game"
+        android:id="@+id/start"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>

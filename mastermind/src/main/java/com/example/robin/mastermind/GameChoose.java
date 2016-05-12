@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -36,7 +35,6 @@ import be.groept.emedialab.image_manipulation.PatternDetector;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
 import be.groept.emedialab.math.DistanceCalculation;
 import be.groept.emedialab.server.data.Position;
-import be.groept.emedialab.util.DeviceColorPair;
 import be.groept.emedialab.util.GlobalResources;
 
 public class GameChoose extends Activity {

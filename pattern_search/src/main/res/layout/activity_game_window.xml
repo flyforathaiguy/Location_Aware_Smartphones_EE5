@@ -18,10 +18,11 @@
     <RatingBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ratingBar"
+        android:id="@+id/rating"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="90dp" />
+        android:layout_marginBottom="90dp"
+        android:isIndicator="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -56,7 +57,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Nowhere near the target"
         android:id="@+id/ratingFeedback"
-        android:layout_above="@+id/ratingBar"
+        android:layout_above="@+id/rating"
         android:layout_centerHorizontal="true" />
 
     <TextView

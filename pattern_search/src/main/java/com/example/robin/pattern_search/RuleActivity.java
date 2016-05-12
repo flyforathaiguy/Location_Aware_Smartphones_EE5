@@ -6,45 +6,41 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
+/**
+ * Created by yonas-Haregot on 5/11/2016.
+ */
+public class RuleActivity extends ActionBarActivity {
 
-public class WinnerActivity extends ActionBarActivity {
-
-    ImageView winner;
     private View mContentView;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_winner);
-        mContentView = findViewById(R.id.winner);
+        setContentView(R.layout.rules);
+       mContentView = findViewById(R.id.rule);
 
-        winner= (ImageView) findViewById(R.id.winner);
+        //winner= (ImageView) findViewById(R.id.winner);
 
-        Button restartButton = (Button) findViewById(R.id.restart);
-        restartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-             //   finish();
+
+    Button Start_GameButton = (Button) findViewById(R.id.start);
+    Start_GameButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //   finish();
 
             Intent intent = new Intent(getBaseContext(), GameWindow.class);
             Bundle bundle = new Bundle();
-            bundle.putBoolean("restart", true);
+
             intent.putExtras(bundle);
-            WinnerActivity.this.startActivity(intent);
+            RuleActivity.this.startActivity(intent);
 
-            }
-        });
+        }
+    });
 
-        Button exitButton = (Button) findViewById(R.id.exit);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v){
-                finish();
-            }
-        });
-        hide();
-    }
+    hide();
+}
+
+
 
     private void hide() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -56,5 +52,6 @@ public class WinnerActivity extends ActionBarActivity {
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     }
-}
 
+
+}
