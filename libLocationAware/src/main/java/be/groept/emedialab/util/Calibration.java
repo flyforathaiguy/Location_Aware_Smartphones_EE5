@@ -28,11 +28,14 @@ public class Calibration extends AppCompatActivity {
     private boolean firstPositionReceived, secondPositionReceived = false;
     private double angle, wantedAngle;
     private TextView text, feedbackText;
+    private CircularSeekBar circularSeekBar1;
     private Map<String, Position> confirmedPositions = new HashMap<String, Position>();
     private Button button;
 
     private static final int CONFIRMED_POS = 0;
     private static final int X_OFFSET = 1;
+    private static final int START_ANGLE = 270;
+    private static final int ANGLE_OFFSET = 4;
 
     private static final String TAG = "ArrowGame";
 
@@ -44,6 +47,10 @@ public class Calibration extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED) {
                 updatePosition((Position) msg.obj);
+                if(secondPositionReceived == true) {
+
+                    progressBarSetup();
+                }
             }
             //If a data packet arrives (probably confirmation from other device otf its position
             if (msg.what == DataHandler.DATA_TYPE_DATA_PACKET) {
@@ -93,6 +100,8 @@ public class Calibration extends AppCompatActivity {
 
         text = (TextView) findViewById(R.id.angleView);
         feedbackText = (TextView) findViewById(R.id.feedbackText);
+        circularSeekBar1 = (CircularSeekBar) findViewById(R.id.circularSeekBar1);
+        circularSeekBar1.setVisibility(View.INVISIBLE);
 
         GlobalResources.getInstance().setCalibrationHandler(handler);
 
@@ -247,6 +256,32 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCalibrated(true);
 
         Log.d(TAG, "Calculated camOffset");
+    }
+
+    private void progressBarSetup() {
+        //Set visibility of the xml components
+        button.setVisibility(View.INVISIBLE);
+        feedbackText.setVisibility(View.INVISIBLE);
+        circularSeekBar1.setVisibility(View.VISIBLE);
+        circularSeekBar1.setIsTouchEnabled(false);
+
+        calculateProgressBar();
+    }
+
+    private void calculateProgressBar() {
+
+        //Start and end of the circular seekbar is at 3 o'clock -> 270°
+        if(angle + START_ANGLE < 360) {
+            circularSeekBar1.setProgress(((int) angle) + 270);
+        }
+
+        else {
+            circularSeekBar1.setProgress((int) angle);
+        }
+
+        if(circularSeekBar1.getProgress() <= START_ANGLE + ANGLE_OFFSET ||circularSeekBar1.getProgress() <= START_ANGLE - ANGLE_OFFSET ) {
+            //button for calibration2 and calibration3 becomes visible
+        }
     }
 
     @Override
