@@ -49,8 +49,7 @@ public class Calibration extends AppCompatActivity {
             if (msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED) {
                 updatePosition((Position) msg.obj);
                 if(secondPositionReceived == true) {
-
-                    progressBarSetup();
+                    circularSeekBar1.setProgress((int)GlobalResources.getInstance().getDevice().getPosition().getRotation());
                 }
             }
             //If a data packet arrives (probably confirmation from other device otf its position
@@ -306,6 +305,7 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCalibratedCoordinates(true);
 
         Log.d(TAG, "Calculated camOffset");
+        progressBarSetup();
     }
 
     private void progressBarSetup() {
@@ -313,20 +313,6 @@ public class Calibration extends AppCompatActivity {
         feedbackText.setVisibility(View.INVISIBLE);
         circularSeekBar1.setVisibility(View.VISIBLE);
         circularSeekBar1.setIsTouchEnabled(false);
-
-        calculateProgressBar();
-    }
-
-    private void calculateProgressBar() {
-
-        //Start and end of the circular seekbar is at 3 o'clock -> 270°
-        if(270 < (int) angle && (int) angle > 180) {
-            circularSeekBar1.setProgress((int) angle + 90);
-        }
-
-        else if(180 < (int) angle && (int) angle > 90) {
-            circularSeekBar1.setProgress((int) angle + 180);
-        }
     }
 
     @Override
