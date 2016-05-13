@@ -3,7 +3,6 @@ package com.example.robin.pattern_search;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +15,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.robin.pattern_search.Util.PhonePosition;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Random;
@@ -24,7 +25,6 @@ import be.groept.emedialab.communications.DataHandler;
 import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.PatternDetector;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
-import be.groept.emedialab.server.data.Device;
 import be.groept.emedialab.server.data.Position;
 import be.groept.emedialab.util.GlobalResources;
 
@@ -181,6 +181,9 @@ public class GameWindow extends Activity {
         //Iterates through all of the devices in the map
         //and calculates the distance between the random
         //location and the position of the phone
+
+        PhonePosition randomPos = new PhonePosition(randomX, randomY);
+
         for(Map.Entry<String, Position> entry : GlobalResources.getInstance().getDevices().entrySet()){
 
             Location loc1 = new Location("");

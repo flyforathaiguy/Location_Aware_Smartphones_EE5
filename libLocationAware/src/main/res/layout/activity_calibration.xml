@@ -21,7 +21,6 @@
         android:text="@string/CalibrateButton"
         android:id="@+id/button"
         android:layout_marginBottom="53dp"
-        android:onClick="calibrate"
         android:clickable="true"
         android:enabled="true"
         android:layout_alignParentBottom="true"
