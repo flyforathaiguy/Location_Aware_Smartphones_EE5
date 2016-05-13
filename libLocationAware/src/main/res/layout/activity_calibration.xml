@@ -42,8 +42,8 @@
 
     <be.groept.emedialab.util.CircularSeekBar
         android:id="@+id/circularSeekBar1"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="1200dp"
+        android:layout_height="1200dp"
         android:padding="0dp"
         app:start_angle="270"
         app:end_angle="270"

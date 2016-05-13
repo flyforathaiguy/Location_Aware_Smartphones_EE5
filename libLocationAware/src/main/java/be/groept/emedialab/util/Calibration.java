@@ -176,7 +176,7 @@ public class Calibration extends AppCompatActivity {
 
     public void calibratePartTwo(){
         //Angle has to be close to zero (<=1°)
-        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() > 1){
+        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() > 1 || GlobalResources.getInstance().getDevice().getPosition().getRotation() > 1){
             Toast toast = Toast.makeText(this, "Angle offset too big" ,Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -280,7 +280,7 @@ public class Calibration extends AppCompatActivity {
         }
 
         if(circularSeekBar1.getProgress() <= START_ANGLE + ANGLE_OFFSET ||circularSeekBar1.getProgress() <= START_ANGLE - ANGLE_OFFSET ) {
-            //button for calibration2 and calibration3 becomes visible
+            calibratePartTwo();
         }
     }
 
