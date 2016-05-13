@@ -320,15 +320,12 @@ public class Calibration extends AppCompatActivity {
     private void calculateProgressBar() {
 
         //Start and end of the circular seekbar is at 3 o'clock -> 270°
-        if(angle + START_ANGLE < 360) {
-            circularSeekBar1.setProgress(((int) angle) + 270);
+        if(270 < (int) angle && (int) angle > 180) {
+            circularSeekBar1.setProgress((int) angle + 90);
         }
 
-        else {
-            circularSeekBar1.setProgress((int) angle);
-        }
-
-        if(circularSeekBar1.getProgress() <= START_ANGLE + ANGLE_OFFSET ||circularSeekBar1.getProgress() <= START_ANGLE - ANGLE_OFFSET ) {
+        else if(180 < (int) angle && (int) angle > 90) {
+            circularSeekBar1.setProgress((int) angle + 180);
         }
     }
 
