@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-//import android.widget.ImageView;
+
 import android.widget.TextView;
 
 import be.groept.emedialab.util.GlobalResources;
@@ -24,7 +24,7 @@ public class StartActivity extends Activity{
     //Animation
   Animation animMove;
 Animation animBounce;
-    Animation animSlide;
+   //Animation animFadeIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +53,9 @@ Animation animBounce;
         createButton.setVisibility(View.VISIBLE);
         createButton.startAnimation(animBounce);
 
-        animBounce = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.bounce);
         Button RULESButton = (Button) findViewById(R.id.rules);
         RULESButton.setVisibility(View.VISIBLE);
-        createButton.startAnimation(animBounce);
+        RULESButton.startAnimation(animBounce);
 
 
         JOINButton.setOnClickListener(new View.OnClickListener() {

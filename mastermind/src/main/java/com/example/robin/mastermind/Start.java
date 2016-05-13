@@ -3,12 +3,17 @@ package com.example.robin.mastermind;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Build;
 import android.os. Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.robin.mastermind.Rules.RulesActivity;
 
@@ -17,7 +22,11 @@ import be.groept.emedialab.util.GlobalResources;
 public class Start extends AppCompatActivity{
 
 private View mContentView;
-
+    TextView txtMessage;
+    ImageView image;
+    Animation animMove;
+    Animation animFadeIn;
+    Animation animBounce;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -25,8 +34,35 @@ private View mContentView;
         setContentView(R.layout.activity_start);
         GlobalResources.getInstance().getDevice().setMac(BluetoothAdapter.getDefaultAdapter().getAddress());
         mContentView = findViewById(R.id.coverLayout);
-        Button createButton = (Button) findViewById(R.id.create);
-        createButton.setOnClickListener(new View.OnClickListener() {
+        txtMessage = (TextView) findViewById(R.id.textView);
+        animMove = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.move);
+        txtMessage.setVisibility(View.VISIBLE);
+        txtMessage.startAnimation(animMove);
+
+        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.fadein);
+        image = (ImageView) findViewById(R.id.imageView);
+        image.setVisibility(View.VISIBLE);
+        image.startAnimation(animFadeIn);
+
+        animBounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.bounce);
+        Button joinButton = (Button) findViewById(R.id.join);
+        joinButton.setVisibility(View.VISIBLE);
+        joinButton.startAnimation(animBounce);
+
+        Button NewGameButton = (Button) findViewById(R.id.create);
+        NewGameButton.setVisibility(View.VISIBLE);
+        NewGameButton.startAnimation(animBounce);
+
+        Button rulesButton = (Button) findViewById(R.id.rules);;
+        rulesButton.setVisibility(View.VISIBLE);
+        rulesButton.startAnimation(animBounce);
+
+
+
+        NewGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
@@ -37,7 +73,7 @@ private View mContentView;
             }
         });
 
-        Button joinButton = (Button) findViewById(R.id.join);
+
         joinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,7 +84,7 @@ private View mContentView;
                 Start.this.startActivity(intent);
             }
         });
-        Button rulesButton = (Button) findViewById(R.id.rules);
+
         rulesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

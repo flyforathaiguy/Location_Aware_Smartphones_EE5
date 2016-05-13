@@ -1,12 +1,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.robin.pattern_search.StartActivity"
     android:id="@+id/Pattern_Search"
-    android:background="@drawable/pattern">
+    android:background="@drawable/master">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,15 +17,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:gravity="center"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:textSize="@dimen/abc_text_size_display_1_material" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/join"
         android:id="@+id/join"
-        android:textColor="#fffafff9"
-        android:background="#ff0d0d0d"
+        android:textColor="#ff000000"
+        android:background="#fffb5a17"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -37,21 +38,20 @@
         android:text="@string/create"
         android:id="@+id/start_new"
 
-        android:textColor="#fff9fffb"
-        android:background="#ff0c0c0c"
+        android:textColor="#ff0a0a0a"
+        android:background="#ffa4e210"
         android:layout_alignTop="@+id/join"
-        android:layout_toRightOf="@+id/rules"
-        android:layout_toEndOf="@+id/rules" />
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/rules"
         android:id="@+id/rules"
-        android:textColor="#fff9fffb"
-        android:background="#ff0c0c0c"
-        android:layout_marginTop="54dp"
-        android:layout_below="@+id/textView"
+        android:textColor="#ff060606"
+        android:background="#fff5ba23"
+        android:layout_alignTop="@+id/start_new"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
