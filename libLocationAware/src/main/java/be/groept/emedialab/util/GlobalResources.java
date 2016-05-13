@@ -386,13 +386,11 @@ public class GlobalResources {
         }else{
             Log.e(TAG, "Handler is null!");
         }
-        if(dataType == DataHandler.DATA_TYPE_OWN_POS_UPDATED) {
-            if (caliHandler != null) {
-                Message msg = caliHandler.obtainMessage();
-                msg.what = dataType;
-                msg.obj = obj;
-                caliHandler.sendMessage(msg);
-            }
+        if (caliHandler != null) {
+             Message msg = caliHandler.obtainMessage();
+             msg.what = dataType;
+             msg.obj = obj;
+             caliHandler.sendMessage(msg);
         }
     }
 

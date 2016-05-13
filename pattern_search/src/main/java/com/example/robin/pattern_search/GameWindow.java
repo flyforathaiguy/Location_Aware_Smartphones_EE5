@@ -16,6 +16,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.robin.pattern_search.Util.PhonePosition;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Random;
@@ -162,6 +164,7 @@ public class GameWindow extends Activity {
     }
 
     private void launchLoserIntent() {
+        wonGame = false;
         Intent intent = new Intent(getBaseContext(), LoserActivity.class);
         startActivity(intent);
     }
@@ -181,17 +184,16 @@ public class GameWindow extends Activity {
         //Iterates through all of the devices in the map
         //and calculates the distance between the random
         //location and the position of the phone
+        PhonePosition position = new PhonePosition(0,0);
+        PhonePosition randomPosition = new PhonePosition(randomX,randomY);
+
+        double distance;
         for(Map.Entry<String, Position> entry : GlobalResources.getInstance().getDevices().entrySet()){
 
-            Location loc1 = new Location("");
-            loc1.setLatitude(entry.getValue().getX());
-            loc1.setLongitude(entry.getValue().getY());
+            position.setPositionX(entry.getValue().getX());
+            position.setPositionY(entry.getValue().getY());
 
-            Location loc2 = new Location("");
-            loc2.setLatitude(randomX);
-            loc2.setLongitude(randomY);
-            float distance = loc1.distanceTo(loc2);
-
+            distance = position.distanceTo(randomPosition);
             Log.d(TAG, "phone: " + entry.getKey() + " is at a distance of " + distance);
 
             if(distance <= 4) {
@@ -215,7 +217,7 @@ public class GameWindow extends Activity {
         }
     }
 
-    private void ratingCalculation(String phoneId, float distance) {
+    private void ratingCalculation(String phoneId, double distance) {
 
         if(distance <= 8) {
             GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 4));
