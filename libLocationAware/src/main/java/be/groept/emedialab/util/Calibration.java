@@ -86,13 +86,12 @@ public class Calibration extends AppCompatActivity {
                 Log.d(TAG, "Received Y_OFFSET");
                 compensateYOffset((double) dataPacket.getOptionalData());
             default:
+                Log.d(TAG, "Default case");
                 break;
         }
         //Remove address at last index since we do not need it
         //Should be the only one in the list ( list.size() == 1 --> index 0)
-        Log.d(TAG, "Received list size: " + GlobalResources.getInstance().getReceivedList().size());
-        if(GlobalResources.getInstance().getReceivedList().size() > 0)
-            GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
+        GlobalResources.getInstance().getReceivedList().clear();
     }
 
     @Override
@@ -182,7 +181,7 @@ public class Calibration extends AppCompatActivity {
                 avgY += entry.getValue().getY();
             }
             avgY = avgY / nbDevices;
-            Log.d(TAG, "AvgX: " + avgY);
+            Log.d(TAG, "AvgY: " + avgY);
 
             //Send offset of X-values to the phones
             double yOffset = 0;
@@ -205,28 +204,36 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() + xOffset);
         Log.d(TAG, "Calibrated xOfset: " + xOffset);
         compensatedXOffset = true;
+        Toast toast = Toast.makeText(this, "Compensated X offset!", Toast.LENGTH_LONG);
+        toast.show();
     }
 
     private void compensateYOffset(double yOffset){
         GlobalResources.getInstance().setCamYoffset(GlobalResources.getInstance().getCamYoffset() + yOffset);
         Log.d(TAG, "Calibrated yOffset: " + yOffset);
 
+        Toast toast = Toast.makeText(this, "Compensated Y offset!", Toast.LENGTH_LONG);
+        toast.show();
+
         //compensating Y offset is the last part in the calibration that happens
+        GlobalResources.getInstance().setCalibrated(true);
         GlobalResources.getInstance().setCalibrationHandler(null);
         finish();
     }
 
     public void calibratePartTwo(){
-        //Angle has to be close to zero (<=1°)
-        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() <= 1 || GlobalResources.getInstance().getDevice().getPosition().getRotation() >= 359){
+        //Angle has to be close to zero (<=2°)
+        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() < 350 && GlobalResources.getInstance().getDevice().getPosition().getRotation() > 10){
             Toast toast = Toast.makeText(this, "Angle offset too big" ,Toast.LENGTH_SHORT);
             toast.show();
+            return;
         }
 
         //If client --> send to master, if master --> check if all positions are in
         if(GlobalResources.getInstance().getClient() == true){
             GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(CONFIRMED_POS));
-            button.setEnabled(false);
+            Log.d(TAG, "Sent confirmed pos signal");
+            //button.setEnabled(false);
         }
         else {
             if(confirmedPositions.containsKey("ownpos") == false){
@@ -296,7 +303,7 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCamYoffset(xCenter);
 
         //Set the Calibration to true, so the calibrated offset will be used in PositionCalculation
-        GlobalResources.getInstance().setCalibrated(true);
+        GlobalResources.getInstance().setCalibratedCoordinates(true);
 
         Log.d(TAG, "Calculated camOffset");
     }
