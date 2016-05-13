@@ -25,7 +25,7 @@ import be.groept.emedialab.server.data.Position;
 public class Calibration extends AppCompatActivity {
 
     private Position firstPosition, secondPosition = null;
-    private boolean firstPositionReceived, secondPositionReceived = false;
+    private boolean firstPositionReceived, secondPositionReceived, compensatedXOffset = false;
     private double angle, wantedAngle;
     private TextView text, feedbackText;
     private CircularSeekBar circularSeekBar1;
@@ -34,6 +34,7 @@ public class Calibration extends AppCompatActivity {
 
     private static final int CONFIRMED_POS = 0;
     private static final int X_OFFSET = 1;
+    private static final int Y_OFFSET = 2;
     private static final int START_ANGLE = 270;
     private static final int ANGLE_OFFSET = 4;
 
@@ -79,7 +80,11 @@ public class Calibration extends AppCompatActivity {
             //Client receives X-offset from master
             case X_OFFSET:
                 Log.d(TAG, "Received X_OFFSET");
-                compensateOffset((double) dataPacket.getOptionalData());
+                compensateXOffset((double) dataPacket.getOptionalData());
+                break;
+            case Y_OFFSET:
+                Log.d(TAG, "Received Y_OFFSET");
+                compensateYOffset((double) dataPacket.getOptionalData());
             default:
                 break;
         }
@@ -144,39 +149,76 @@ public class Calibration extends AppCompatActivity {
             return;
         }
 
-        //All devices are in --> calculate average (X value should be the same)
-        double avgX = 0;
-        for(Map.Entry<String, Position> entry : confirmedPositions.entrySet()){
-            avgX += entry.getValue().getX();
-        }
-        avgX = avgX/nbDevices;
-        Log.d(TAG, "AvgX: " + avgX);
-
-        //Send offset of X-values to the phones
-        double xOffset = 0;
-        for(Map.Entry<String, Position> entry: confirmedPositions.entrySet()){
-            //Do not send it to the master (yourself)
-            if(entry.getKey().equals("ownpos") == false){
-                xOffset = avgX - GlobalResources.getInstance().getDevices().get(entry.getKey()).getX();
-                GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(X_OFFSET, xOffset));
+        if(compensatedXOffset == false) {
+            //All devices are in --> calculate average (X value should be the same)
+            double avgX = 0;
+            for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
+                avgX += entry.getValue().getX();
             }
-        }
+            avgX = avgX / nbDevices;
+            Log.d(TAG, "AvgX: " + avgX);
 
-        //Master for its own offset
-        xOffset = avgX - GlobalResources.getInstance().getDevice().getPosition().getX();
-        compensateOffset(xOffset);
+            //Send offset of X-values to the phones
+            double xOffset = 0;
+            for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
+                //Do not send it to the master (yourself)
+                if (entry.getKey().equals("ownpos") == false) {
+                    xOffset = avgX - GlobalResources.getInstance().getDevices().get(entry.getKey()).getX();
+                    GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(X_OFFSET, xOffset));
+                }
+            }
+
+            //Master for its own offset
+            xOffset = avgX - GlobalResources.getInstance().getDevice().getPosition().getX();
+            compensateXOffset(xOffset);
+            confirmedPositions.clear();
+            compensatedXOffset = true;
+        }
+        //Compensate Y offset
+        else{
+            //All devices are in --> calculate average (X value should be the same)
+            double avgY = 0;
+            for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
+                avgY += entry.getValue().getY();
+            }
+            avgY = avgY / nbDevices;
+            Log.d(TAG, "AvgX: " + avgY);
+
+            //Send offset of X-values to the phones
+            double yOffset = 0;
+            for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
+                //Do not send it to the master (yourself)
+                if (entry.getKey().equals("ownpos") == false) {
+                    yOffset = avgY - GlobalResources.getInstance().getDevices().get(entry.getKey()).getY();
+                    GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(Y_OFFSET, yOffset));
+                }
+            }
+
+            //Master for its own offset
+            yOffset = avgY - GlobalResources.getInstance().getDevice().getPosition().getX();
+            compensateYOffset(yOffset);
+            confirmedPositions.clear();
+        }
     }
 
-    private void compensateOffset(double xOffset){
+    private void compensateXOffset(double xOffset){
         GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() + xOffset);
-        Log.d(TAG, "Calibrated xOffest: " + xOffset);
+        Log.d(TAG, "Calibrated xOfset: " + xOffset);
+        compensatedXOffset = true;
+    }
+
+    private void compensateYOffset(double yOffset){
+        GlobalResources.getInstance().setCamYoffset(GlobalResources.getInstance().getCamYoffset() + yOffset);
+        Log.d(TAG, "Calibrated yOffset: " + yOffset);
+
+        //compensating Y offset is the last part in the calibration that happens
         GlobalResources.getInstance().setCalibrationHandler(null);
         finish();
     }
 
     public void calibratePartTwo(){
         //Angle has to be close to zero (<=1°)
-        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() > 1 || GlobalResources.getInstance().getDevice().getPosition().getRotation() > 1){
+        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() <= 1 || GlobalResources.getInstance().getDevice().getPosition().getRotation() >= 359){
             Toast toast = Toast.makeText(this, "Angle offset too big" ,Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -184,6 +226,7 @@ public class Calibration extends AppCompatActivity {
         //If client --> send to master, if master --> check if all positions are in
         if(GlobalResources.getInstance().getClient() == true){
             GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(CONFIRMED_POS));
+            button.setEnabled(false);
         }
         else {
             if(confirmedPositions.containsKey("ownpos") == false){
@@ -260,7 +303,6 @@ public class Calibration extends AppCompatActivity {
 
     private void progressBarSetup() {
         //Set visibility of the xml components
-        button.setVisibility(View.INVISIBLE);
         feedbackText.setVisibility(View.INVISIBLE);
         circularSeekBar1.setVisibility(View.VISIBLE);
         circularSeekBar1.setIsTouchEnabled(false);
@@ -280,7 +322,6 @@ public class Calibration extends AppCompatActivity {
         }
 
         if(circularSeekBar1.getProgress() <= START_ANGLE + ANGLE_OFFSET ||circularSeekBar1.getProgress() <= START_ANGLE - ANGLE_OFFSET ) {
-            calibratePartTwo();
         }
     }
 
