@@ -42,17 +42,17 @@
 
     <be.groept.emedialab.util.CircularSeekBar
         android:id="@+id/circularSeekBar1"
-        android:layout_width="1200dp"
-        android:layout_height="1200dp"
-        android:padding="0dp"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         app:start_angle="270"
         app:end_angle="270"
         app:use_custom_radii="true"
-        app:progress="25"
-        app:max="100"
+        app:circle_x_radius="100dp"
+        app:circle_y_radius="100dp"
+        app:max="360"
         app:pointer_color="#0174DF"
         app:pointer_halo_color="#880174DF"
-        android:layout_alignTop="@+id/feedbackText"
+        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

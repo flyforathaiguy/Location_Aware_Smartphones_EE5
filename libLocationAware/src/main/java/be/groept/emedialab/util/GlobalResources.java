@@ -59,7 +59,7 @@ public class GlobalResources {
     private boolean isClient = true;
     private double camXoffset, camYoffset;
     private Context v;
-    private boolean calibrated = false;
+    private boolean calibrated, calibratedCoordinates = false;
     private int camPictureWidth, camPictureHeight;
 
     /**
@@ -378,19 +378,19 @@ public class GlobalResources {
      * @param obj an optional object
      */
     public void alertify(int dataType, Object obj){
-        if(handler != null) {
+        if (caliHandler != null) {
+             Message msg = caliHandler.obtainMessage();
+             msg.what = dataType;
+             msg.obj = obj;
+             caliHandler.sendMessage(msg);
+        }
+        else if(handler != null) {
             Message msg = handler.obtainMessage();
             msg.what = dataType;
             msg.obj = obj;
             handler.sendMessage(msg);
         }else{
             Log.e(TAG, "Handler is null!");
-        }
-        if (caliHandler != null) {
-             Message msg = caliHandler.obtainMessage();
-             msg.what = dataType;
-             msg.obj = obj;
-             caliHandler.sendMessage(msg);
         }
     }
 
@@ -421,6 +421,14 @@ public class GlobalResources {
 
     public boolean getCalibrated(){
         return calibrated;
+    }
+
+    public void setCalibratedCoordinates(boolean calibrated){
+        this.calibratedCoordinates = calibrated;
+    }
+
+    public boolean getCalibratedCoordinates(){
+        return this.calibratedCoordinates;
     }
 
     public void setCamXoffset(double x){

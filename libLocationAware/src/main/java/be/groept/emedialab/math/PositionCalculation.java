@@ -63,18 +63,18 @@ public class PositionCalculation {
         double zCoordinate = fieldOfViewX / (2 * Math.tan(Math.toRadians(phiX / 2)));
 
         Point centerPattern = calculateCenterPattern();
-        Log.d(TAG, "First: x= " + centerPattern.x + " y= " + centerPattern.y);
+        //Log.d(TAG, "First: x= " + centerPattern.x + " y= " + centerPattern.y);
 
         //Set the origin of the coordinate system of the image in the center of the sensor
         //X should be the largest value, Y the smallest
         centerPattern.x -= GlobalResources.getInstance().getPictureWidth()/2;
         centerPattern.y -= GlobalResources.getInstance().getPictureHeight()/2;
-        Log.d(TAG, "Second: x= " + centerPattern.x + " y= " + centerPattern.y);
+        //Log.d(TAG, "Second: x= " + centerPattern.x + " y= " + centerPattern.y);
 
         //Flip over y-axis & x-axis
         centerPattern.x *= -1;
         centerPattern.y *= -1;
-        Log.d(TAG, "Third: x= " + centerPattern.x + " y= " + centerPattern.y);
+        //Log.d(TAG, "Third: x= " + centerPattern.x + " y= " + centerPattern.y);
         //Log.d(TAG, "ScaleFactor: "+ scaleFactor);
 
         //Factor in screen offset
@@ -87,10 +87,10 @@ public class PositionCalculation {
         Happens in pixel values
         */
 
-        if(GlobalResources.getInstance().getCalibrated()) {
-            Log.d(TAG, "Used calibrated offset");
-            Log.d(TAG, "X offset: cm: " + GlobalResources.getInstance().getCamXoffset() + " pixel: " + GlobalResources.getInstance().getCamXoffset()/scaleFactor);
-            Log.d(TAG, "Y offset: cm: " + GlobalResources.getInstance().getCamYoffset() + " pixel: "  + GlobalResources.getInstance().getCamYoffset()/scaleFactor);
+        if(GlobalResources.getInstance().getCalibratedCoordinates()) {
+            //Log.d(TAG, "Used calibrated offset");
+            //Log.d(TAG, "X offset: cm: " + GlobalResources.getInstance().getCamXoffset() + " pixel: " + GlobalResources.getInstance().getCamXoffset()/scaleFactor);
+            //Log.d(TAG, "Y offset: cm: " + GlobalResources.getInstance().getCamYoffset() + " pixel: "  + GlobalResources.getInstance().getCamYoffset()/scaleFactor);
             centerPattern.x -= (GlobalResources.getInstance().getCamXoffset()/scaleFactor);
             centerPattern.y -= (GlobalResources.getInstance().getCamYoffset()/scaleFactor);
         }
@@ -123,7 +123,7 @@ public class PositionCalculation {
         //Convert pixel values to real values
         double xCoordinate = rotated.x * scaleFactor;
         double yCoordinate = rotated.y * scaleFactor;
-        Log.d(TAG, "Fourth: x= " + xCoordinate + " y= " + yCoordinate);
+        //Log.d(TAG, "Fourth: x= " + xCoordinate + " y= " + yCoordinate);
 
         return new Point3D(xCoordinate, yCoordinate, zCoordinate);
     }

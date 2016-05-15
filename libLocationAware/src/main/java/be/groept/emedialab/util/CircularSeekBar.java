@@ -57,8 +57,8 @@ public class CircularSeekBar extends View {
     protected final float MIN_TOUCH_TARGET_DP = 48;
 
     // Default values
-    protected static final float DEFAULT_CIRCLE_X_RADIUS = 30f;
-    protected static final float DEFAULT_CIRCLE_Y_RADIUS = 30f;
+    protected static final float DEFAULT_CIRCLE_X_RADIUS = 100f;
+    protected static final float DEFAULT_CIRCLE_Y_RADIUS = 100f;
     protected static final float DEFAULT_POINTER_RADIUS = 7f;
     protected static final float DEFAULT_POINTER_HALO_WIDTH = 6f;
     protected static final float DEFAULT_POINTER_HALO_BORDER_WIDTH = 2f;
