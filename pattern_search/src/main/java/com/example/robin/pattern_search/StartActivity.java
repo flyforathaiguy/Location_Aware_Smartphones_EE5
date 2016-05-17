@@ -24,7 +24,7 @@ public class StartActivity extends Activity{
     //Animation
   Animation animMove;
 Animation animBounce;
-   //Animation animFadeIn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +82,10 @@ Animation animBounce;
                         }
                     });
 
-                    RULESButton.setOnClickListener(new View.OnClickListener() {
+        RULESButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
+                            Intent intent = new Intent(getBaseContext(), RuleActivity.class);
                             StartActivity.this.startActivity(intent);
                         }
                     });
