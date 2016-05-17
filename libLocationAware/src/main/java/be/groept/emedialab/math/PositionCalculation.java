@@ -123,7 +123,6 @@ public class PositionCalculation {
         //Convert pixel values to real values
         double xCoordinate = rotated.x * scaleFactor;
         double yCoordinate = rotated.y * scaleFactor;
-        //Log.d(TAG, "Fourth: x= " + xCoordinate + " y= " + yCoordinate);
 
         return new Point3D(xCoordinate, yCoordinate, zCoordinate);
     }
@@ -162,58 +161,10 @@ public class PositionCalculation {
     //TODO: this is called twice every run (once by PositionCalculation.patternToReal, once by PatternDetector.calculateCoordinates)
     public double calculateRotation(PatternCoordinates pixelPatternCoordinates){
 
-        /*
         Point corner1 = pixelPatternCoordinates.getNum(1);
         Point corner2 = pixelPatternCoordinates.getNum(2);
         Point corner3 = pixelPatternCoordinates.getNum(3);
         Point corner4 = pixelPatternCoordinates.getNum(4);
-
-        //Calculate rotation with the x-axis of the image coordinate system with the horizontal sides of the pattern
-        Vector xAxis = new Vector(GlobalResources.getInstance().getPictureWidth(), 0);
-        Vector side14 = new Vector(corner4.x - corner1.x, corner4.y - corner1.y);
-        Vector side23 = new Vector(corner3.x - corner2.x, corner3.y - corner2.y);
-        side14.normalize();
-        side23.normalize();
-        xAxis.normalize();
-
-        double cos14 = side14.dotProduct(xAxis);
-        double cos23 = side23.dotProduct(xAxis);
-
-        double sin14 = side14.crossProduct(xAxis);
-        double sin23 = side23.crossProduct(xAxis);
-
-
-        //Calculate rotation with the y-axis of the image coordinate system with the vertical sides of the pattern
-        //Needs to be -480 because we flipped the y-axis
-        Vector yAxis = new Vector(0, GlobalResources.getInstance().getPictureHeight());
-        Vector side12 = new Vector(corner2.x - corner1.x, corner2.y - corner1.y);
-        Vector side43 = new Vector(corner3.x - corner4.x, corner3.y - corner4.y);
-        yAxis.normalize();
-        side12.normalize();
-        side43.normalize();
-
-        double cos12 = side12.dotProduct(yAxis);
-        double cos43 = side43.dotProduct(yAxis);
-
-        double sin12 = side12.crossProduct(yAxis);
-        double sin43 = side43.crossProduct(yAxis);
-
-        double cos = (cos14 + cos23 + cos12 + cos43)/4;
-        double sin = (sin14 + sin23 + sin12 + sin43)/4;
-
-        double rotationAngle= Math.toDegrees(Math.atan2(sin, cos));
-
-        rotationAngle = (rotationAngle + 360)%360;
-
-        return rotationAngle;
-    */
-
-
-        Point corner1 = pixelPatternCoordinates.getNum(1);
-        Point corner2 = pixelPatternCoordinates.getNum(2);
-        Point corner3 = pixelPatternCoordinates.getNum(3);
-        Point corner4 = pixelPatternCoordinates.getNum(4);
-        //Log.d(TAG, "4 points calc rotation: 1: " + corner1 + " 2: " + corner2 + " 3: " + corner3 + " 4: " + corner4);
 
         //Calculate rotation with the x-axis of the image coordinate system with the horizontal sides of the pattern
         Vector xAxis = new Vector(-GlobalResources.getInstance().getPictureWidth(), 0);
@@ -222,8 +173,6 @@ public class PositionCalculation {
 
         double cos14 = side14.dotProduct(xAxis)/(side14.getLength() * xAxis.getLength());
         double cos23 = side23.dotProduct(xAxis)/(side23.getLength() * xAxis.getLength());
-        //Log.d(TAG, "cos14: " + cos14);
-        //Log.d(TAG, "cos23: " + cos23);
 
         //Calculate rotation with the y-axis of the image coordinate system with the vertical sides of the pattern
         //Needs to be -480 because we flipped the y-axis
@@ -234,12 +183,7 @@ public class PositionCalculation {
         double cos12 = side12.dotProduct(yAxis)/(side12.getLength() * yAxis.getLength());
         double cos43 = side43.dotProduct(yAxis)/(side43.getLength() * yAxis.getLength());
 
-        //Log.d(TAG, "cos12: " + cos12);
-        //Log.d(TAG, "cos43: " + cos43);
-
         double cos = (cos14 + cos23 + cos12 + cos43)/4;
-
-        //Log.d(TAG, "cos: " + cos);
 
         double rotationAngle;
 
@@ -251,12 +195,7 @@ public class PositionCalculation {
         else {
             rotationAngle = Math.toDegrees(Math.acos(cos));
             rotationAngle+=90;
-            //Log.d(TAG, "Angle 2");
         }
-
-        //rotationAngle = (Math.toDegrees(Math.acos(cos)) + 90 + 360)%360;
-
-        //Log.d(TAG, "Rotation " + rotationAngle);
 
         return rotationAngle;
 

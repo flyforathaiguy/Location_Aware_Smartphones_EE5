@@ -38,6 +38,8 @@ public class Calibration extends AppCompatActivity {
     private static final int START_ANGLE = 270;
     private static final int ANGLE_OFFSET = 4;
 
+    private double xOffset = 0;
+
     private static final String TAG = "ArrowGame";
 
     //Handler receives information about the device's own position.
@@ -140,19 +142,25 @@ public class Calibration extends AppCompatActivity {
     private void calculateOffset(){
         int nbDevices = GlobalResources.getInstance().getDevices().size() + 1;
         //Not all devices have confirmed yet
+        Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
+        Log.d(TAG, "nbDevices: " + nbDevices);
         if(confirmedPositions.size() < nbDevices){
             Toast toast = Toast.makeText(this, "Not all devices have confirmed yet", Toast.LENGTH_SHORT);
             toast.show();
-            Log.d(TAG, "nbDevies: " + nbDevices + " confirmedPositions size: " + confirmedPositions.size());
+            Log.d(TAG, "nbDevices: " + nbDevices + " confirmedPositions size: " + confirmedPositions.size());
             return;
         }
 
         if(compensatedXOffset == false) {
             //All devices are in --> calculate average (X value should be the same)
             double avgX = 0;
+            Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
+            Log.d(TAG, "nbDevices: " + nbDevices);
             for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
                 avgX += entry.getValue().getX();
             }
+            Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
+            Log.d(TAG, "nbDevices: " + nbDevices);
             avgX = avgX / nbDevices;
             Log.d(TAG, "AvgX: " + avgX);
 
@@ -193,14 +201,15 @@ public class Calibration extends AppCompatActivity {
             }
 
             //Master for its own offset
-            yOffset = avgY - GlobalResources.getInstance().getDevice().getPosition().getX();
-            compensateYOffset(yOffset);
+            yOffset = avgY - GlobalResources.getInstance().getDevice().getPosition().getY();
             confirmedPositions.clear();
+            compensateYOffset(yOffset);
         }
     }
 
     private void compensateXOffset(double xOffset){
-        GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() + xOffset);
+        this.xOffset = xOffset;
+        //GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() - xOffset);
         Log.d(TAG, "Calibrated xOfset: " + xOffset);
         compensatedXOffset = true;
         Toast toast = Toast.makeText(this, "Compensated X offset!", Toast.LENGTH_LONG);
@@ -208,7 +217,8 @@ public class Calibration extends AppCompatActivity {
     }
 
     private void compensateYOffset(double yOffset){
-        GlobalResources.getInstance().setCamYoffset(GlobalResources.getInstance().getCamYoffset() + yOffset);
+        GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() - xOffset);
+        GlobalResources.getInstance().setCamYoffset(GlobalResources.getInstance().getCamYoffset() - yOffset);
         Log.d(TAG, "Calibrated yOffset: " + yOffset);
 
         Toast toast = Toast.makeText(this, "Compensated Y offset!", Toast.LENGTH_LONG);
