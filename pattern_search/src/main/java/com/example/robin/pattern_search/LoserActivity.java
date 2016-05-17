@@ -2,10 +2,9 @@ package com.example.robin.pattern_search;
 
 import android.app.Activity;
 import android.os.Build;
-import android.support.v7.app.ActionBarActivity;
+
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;

@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">pattern_search</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_winner">WinnerActivity</string>
     <string name="title_activity_connection">ConnectionActivity</string>
@@ -20,5 +19,7 @@
     <string name="yourresult">YOUR RESULT</string>
     <string name="exitbutton">Exit</string>
     <string name="restartbutton">restart</string>
+    <string name="endgame">End Game</string>
+    <string name="youlost">YOU LOST</string>
 
 </resources>
