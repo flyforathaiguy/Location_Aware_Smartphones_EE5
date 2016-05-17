@@ -1,5 +1,6 @@
 package com.example.robin.pattern_search;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,7 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 
-public class WinnerActivity extends ActionBarActivity {
+public class WinnerActivity extends Activity {
 
     ImageView winner;
     private View mContentView;
