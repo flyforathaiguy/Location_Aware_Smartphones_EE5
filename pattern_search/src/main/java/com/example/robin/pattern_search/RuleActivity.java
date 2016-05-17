@@ -1,23 +1,20 @@
 package com.example.robin.pattern_search;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 
-/**
- * Created by yonas-Haregot on 5/11/2016.
- */
-public class RuleActivity extends ActionBarActivity {
+public class RuleActivity extends Activity {
 
     private View mContentView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rules);
-       mContentView = findViewById(R.id.rule);
+       mContentView = findViewById(R.id.rules);
 
         //winner= (ImageView) findViewById(R.id.winner);
 

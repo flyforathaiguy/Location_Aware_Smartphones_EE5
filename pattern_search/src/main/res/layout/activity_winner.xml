@@ -2,42 +2,47 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/win"
-        android:background="#949591"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
 
-        <ImageView
-            android:layout_width="775dp"
-            android:layout_height="521dp"
+       <ImageView
+
+            android:layout_width="600dp"
+            android:layout_height="800dp"
             android:id="@+id/winner"
             android:src="@drawable/winner"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+           android:background="#ffb7b7b7" />
 
         <Button
             android:layout_width="142dp"
             android:layout_height="81dp"
-            android:text="restart"
+            android:text="@string/restartbutton"
             android:id="@+id/restart"
-            android:layout_gravity="left|bottom"/>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="72dp"
+            android:layout_alignParentEnd="true" />
 
         <Button
             android:layout_width="154dp"
             android:layout_height="80dp"
-            android:text="Exit"
+            android:text="@string/exitbutton"
             android:id="@+id/exit"
-            android:layout_gravity="right|bottom" />
+            android:layout_alignTop="@+id/restart"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="false" />
 
-        <Button
-            android:layout_width="149dp"
-            android:layout_height="73dp"
-            android:text="RESULT"
-            android:id="@+id/result"
-            android:layout_gravity="center_horizontal|top" />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/yourresult"
+            android:id="@+id/text"
+            android:layout_gravity="center_horizontal|top"
+            android:gravity="center"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="57dp" />
 
-    </FrameLayout>
+
 </RelativeLayout>

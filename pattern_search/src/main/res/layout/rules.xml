@@ -12,13 +12,6 @@
 
     </FrameLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Rules"
-        android:id="@+id/rule"
-        android:layout_gravity="center_horizontal" />
-
     <EditText
         android:layout_width="361dp"
         android:layout_height="wrap_content"
