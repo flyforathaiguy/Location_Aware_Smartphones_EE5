@@ -9,7 +9,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OK"
+        android:text="@string/confirmbutton"
         android:id="@+id/confirmButton"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Distance from the location"
+        android:text="@string/distancefromlocation"
         android:id="@+id/textView"
         android:layout_marginTop="61dp"
         android:layout_alignParentTop="true"
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Confirm position"
+        android:text="@string/confirmposition"
         android:id="@+id/textView2"
         android:layout_above="@+id/confirmButton"
         android:layout_centerHorizontal="true" />
@@ -55,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Nowhere near the target"
+        android:text="@string/nowherenear"
         android:id="@+id/ratingFeedback"
         android:layout_above="@+id/rating"
         android:layout_centerHorizontal="true" />

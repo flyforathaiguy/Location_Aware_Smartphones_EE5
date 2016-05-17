@@ -13,5 +13,12 @@
     <string name="create">Create</string>
     <string name="game_window">Pattern Search</string>
     <string name="rules">rules</string>
+    <string name="distancefromlocation">Distance from the location</string>
+    <string name="confirmposition">Confirm position</string>
+    <string name="nowherenear">Nowhere near the target</string>
+    <string name="confirmbutton">OK</string>
+    <string name="yourresult">YOUR RESULT</string>
+    <string name="exitbutton">Exit</string>
+    <string name="restartbutton">restart</string>
 
 </resources>
