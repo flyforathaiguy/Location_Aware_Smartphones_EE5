@@ -39,7 +39,8 @@ public class GameWindow extends Activity {
     private RatingBar rating;
     private double randomX;
     private double randomY;
-    private boolean wonGame;
+    private boolean wonGame = false;
+    private boolean randomLocationMade = false;
 
     private String TAG = "GameWindow";
 
@@ -47,6 +48,9 @@ public class GameWindow extends Activity {
     private static final int RATING_CHOOSE = 2;
     private static final int LAUNCH_WIN = 1;
     private static final int LAUNCH_LOS = 0;
+
+    private static final int LEFT_BOUNDARY = 90;
+    private static final int TOP_BOUNDARY = 130;
 
     final Activity activity = this;
 
@@ -64,14 +68,6 @@ public class GameWindow extends Activity {
         positionText = (TextView) findViewById(R.id.positionText);
 
 
-        //If you're the master, you have to make a random location
-        //of where the players need to find you
-        if(GlobalResources.getInstance().getClient() == false) {
-            Log.d(TAG, "Master making random location");
-            makeRandomLocation();
-        }
-
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GlobalResources.getInstance().setHandler(handler);
 
@@ -86,6 +82,8 @@ public class GameWindow extends Activity {
             }
         };
         runnablePattern.run();
+
+        updatePosition();
 
 
         //Get accept button
@@ -120,6 +118,7 @@ public class GameWindow extends Activity {
                 endGame();
             }
             else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
+                Log.d(TAG, "Position being updated");
                 updatePosition();
             }
         }
@@ -129,7 +128,7 @@ public class GameWindow extends Activity {
 
         Position position = GlobalResources.getInstance().getDevice().getPosition();
         if(position.getFoundPattern()){
-            positionText.setTextColor(Color.parseColor("blue"));
+            positionText.setTextColor(Color.parseColor("green"));
             positionText.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(be.groept.emedialab.R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
 
         }else{
@@ -142,7 +141,7 @@ public class GameWindow extends Activity {
         switch(dataPacket.getDataType()){
             case RATING_CHOOSE:
                 Log.d(TAG, "Setting ratings");
-                setRating((int) dataPacket.getOptionalData());
+                setStars((int) dataPacket.getOptionalData());
             case LAUNCH_WIN:
                 Log.d(TAG, "Launching win intent");
                 launchWinIntent();
@@ -198,11 +197,10 @@ public class GameWindow extends Activity {
 
             if(distance <= 4) {
 
-                String winner = entry.getKey();
-                GlobalResources.getInstance().sendData(winner, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
-
                 Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distance);
 
+                String winner = entry.getKey();
+                GlobalResources.getInstance().sendData(winner, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
                 for(Map.Entry<String, Position> temp : GlobalResources.getInstance().getDevices().entrySet()){
                     if(!(temp.getKey().equals(winner))) {
                         GlobalResources.getInstance().sendData(temp.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_LOS));
@@ -213,6 +211,7 @@ public class GameWindow extends Activity {
             else {
                 Log.d(TAG, "Rating Calculation will begin");
                 ratingCalculation(entry.getKey(), distance);
+                button.setClickable(true);
             }
         }
     }
@@ -243,7 +242,9 @@ public class GameWindow extends Activity {
         }
     }
 
-    private void setRating(int stars) {
+    private void setStars(int stars) {
+
+        button.setClickable(true);
 
         if(stars == 0) {
             rating.setRating(0);
@@ -302,8 +303,8 @@ public class GameWindow extends Activity {
         //Left to right boundary is 90cm
         //Top to bottom is 130cm
         Random rand = new Random();
-        int randomNumberX = (rand.nextInt(90)-45);
-        int randomNumberY = (rand.nextInt(130)-65);
+        int randomNumberX = (rand.nextInt(LEFT_BOUNDARY)-LEFT_BOUNDARY/2);
+        int randomNumberY = (rand.nextInt(TOP_BOUNDARY)-TOP_BOUNDARY/2);
 
         Log.d(TAG, "RandomX = " + randomNumberX);
         Log.d(TAG, "RandomY = " + randomNumberY);
@@ -312,15 +313,20 @@ public class GameWindow extends Activity {
         //otherwise the game will end too soon
         while(Math.abs(masterX - randomNumberX) <= 12) {
 
-            randomNumberX = (rand.nextInt(90)-45);
+            randomNumberX = (rand.nextInt(LEFT_BOUNDARY)-LEFT_BOUNDARY/2);
         }
         randomX = randomNumberX;
 
+
+        //Check if the random location is not too close to the master phone,
+        //otherwise the game will end too soon
         while(Math.abs(masterY - randomNumberY) <= 20) {
 
-            randomNumberY = (rand.nextInt(130)-65);
+            randomNumberY = (rand.nextInt(TOP_BOUNDARY)-TOP_BOUNDARY/2);
         }
         randomY = randomNumberY;
+
+        randomLocationMade = true;
 
     }
 
@@ -330,7 +336,7 @@ public class GameWindow extends Activity {
         //If this Activity is paused due to the Calibration being launched, do not destroy pattern detector!
         if(GlobalResources.getInstance().getPatternDetector() != null) {
             if(GlobalResources.getInstance().getCalibrated() == true) {
-                if(wonGame == false) {
+                if(wonGame == false) {                                                   //veranderen naar false
                     GlobalResources.getInstance().getPatternDetector().destroy();
                 }
             }
@@ -344,12 +350,15 @@ public class GameWindow extends Activity {
             GlobalResources.getInstance().getPatternDetector().setup();
 
         //Coming back from the feedback screen / won game screen?
-        if(wonGame == true){
+        if(wonGame == false){
             //Re-enable all buttons
             button.setClickable(true);
-
-            if(wonGame == true){
-                wonGame = false;
+            if(randomLocationMade == false) {
+                if(GlobalResources.getInstance().getClient() == false) {
+                    if(GlobalResources.getInstance().getCalibrated()) {
+                        makeRandomLocation();
+                    }
+                }
             }
         }
     }
