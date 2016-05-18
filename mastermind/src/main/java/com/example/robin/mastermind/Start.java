@@ -3,7 +3,7 @@ package com.example.robin.mastermind;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.media.Image;
+//import android.media.Image;
 import android.os.Build;
 import android.os. Bundle;
 import android.support.v7.app.ActionBar;
@@ -56,7 +56,7 @@ private View mContentView;
         NewGameButton.setVisibility(View.VISIBLE);
         NewGameButton.startAnimation(animBounce);
 
-        Button rulesButton = (Button) findViewById(R.id.rules);;
+        Button rulesButton = (Button) findViewById(R.id.rules);
         rulesButton.setVisibility(View.VISIBLE);
         rulesButton.startAnimation(animBounce);
 
