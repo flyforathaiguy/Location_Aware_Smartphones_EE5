@@ -16,8 +16,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.robin.pattern_search.Util.PhonePosition;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Random;
@@ -26,7 +24,6 @@ import be.groept.emedialab.communications.DataHandler;
 import be.groept.emedialab.communications.DataPacket;
 import be.groept.emedialab.image_manipulation.PatternDetector;
 import be.groept.emedialab.image_manipulation.RunPatternDetector;
-import be.groept.emedialab.server.data.Device;
 import be.groept.emedialab.server.data.Position;
 import be.groept.emedialab.util.GlobalResources;
 
@@ -53,6 +50,7 @@ public class GameWindow extends Activity {
     private static final int TOP_BOUNDARY = 130;
 
     final Activity activity = this;
+    private Thread runPatternThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +64,6 @@ public class GameWindow extends Activity {
 
         //Initialize the position text
         positionText = (TextView) findViewById(R.id.positionText);
-
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GlobalResources.getInstance().setHandler(handler);
@@ -83,20 +80,20 @@ public class GameWindow extends Activity {
         };
         runnablePattern.run();
 
-        updatePosition();
-
-
         //Get accept button
         button = (Button) findViewById(R.id.confirmButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Button being pressed");
-                confirmButton();
-            }
-
-            ;
-        });
+        if(GlobalResources.getInstance().getClient() == true) {
+            button.setVisibility(View.INVISIBLE);
+            button.setEnabled(false);
+        }else {
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Button being pressed");
+                    confirmButton();
+                };
+            });
+        }
     }
 
     //Handler for signals, large parts of code taken from original Location Aware Smartphones project
@@ -124,18 +121,6 @@ public class GameWindow extends Activity {
         }
     };
 
-    private void updatePosition(){
-
-        Position position = GlobalResources.getInstance().getDevice().getPosition();
-        if(position.getFoundPattern()){
-            positionText.setTextColor(Color.parseColor("green"));
-            positionText.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(be.groept.emedialab.R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
-
-        }else{
-            positionText.setTextColor(Color.parseColor("red"));
-        }
-    }
-
     private void handleData(DataPacket dataPacket){
         //Always read in the string from the sender of the data, to maintain data usage
         switch(dataPacket.getDataType()){
@@ -153,6 +138,18 @@ public class GameWindow extends Activity {
                 endGame();
             default:
                 break;
+        }
+    }
+
+    private void updatePosition(){
+
+        Position position = GlobalResources.getInstance().getDevice().getPosition();
+        if(position.getFoundPattern()){
+            positionText.setTextColor(Color.parseColor("green"));
+            positionText.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(be.groept.emedialab.R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
+
+        }else{
+            positionText.setTextColor(Color.parseColor("red"));
         }
     }
 
@@ -183,62 +180,93 @@ public class GameWindow extends Activity {
         //Iterates through all of the devices in the map
         //and calculates the distance between the random
         //location and the position of the phone
-        PhonePosition position = new PhonePosition(0,0);
-        PhonePosition randomPosition = new PhonePosition(randomX,randomY);
+        Position randomPosition = new Position(randomX, randomY, 0, 0);
+
+        Map<String, Position> positions = GlobalResources.getInstance().getDevices();
+        if(positions.containsKey("ownpos"))
+            positions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
 
         double distance;
-        for(Map.Entry<String, Position> entry : GlobalResources.getInstance().getDevices().entrySet()){
+        String winnerString = "";
+        for(Map.Entry<String, Position> entry : positions.entrySet()) {
 
-            position.setPositionX(entry.getValue().getX());
-            position.setPositionY(entry.getValue().getY());
-
-            distance = position.distanceTo(randomPosition);
+            distance = entry.getValue().getXYDistance(randomPosition);
             Log.d(TAG, "phone: " + entry.getKey() + " is at a distance of " + distance);
 
-            if(distance <= 4) {
-
+            //Check if we have a winner
+            if (distance <= 4) {
                 Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distance);
+                winnerString = entry.getKey();
+                wonGame = true;
+            }
+        }
 
-                String winner = entry.getKey();
-                GlobalResources.getInstance().sendData(winner, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
-                for(Map.Entry<String, Position> temp : GlobalResources.getInstance().getDevices().entrySet()){
-                    if(!(temp.getKey().equals(winner))) {
-                        GlobalResources.getInstance().sendData(temp.getKey(), DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_LOS));
+        //Start launching other intents or ratings
+        if(wonGame == true){
+            for(Map.Entry<String, Position> entry : positions.entrySet()){
+                //Master can only launch his own intent after launching all the others
+                if(entry.getKey().equals("ownpos") == false){
+                    if(entry.getKey().equals(winnerString) == true){
+                        GlobalResources.getInstance().sendData(winnerString, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(LAUNCH_WIN));
+                    }
+                    else{
+                        GlobalResources.getInstance().sendData(entry.getKey(), DataHandler.DATA_TYPE_DATA_PACKET,new DataPacket(LAUNCH_LOS));
                     }
                 }
             }
+            if(winnerString.equals("ownpos") == true)
+                this.launchWinIntent();
+            else this.launchLoserIntent();
+        }
 
-            else {
-                Log.d(TAG, "Rating Calculation will begin");
-                ratingCalculation(entry.getKey(), distance);
-                button.setClickable(true);
+        //No winner
+        else{
+            for(Map.Entry<String, Position> entry : positions.entrySet()){
+                if(entry.getKey().equals("ownpos") == false) {
+                    ratingCalculation(entry.getKey(), entry.getValue().getXYDistance(randomPosition));
+                }
             }
+            //For master
+            ratingCalculation("ownpos", GlobalResources.getInstance().getDevice().getPosition().getXYDistance(randomPosition));
+            button.setEnabled(true);
         }
     }
 
     private void ratingCalculation(String phoneId, double distance) {
 
         if(distance <= 8) {
-            GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 4));
+            if(phoneId.equals("ownpos") == false)
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 4));
+            else
+                setStars((int) distance);
         }
 
         else if(distance <= 20) {
-            GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 3));
-
+            if(phoneId.equals("ownpos") == false)
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 3));
+            else
+                setStars((int) distance);
         }
 
         else if(distance <= 40) {
-            GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 2));
-
+            if(phoneId.equals("ownpos") == false)
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 2));
+            else
+                setStars((int) distance);
         }
 
         else if(distance <= 70) {
-            GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 1));
-
+            if(phoneId.equals("ownpos") == false)
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 1));
+            else
+                setStars((int) distance);
         }
 
         else {
-            GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 0));
+            if(phoneId.equals("ownpos") == false)
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 0));
+            else
+                setStars((int) distance);
         }
     }
 
@@ -346,8 +374,9 @@ public class GameWindow extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(GlobalResources.getInstance().getPatternDetector() != null && GlobalResources.getInstance().getPatternDetector().isPaused())
-            GlobalResources.getInstance().getPatternDetector().setup();
+        //Will continuously call the RunPatternDetector class
+        runPatternThread = getThread();
+        runPatternThread.run();
 
         //Coming back from the feedback screen / won game screen?
         if(wonGame == false){
@@ -361,6 +390,7 @@ public class GameWindow extends Activity {
                 }
             }
         }
+
     }
 
     private Thread getThread(){

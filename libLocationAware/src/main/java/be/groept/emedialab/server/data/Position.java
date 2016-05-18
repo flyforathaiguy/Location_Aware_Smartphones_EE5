@@ -111,4 +111,8 @@ public class Position implements Serializable {
     public String toString() {
         return "(" + getX() + ", " + getY() + ", " + getZ() + "), alpha(" + getRotation() + ") " + foundPattern;
     }
+
+    public double getXYDistance(Position otherPos){
+        return Math.sqrt(Math.pow(this.getX() - otherPos.getX(), 2) + Math.pow(this.getY() - otherPos.getY(), 2));
+    }
 }
