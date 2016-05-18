@@ -21,5 +21,6 @@
     <string name="restartbutton">restart</string>
     <string name="endgame">End Game</string>
     <string name="youlost">YOU LOST</string>
+    <string name="gotit">Got it!</string>
 
 </resources>

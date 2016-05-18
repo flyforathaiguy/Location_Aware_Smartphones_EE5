@@ -1,9 +1,11 @@
 package com.example.robin.pattern_search;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,14 +18,11 @@ public class RuleActivity extends Activity {
         setContentView(R.layout.rules);
        mContentView = findViewById(R.id.rules);
 
-        //winner= (ImageView) findViewById(R.id.winner);
-
-
-    Button Start_GameButton = (Button) findViewById(R.id.start);
-    Start_GameButton.setOnClickListener(new View.OnClickListener() {
+    Button Got_itButton = (Button) findViewById(R.id.start);
+    Got_itButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //   finish();
+
 
             Intent intent = new Intent(getBaseContext(), GameWindow.class);
             Bundle bundle = new Bundle();
@@ -36,9 +35,13 @@ public class RuleActivity extends Activity {
 
     hide();
 }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
 
 
-
+    @SuppressLint("InlinedApi")
     private void hide() {
         if (Build.VERSION.SDK_INT >= 21) {
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE

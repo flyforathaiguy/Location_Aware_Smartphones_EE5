@@ -6,6 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="otherposition">otherPosition</string>
     <string name="ownposition">ownPosition</string>
-    <string name="send">Send</string>
+    <string name="connect">Connect</string>
+    <string name="title">Large Text</string>
 
 </resources>

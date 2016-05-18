@@ -2,6 +2,7 @@ package com.example.bluetooth_data_transfer_test;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+//import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -14,9 +15,11 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.Serializable;
+//import java.util.Set;
 
 import be.groept.emedialab.communications.DataHandler;
 import be.groept.emedialab.communications.DataPacket;
@@ -29,13 +32,62 @@ public class DataTransfer extends AppCompatActivity {
     private BluetoothAdapter BT;
     private final int BLUETOOTH_REQUEST = 1;
     public View mContentView;
-    private static final int DISCOVER_DURATION = 300;
+    TextView txt;
     public static final int TYPE_CO = 0;
     private TextView ownPositionTextView;
     private TextView otherPositionTextView;
     private Position otherPosition = null;
     private Thread runPatternThread;
     final Activity activity = this;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_datatransfer);
+
+        txt = (TextView) findViewById(R.id.txt);
+        BT = BluetoothAdapter.getDefaultAdapter();
+
+
+        Bluetoothstate();
+    }
+
+    public void onActivityResult(int request_code, int result_code, Intent data){
+        if(request_code==BLUETOOTH_REQUEST){
+            if(result_code==RESULT_OK){
+                Toast.makeText(getBaseContext()," your bluetooth is enabled",Toast.LENGTH_LONG).show();
+                Bluetoothstate();
+            }
+            if(result_code==RESULT_CANCELED){
+                Toast.makeText(getBaseContext(),"Bluetooth not enabled",Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    private void Bluetoothstate(){
+
+        if (BT == null) {
+            Toast.makeText(getBaseContext(), "No Adapter Found", Toast.LENGTH_LONG).show();
+
+        }
+        else
+        {
+            if (!BT.isEnabled()) {
+                Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(i, BLUETOOTH_REQUEST);
+            }
+        }
+
+        mContentView = findViewById(R.id.relativeLayout);
+        ownPositionTextView = (TextView) findViewById(R.id.ownPosition);
+
+        otherPositionTextView = (TextView) findViewById(R.id.otherPosition);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        GlobalResources.getInstance().setHandler(handler);
+        GlobalResources.getInstance().setContext(getBaseContext());
+        hide();
+    }
+
 
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -61,19 +113,7 @@ public class DataTransfer extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_datatransfer);
-        mContentView = findViewById(R.id.relativeLayout);
-        ownPositionTextView = (TextView) findViewById(R.id.ownPosition);
 
-        otherPositionTextView = (TextView) findViewById(R.id.otherPosition);
-
-        GlobalResources.getInstance().setHandler(handler);
-
-        hide();
-    }
 
     public Thread getThread() {
         return new Thread() {
@@ -116,40 +156,13 @@ public class DataTransfer extends AppCompatActivity {
                 otherPosition = (Position) dataPacket.getOptionalData();
 
                 //Log.d(TAG, "RECEIVED COORDINATES FROM SERVER: " + otherPosition);
-                updatePosition(otherPosition, otherPositionTextView, "Yours");
+                updatePosition(otherPosition, otherPositionTextView, "Other");
                 break;
 
         }
     }
 
-    public void BluetoothTransfer(View v) {
 
-        BT = BluetoothAdapter.getDefaultAdapter();
-
-        if (BT == null) {
-
-            Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG).show();
-        } else {
-            enableBluetooth();
-        }
-    }
-
-    public void enableBluetooth() {
-        Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        i.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVER_DURATION);
-        startActivityForResult(i, BLUETOOTH_REQUEST);
-
-    }
-
-    @Override
-    public void onActivityResult(int request_code, int result_code, Intent data) {
-        if (request_code == BLUETOOTH_REQUEST && result_code == DISCOVER_DURATION) {
-
-            Toast.makeText(getBaseContext(), " your bluetooth is enabled", Toast.LENGTH_LONG).show();
-
-
-        }
-    }
     protected void onResume() {
         super.onResume();
         Log.d(TAG, " on resume called");

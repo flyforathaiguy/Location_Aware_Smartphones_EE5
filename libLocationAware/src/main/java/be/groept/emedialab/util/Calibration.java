@@ -49,7 +49,8 @@ public class Calibration extends AppCompatActivity {
             if (msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED) {
                 updatePosition((Position) msg.obj);
                 if(secondPositionReceived == true) {
-                    circularSeekBar1.setProgress((int)GlobalResources.getInstance().getDevice().getPosition().getRotation());
+
+                    progressBarSetup();
                 }
             }
             //If a data packet arrives (probably confirmation from other device otf its position
@@ -85,12 +86,13 @@ public class Calibration extends AppCompatActivity {
                 Log.d(TAG, "Received Y_OFFSET");
                 compensateYOffset((double) dataPacket.getOptionalData());
             default:
-                Log.d(TAG, "Default case");
                 break;
         }
         //Remove address at last index since we do not need it
         //Should be the only one in the list ( list.size() == 1 --> index 0)
-        GlobalResources.getInstance().getReceivedList().clear();
+        Log.d(TAG, "Received list size: " + GlobalResources.getInstance().getReceivedList().size());
+        if(GlobalResources.getInstance().getReceivedList().size() > 0)
+            GlobalResources.getInstance().getReceivedList().remove(GlobalResources.getInstance().getReceivedList().size() - 1);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class Calibration extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(secondPositionReceived == false)
+                if (secondPositionReceived == false)
                     calibrate();
                 else calibratePartTwo();
             }
@@ -122,6 +124,7 @@ public class Calibration extends AppCompatActivity {
 
     //Update the position that is represented on the screen as user feedback
     public void updatePosition(Position position){
+
         text.setText(String.format("%s (%.2f, %.2f, %.2f) %.1f°", getText(R.string.CalibrateOwnPosition), position.getX(), position.getY(), position.getZ(), position.getRotation()));
 
         if(firstPosition != null) {
@@ -129,7 +132,7 @@ public class Calibration extends AppCompatActivity {
             wantedAngle = (firstPosition.getRotation() + 180)%360;
 
             angle = Math.min(Math.abs(wantedAngle - position.getRotation()), Math.abs(360 - Math.abs(wantedAngle - position.getRotation())));
-            feedbackText.setText(String.format("%s \n%.1f°",getText(R.string.CalibrateFeedback), angle));
+            feedbackText.setText(String.format("%s \n%.1f°", getText(R.string.CalibrateFeedback), angle));
             if (angle < 10)
                 feedbackText.setTextColor(Color.parseColor("green"));
             else
@@ -180,7 +183,7 @@ public class Calibration extends AppCompatActivity {
                 avgY += entry.getValue().getY();
             }
             avgY = avgY / nbDevices;
-            Log.d(TAG, "AvgY: " + avgY);
+            Log.d(TAG, "AvgX: " + avgY);
 
             //Send offset of X-values to the phones
             double yOffset = 0;
@@ -203,36 +206,28 @@ public class Calibration extends AppCompatActivity {
         GlobalResources.getInstance().setCamXoffset(GlobalResources.getInstance().getCamXoffset() + xOffset);
         Log.d(TAG, "Calibrated xOfset: " + xOffset);
         compensatedXOffset = true;
-        Toast toast = Toast.makeText(this, "Compensated X offset!", Toast.LENGTH_LONG);
-        toast.show();
     }
 
     private void compensateYOffset(double yOffset){
         GlobalResources.getInstance().setCamYoffset(GlobalResources.getInstance().getCamYoffset() + yOffset);
         Log.d(TAG, "Calibrated yOffset: " + yOffset);
 
-        Toast toast = Toast.makeText(this, "Compensated Y offset!", Toast.LENGTH_LONG);
-        toast.show();
-
         //compensating Y offset is the last part in the calibration that happens
-        GlobalResources.getInstance().setCalibrated(true);
         GlobalResources.getInstance().setCalibrationHandler(null);
         finish();
     }
-
+    //FOCUS
     public void calibratePartTwo(){
-        //Angle has to be close to zero (<=2°)
-        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() < 350 && GlobalResources.getInstance().getDevice().getPosition().getRotation() > 10){
+        //Angle has to be close to zero (<=1°)
+        if(GlobalResources.getInstance().getDevice().getPosition().getRotation() <= 1 || GlobalResources.getInstance().getDevice().getPosition().getRotation() >= 359){
             Toast toast = Toast.makeText(this, "Angle offset too big" ,Toast.LENGTH_SHORT);
             toast.show();
-            return;
         }
 
         //If client --> send to master, if master --> check if all positions are in
         if(GlobalResources.getInstance().getClient() == true){
             GlobalResources.getInstance().sendData(DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(CONFIRMED_POS));
-            Log.d(TAG, "Sent confirmed pos signal");
-            //button.setEnabled(false);
+            button.setEnabled(false);
         }
         else {
             if(confirmedPositions.containsKey("ownpos") == false){
@@ -243,6 +238,7 @@ public class Calibration extends AppCompatActivity {
     }
 
     //Calibration procedure. Button is pressed twice, both time positions are saved to calibrate with
+    //we have to add some offset angle to this one to compensate the error....
     public void calibrate(){
         Log.d(TAG, "Button pressed");
         if(firstPositionReceived == false){
@@ -251,8 +247,11 @@ public class Calibration extends AppCompatActivity {
             firstPosition = GlobalResources.getInstance().getDevice().getPosition();
             if(!firstPosition.equals(null) && !Double.isNaN(firstPosition.getRotation()) && !Double.isNaN(firstPosition.getX()) && !Double.isNaN(firstPosition.getY()) && !Double.isNaN(firstPosition.getZ())) {
 
-                firstPositionReceived = true;
-                Log.d(TAG, "First Coordinates in Calibration set: x= " + firstPosition.getX() + " y=" + firstPosition.getY() + " angle= " + firstPosition.getRotation());
+                if(Math.abs(firstPosition.getRotation()) <= 0.5){
+
+                    Log.d(TAG, "First Coordinates in Calibration set: x= " + firstPosition.getX() + " y=" + firstPosition.getY() + " angle= " + firstPosition.getRotation());
+                    firstPositionReceived = true;
+                }
             }
         }
         else if(secondPositionReceived == false){
@@ -262,7 +261,8 @@ public class Calibration extends AppCompatActivity {
             if(!secondPosition.equals(null) && !Double.isNaN(secondPosition.getRotation()) && !Double.isNaN(secondPosition.getX()) && !Double.isNaN(secondPosition.getY()) && !Double.isNaN(secondPosition.getZ())) {
 
                 //Difference in angles should not be greater than 1.5°
-                if(Math.min(Math.abs(wantedAngle - secondPosition.getRotation()), Math.abs(360 - Math.abs(wantedAngle - secondPosition.getRotation()))) < 10) {
+                //if(Math.min(Math.abs(wantedAngle - secondPosition.getRotation()), Math.abs(360 - Math.abs(wantedAngle - secondPosition.getRotation()))) < 10)
+                if (Math.abs(180 -secondPosition.getRotation()) < 1.5){
                     Log.d(TAG, "Second Coordinates in Calibration set: x= " + secondPosition.getX() + " y=" + secondPosition.getY() + " angle= " + secondPosition.getRotation());
                     secondPositionReceived = true;
 
@@ -283,12 +283,14 @@ public class Calibration extends AppCompatActivity {
         //Determine if the camera is on the left or right side of the phone
         //Right side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            yCenter = -Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            //yCenter = -Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            yCenter = Math.abs((firstPosition.getY() - (secondPosition.getY()*Math.cos(180-secondPosition.getRotation())))/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             //this means the camera is on the left side of the phone
-            yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            //yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            yCenter = Math.abs((firstPosition.getY() - (secondPosition.getY()*Math.cos(180-secondPosition.getRotation())))/2);
         }
 
         else{
@@ -296,16 +298,16 @@ public class Calibration extends AppCompatActivity {
             yCenter = 0;
         }
 
-        xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
+        //xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
+        xCenter = Math.abs((firstPosition.getX() - (secondPosition.getX()*Math.cos(180-secondPosition.getRotation())))/2);
 
         GlobalResources.getInstance().setCamXoffset(yCenter);
         GlobalResources.getInstance().setCamYoffset(xCenter);
 
         //Set the Calibration to true, so the calibrated offset will be used in PositionCalculation
-        GlobalResources.getInstance().setCalibratedCoordinates(true);
+        GlobalResources.getInstance().setCalibrated(true);
 
         Log.d(TAG, "Calculated camOffset");
-        progressBarSetup();
     }
 
     private void progressBarSetup() {
@@ -313,6 +315,23 @@ public class Calibration extends AppCompatActivity {
         feedbackText.setVisibility(View.INVISIBLE);
         circularSeekBar1.setVisibility(View.VISIBLE);
         circularSeekBar1.setIsTouchEnabled(false);
+
+        calculateProgressBar();
+    }
+
+    private void calculateProgressBar() {
+
+        //Start and end of the circular seekbar is at 3 o'clock -> 270°
+        if(angle + START_ANGLE < 360) {
+            circularSeekBar1.setProgress(((int) angle) + 270);
+        }
+
+        else {
+            circularSeekBar1.setProgress((int) angle);
+        }
+
+        if(circularSeekBar1.getProgress() <= START_ANGLE + ANGLE_OFFSET ||circularSeekBar1.getProgress() <= START_ANGLE - ANGLE_OFFSET ) {
+        }
     }
 
     @Override
@@ -326,7 +345,7 @@ public class Calibration extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, " Cali onPause called");
         if(GlobalResources.getInstance().getPatternDetector() != null) {
-                GlobalResources.getInstance().getPatternDetector().destroy();
+            GlobalResources.getInstance().getPatternDetector().destroy();
         }
         //If the system is calibrated & onPause is called --> means the Activity is being killed --> Set PatternDetector to Null so the ArrowGame onResume thread can make a new one
         if(GlobalResources.getInstance().getCalibrated())
@@ -341,3 +360,4 @@ public class Calibration extends AppCompatActivity {
         Log.d(TAG, " Cali onResume called");
     }
 }
+
