@@ -54,7 +54,7 @@ Animation animBounce;
         createButton.startAnimation(animBounce);
 
         Button RULESButton = (Button) findViewById(R.id.rules);
-        RULESButton.setVisibility(View.VISIBLE);
+        RULESButton.setVisibility(View.INVISIBLE);
         RULESButton.startAnimation(animBounce);
 
 
@@ -64,7 +64,7 @@ Animation animBounce;
 
                            Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
                             Bundle bundle = new Bundle();
-                            bundle.putBoolean("JOIN", true);
+                            bundle.putBoolean("create", false);
                             intent.putExtras(bundle);
                             StartActivity.this.startActivity(intent);
 
@@ -76,19 +76,19 @@ Animation animBounce;
                         public void onClick(View v) {
                             Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
                             Bundle bundle = new Bundle();
-                            bundle.putBoolean("JOIN", false);
+                            bundle.putBoolean("create", true);
                             intent.putExtras(bundle);
                             StartActivity.this.startActivity(intent);
                         }
                     });
 
-        RULESButton.setOnClickListener(new View.OnClickListener() {
+/*        RULESButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(getBaseContext(), RuleActivity.class);
                             StartActivity.this.startActivity(intent);
                         }
-                    });
+                    });/*/
 
                     hide();
                 }

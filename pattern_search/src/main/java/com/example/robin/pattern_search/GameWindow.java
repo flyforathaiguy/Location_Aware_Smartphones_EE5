@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class GameWindow extends Activity {
     private TextView ratingFeedback;
     private TextView positionText;
     private RatingBar rating;
+    private RelativeLayout frame;
     private double randomX;
     private double randomY;
     private boolean wonGame = false;
@@ -41,10 +43,10 @@ public class GameWindow extends Activity {
 
     private String TAG = "GameWindow";
 
-    private static final int END_GAME = 3;
-    private static final int RATING_CHOOSE = 2;
-    private static final int LAUNCH_WIN = 1;
-    private static final int LAUNCH_LOS = 0;
+    public static final int END_GAME = 3;
+    public static final int RATING_CHOOSE = 2;
+    public static final int LAUNCH_WIN = 1;
+    public static final int LAUNCH_LOS = 0;
 
     private static final int LEFT_BOUNDARY = 90;
     private static final int TOP_BOUNDARY = 130;
@@ -71,14 +73,7 @@ public class GameWindow extends Activity {
         //Set this context in GlobalResources
         GlobalResources.getInstance().setContext(getBaseContext());
 
-        //Launch the pattern detector in a different runnable
-        Runnable runnablePattern = new Runnable() {
-            @Override
-            public void run() {
-                new RunPatternDetector(activity);
-            }
-        };
-        runnablePattern.run();
+        frame = (RelativeLayout) findViewById(R.id.frame);
 
         //Get accept button
         button = (Button) findViewById(R.id.confirmButton);
@@ -115,7 +110,7 @@ public class GameWindow extends Activity {
                 endGame();
             }
             else if(msg.what == DataHandler.DATA_TYPE_OWN_POS_UPDATED){
-                Log.d(TAG, "Position being updated");
+                //Log.d(TAG, "Position being updated");
                 updatePosition();
             }
         }
@@ -183,7 +178,7 @@ public class GameWindow extends Activity {
         Position randomPosition = new Position(randomX, randomY, 0, 0);
 
         Map<String, Position> positions = GlobalResources.getInstance().getDevices();
-        if(positions.containsKey("ownpos"))
+        if(!(positions.containsKey("ownpos")))
             positions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
 
         double distance;
@@ -195,14 +190,18 @@ public class GameWindow extends Activity {
 
             //Check if we have a winner
             if (distance <= 4) {
+                Toast toast = Toast.makeText(this, "Someone has won", Toast.LENGTH_LONG);
+                toast.show();
                 Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distance);
                 winnerString = entry.getKey();
                 wonGame = true;
             }
         }
 
+        Log.d(TAG, "" + wonGame);
+
         //Start launching other intents or ratings
-        if(wonGame == true){
+        /*if(wonGame == true){
             for(Map.Entry<String, Position> entry : positions.entrySet()){
                 //Master can only launch his own intent after launching all the others
                 if(entry.getKey().equals("ownpos") == false){
@@ -217,10 +216,10 @@ public class GameWindow extends Activity {
             if(winnerString.equals("ownpos") == true)
                 this.launchWinIntent();
             else this.launchLoserIntent();
-        }
+        }*/
 
         //No winner
-        else{
+        //else{
             for(Map.Entry<String, Position> entry : positions.entrySet()){
                 if(entry.getKey().equals("ownpos") == false) {
                     ratingCalculation(entry.getKey(), entry.getValue().getXYDistance(randomPosition));
@@ -229,7 +228,7 @@ public class GameWindow extends Activity {
             //For master
             ratingCalculation("ownpos", GlobalResources.getInstance().getDevice().getPosition().getXYDistance(randomPosition));
             button.setEnabled(true);
-        }
+        //}
     }
 
     private void ratingCalculation(String phoneId, double distance) {
@@ -277,26 +276,31 @@ public class GameWindow extends Activity {
         if(stars == 0) {
             rating.setRating(0);
             ratingFeedback.setText("Nowhere near!");
+            Log.d(TAG, "Nowhere near!");
         }
 
         if(stars == 1) {
             rating.setRating(1);
             ratingFeedback.setText("Better than nothing!");
+            Log.d(TAG, "Better than nothing!");
         }
 
         if(stars == 2) {
             rating.setRating(2);
             ratingFeedback.setText("On the way!");
+            Log.d(TAG, "On the way!");
         }
 
         if(stars == 3) {
             rating.setRating(3);
             ratingFeedback.setText("Almost there!");
+            Log.d(TAG, "Almost there!");
         }
 
         if(stars == 4) {
             rating.setRating(4);
             ratingFeedback.setText("Getting real close!");
+            Log.d(TAG, "Getting real close!");
         }
     }
 
@@ -364,7 +368,7 @@ public class GameWindow extends Activity {
         //If this Activity is paused due to the Calibration being launched, do not destroy pattern detector!
         if(GlobalResources.getInstance().getPatternDetector() != null) {
             if(GlobalResources.getInstance().getCalibrated() == true) {
-                if(wonGame == false) {                                                   //veranderen naar false
+                if(wonGame == false) {
                     GlobalResources.getInstance().getPatternDetector().destroy();
                 }
             }
@@ -384,7 +388,7 @@ public class GameWindow extends Activity {
             button.setClickable(true);
             if(randomLocationMade == false) {
                 if(GlobalResources.getInstance().getClient() == false) {
-                    if(GlobalResources.getInstance().getCalibrated()) {
+                    if(GlobalResources.getInstance().getCalibrated() == false) {
                         makeRandomLocation();
                     }
                 }
