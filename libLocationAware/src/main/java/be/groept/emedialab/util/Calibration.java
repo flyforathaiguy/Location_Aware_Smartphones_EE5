@@ -35,8 +35,7 @@ public class Calibration extends AppCompatActivity {
     private static final int CONFIRMED_POS = 0;
     private static final int X_OFFSET = 1;
     private static final int Y_OFFSET = 2;
-    private static final int START_ANGLE = 270;
-    private static final int ANGLE_OFFSET = 4;
+
 
     private double xOffset = 0;
 
@@ -86,6 +85,7 @@ public class Calibration extends AppCompatActivity {
             case Y_OFFSET:
                 Log.d(TAG, "Received Y_OFFSET");
                 compensateYOffset((double) dataPacket.getOptionalData());
+                break;
             default:
                 Log.d(TAG, "Default case");
                 break;
@@ -142,8 +142,6 @@ public class Calibration extends AppCompatActivity {
     private void calculateOffset(){
         int nbDevices = GlobalResources.getInstance().getDevices().size() + 1;
         //Not all devices have confirmed yet
-        Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
-        Log.d(TAG, "nbDevices: " + nbDevices);
         if(confirmedPositions.size() < nbDevices){
             Toast toast = Toast.makeText(this, "Not all devices have confirmed yet", Toast.LENGTH_SHORT);
             toast.show();
@@ -154,13 +152,9 @@ public class Calibration extends AppCompatActivity {
         if(compensatedXOffset == false) {
             //All devices are in --> calculate average (X value should be the same)
             double avgX = 0;
-            Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
-            Log.d(TAG, "nbDevices: " + nbDevices);
             for (Map.Entry<String, Position> entry : confirmedPositions.entrySet()) {
                 avgX += entry.getValue().getX();
             }
-            Log.d(TAG, "confirmedPos Size: " + confirmedPositions.size());
-            Log.d(TAG, "nbDevices: " + nbDevices);
             avgX = avgX / nbDevices;
             Log.d(TAG, "AvgX: " + avgX);
 
@@ -214,6 +208,8 @@ public class Calibration extends AppCompatActivity {
         compensatedXOffset = true;
         Toast toast = Toast.makeText(this, "Compensated X offset!", Toast.LENGTH_LONG);
         toast.show();
+        toast = Toast.makeText(this, "X offset: " + xOffset, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void compensateYOffset(double yOffset){
@@ -222,6 +218,8 @@ public class Calibration extends AppCompatActivity {
         Log.d(TAG, "Calibrated yOffset: " + yOffset);
 
         Toast toast = Toast.makeText(this, "Compensated Y offset!", Toast.LENGTH_LONG);
+        toast.show();
+        toast = Toast.makeText(this, "Y offset: " + yOffset, Toast.LENGTH_SHORT);
         toast.show();
 
         //compensating Y offset is the last part in the calibration that happens
@@ -291,30 +289,32 @@ public class Calibration extends AppCompatActivity {
         Log.d(TAG, "Second: x= " + secondPosition.getX() + " y= " + secondPosition.getY());
 
         //Determine if the camera is on the left or right side of the phone
-        //Right side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
+        //Left side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            yCenter = -Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            xCenter = -Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle))/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            //this means the camera is on the left side of the phone
-            yCenter = Math.abs((firstPosition.getY() - secondPosition.getY())/2);
+            //this means the camera is on the right side of the phone
+            xCenter = Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle))/2);
         }
 
         else{
             //this means the camera is in the center of the phone
-            yCenter = 0;
+            xCenter = 0;
         }
 
-        xCenter = Math.abs((firstPosition.getX() - secondPosition.getX())/2);
+        yCenter = Math.abs((firstPosition.getX() - secondPosition.getX()*Math.cos(angle))/2);
 
-        GlobalResources.getInstance().setCamXoffset(yCenter);
-        GlobalResources.getInstance().setCamYoffset(xCenter);
+        GlobalResources.getInstance().setCamXoffset(xCenter);
+        GlobalResources.getInstance().setCamYoffset(yCenter);
 
         //Set the Calibration to true, so the calibrated offset will be used in PositionCalculation
         GlobalResources.getInstance().setCalibratedCoordinates(true);
 
         Log.d(TAG, "Calculated camOffset");
+        Toast toast = Toast.makeText(this,  "Camoffset: x= " + xCenter + " y= " + yCenter, Toast.LENGTH_LONG);
+        toast.show();
         progressBarSetup();
     }
 

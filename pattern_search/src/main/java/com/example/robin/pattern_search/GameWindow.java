@@ -122,15 +122,19 @@ public class GameWindow extends Activity {
             case RATING_CHOOSE:
                 Log.d(TAG, "Setting ratings");
                 setStars((int) dataPacket.getOptionalData());
+                break;
             case LAUNCH_WIN:
                 Log.d(TAG, "Launching win intent");
                 launchWinIntent();
+                break;
             case LAUNCH_LOS:
                 Log.d(TAG, "Launching lose intent");
                 launchLoserIntent();
+                break;
             case END_GAME:
                 Log.d(TAG, "Ending game");
                 endGame();
+                break;
             default:
                 break;
         }
