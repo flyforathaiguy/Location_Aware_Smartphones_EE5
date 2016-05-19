@@ -35,6 +35,7 @@ public class GameWindow extends Activity {
     private Button button;
     private TextView ratingFeedback;
     private TextView positionText;
+    private TextView distanceText;
     private RatingBar rating;
     private RelativeLayout frame;
     private double randomX;
@@ -44,8 +45,9 @@ public class GameWindow extends Activity {
 
     private String TAG = "GameWindow";
 
-    public static final int END_GAME = 3;
-    public static final int RATING_CHOOSE = 2;
+    public static final int END_GAME = 4;
+    public static final int RATING_CHOOSE = 3;
+    public static final int UPDATE_DIST = 2;
     public static final int LAUNCH_WIN = 1;
     public static final int LAUNCH_LOS = 0;
 
@@ -67,6 +69,7 @@ public class GameWindow extends Activity {
 
         //Initialize the position text
         positionText = (TextView) findViewById(R.id.positionText);
+        distanceText = (TextView) findViewById(R.id.distanceText);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GlobalResources.getInstance().setHandler(handler);
@@ -124,6 +127,10 @@ public class GameWindow extends Activity {
                 Log.d(TAG, "Setting ratings");
                 setStars((int) dataPacket.getOptionalData());
                 break;
+            case UPDATE_DIST:
+                Log.d(TAG, "Setting ratings");
+                updateDistance((int) dataPacket.getOptionalData());
+                break;
             case LAUNCH_WIN:
                 Log.d(TAG, "Launching win intent");
                 launchWinIntent();
@@ -155,14 +162,14 @@ public class GameWindow extends Activity {
 
     private void launchWinIntent() {
         wonGame = true;
-        Intent intent = new Intent(getBaseContext(), WinnerActivity.class);
-        startActivity(intent);
+        Intent intentWin = new Intent(getBaseContext(), WinnerActivity.class);
+        startActivity(intentWin);
     }
 
     private void launchLoserIntent() {
         wonGame = false;
-        Intent intent = new Intent(getBaseContext(), LoserActivity.class);
-        startActivity(intent);
+        Intent intentLose = new Intent(getBaseContext(), LoserActivity.class);
+        startActivity(intentLose);
     }
 
     private void confirmButton() {
@@ -183,24 +190,25 @@ public class GameWindow extends Activity {
         Position randomPosition = new Position(randomX, randomY, 0, 0);
 
         Map<String, Position> positions = GlobalResources.getInstance().getDevices();
-        if(!(positions.containsKey("ownpos")))
+        //if(!(positions.containsKey("ownpos")))
             positions.put("ownpos", GlobalResources.getInstance().getDevice().getPosition());
 
-        double distance;
+        double distanceTo;
         String winnerString = "";
         for(Map.Entry<String, Position> entry : positions.entrySet()) {
 
-            distance = entry.getValue().getXYDistance(randomPosition);
+            distanceTo = entry.getValue().getXYDistance(randomPosition);
             Log.d(TAG, "phone: " + entry.getKey() + " has an X of: " + entry.getValue().getX() + " and a Y of: " + entry.getValue().getY());
-            Log.d(TAG, "phone: " + entry.getKey() + " is at a distance of " + distance);
+            Log.d(TAG, "phone: " + entry.getKey() + " is at a distance of " + distanceTo);
 
             //Check if we have a winner
-            if (distance <= 8) {
+            if (distanceTo <= 10) {
                 Toast toast = Toast.makeText(this, "Someone has won", Toast.LENGTH_LONG);
                 toast.show();
-                Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distance);
+                Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distanceTo);
                 winnerString = entry.getKey();
                 wonGame = true;
+                break;
             }
         }
 
@@ -219,8 +227,12 @@ public class GameWindow extends Activity {
                     }
                 }
             }
-            if(winnerString.equals("ownpos") == true)
+            if(winnerString.equals("ownpos") == true) {
+
                 this.launchWinIntent();
+                Toast toast = Toast.makeText(this, "Master has won", Toast.LENGTH_LONG);
+                toast.show();
+            }
             else this.launchLoserIntent();
         }
 
@@ -232,6 +244,7 @@ public class GameWindow extends Activity {
                 }
             }
             //For master
+            Log.d(TAG,"master has an X of: " + GlobalResources.getInstance().getDevice().getPosition().getX() + " and a Y of: " + GlobalResources.getInstance().getDevice().getPosition().getY());
             ratingCalculation("ownpos", GlobalResources.getInstance().getDevice().getPosition().getXYDistance(randomPosition));
             button.setEnabled(true);
         }
@@ -240,49 +253,79 @@ public class GameWindow extends Activity {
     private void ratingCalculation(String phoneId, double distance) {
 
         if(distance <= 16) {
-            if(phoneId.equals("ownpos") == false)
+            if(phoneId.equals("ownpos") == false) {
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 4));
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(UPDATE_DIST, (int) distance));
+            }
+
             else {
                 Log.d(TAG, "Master is calculating the rating 4 stars");
                 setStars(4);
+                updateDistance((int) distance);
             }
         }
 
         else if(distance <= 35) {
-            if(phoneId.equals("ownpos") == false)
+            if(phoneId.equals("ownpos") == false) {
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 3));
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(UPDATE_DIST, (int) distance));
+            }
+
             else {
                 Log.d(TAG, "Master is calculating the rating 3 stars");
                 setStars(3);
+                updateDistance((int) distance);
             }
         }
 
         else if(distance <= 55) {
-            if(phoneId.equals("ownpos") == false)
+            if(phoneId.equals("ownpos") == false) {
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 2));
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(UPDATE_DIST, (int) distance));
+            }
+
             else {
                 Log.d(TAG, "Master is calculating the rating 2 stars");
                 setStars(2);
+                updateDistance((int) distance);
             }
         }
 
         else if(distance <= 80) {
-            if(phoneId.equals("ownpos") == false)
+            if(phoneId.equals("ownpos") == false) {
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 1));
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(UPDATE_DIST, (int) distance));
+            }
+
             else {
-                Log.d(TAG, "Master is calculating the rating 1 star");
+                Log.d(TAG, "Master is calculating the rating 1 stars");
                 setStars(1);
+                updateDistance((int) distance);
             }
         }
 
         else {
-            if(phoneId.equals("ownpos") == false)
+            if(phoneId.equals("ownpos") == false) {
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 0));
+                GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(UPDATE_DIST, (int) distance));
+            }
+
             else {
-                Log.d(TAG, "Master is calculating the rating");
+                Log.d(TAG, "Master is calculating the rating 0 stars");
                 setStars(0);
+                updateDistance((int) distance);
             }
         }
+    }
+
+    private void updateDistance(int distance) {
+
+        if(true)
+            distanceText.setText("" + distance);
+
+        else
+            distanceText.setText("The pattern wasn't detected");
+
     }
 
     private void setStars(int stars) {
@@ -354,9 +397,6 @@ public class GameWindow extends Activity {
         int randomNumberX = (rand.nextInt(LEFT_BOUNDARY)-LEFT_BOUNDARY/2);
         int randomNumberY = (rand.nextInt(TOP_BOUNDARY)-TOP_BOUNDARY/2);
 
-        Log.d(TAG, "RandomX = " + randomNumberX);
-        Log.d(TAG, "RandomY = " + randomNumberY);
-
         //Check if the random location is not too close to the master phone,
         //otherwise the game will end too soon
         while(Math.abs(masterX - randomNumberX) <= 12) {
@@ -373,6 +413,10 @@ public class GameWindow extends Activity {
             randomNumberY = (rand.nextInt(TOP_BOUNDARY)-TOP_BOUNDARY/2);
         }
         randomY = randomNumberY;
+
+
+        Log.d(TAG, "RandomX = " + randomX);
+        Log.d(TAG, "RandomY = " + randomY);
 
         randomLocationMade = true;
 

@@ -25,6 +25,7 @@ public class WinnerActivity extends Activity {
         setContentView(R.layout.activity_winner);
         mContentView = findViewById(R.id.winner_page);
         winner= (ImageView) findViewById(R.id.winner);
+        text = (TextView) findViewById(R.id.text);
         // load the animations
         animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.fadein);

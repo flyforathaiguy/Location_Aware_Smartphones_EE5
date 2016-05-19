@@ -106,7 +106,7 @@ public class RunPatternDetector {
             Log.d(TAG, "calibrated =" + GlobalResources.getInstance().getCalibrated());
 
 
-            if (GlobalResources.getInstance().getCalibrated() == false){
+/*            if (GlobalResources.getInstance().getCalibrated() == false){
                 Log.d(TAG, "Not Calibrated");
                 Log.d(TAG, "Made calibration class");
                 Log.d(TAG, "Context: " + GlobalResources.getInstance().getContext());
@@ -115,7 +115,7 @@ public class RunPatternDetector {
                 Log.d(TAG, "Made intent");
                 GlobalResources.getInstance().getContext().startActivity(intent);
                 Log.d(TAG, "Launched intent");
-            }
+            }*/
 
         }
     }
