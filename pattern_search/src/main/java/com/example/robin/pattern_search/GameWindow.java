@@ -3,7 +3,6 @@ package com.example.robin.pattern_search;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -91,7 +90,7 @@ public class GameWindow extends Activity {
         }
     }
 
-    //Handler for signals, large parts of code taken from original Location Aware Smartphones project
+    //Handler for signals, large parts of code taken from original Location Aware Smart phones project
     Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
