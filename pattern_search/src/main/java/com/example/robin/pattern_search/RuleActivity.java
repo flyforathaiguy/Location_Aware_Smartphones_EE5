@@ -15,26 +15,11 @@ public class RuleActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.rules);
-       mContentView = findViewById(R.id.rules);
+        setContentView(R.layout.activity_rule);
+       mContentView = findViewById(R.id.Game_rule);
 
-    Button Got_itButton = (Button) findViewById(R.id.start);
-    Got_itButton.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-
-            Intent intent = new Intent(getBaseContext(), GameWindow.class);
-            Bundle bundle = new Bundle();
-
-            intent.putExtras(bundle);
-            RuleActivity.this.startActivity(intent);
-
-        }
-    });
-
-    hide();
-}
+        hide();
+   }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return super.onCreateOptionsMenu(menu);
@@ -53,5 +38,13 @@ public class RuleActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hide();
+
+    }
 
 }
+
+

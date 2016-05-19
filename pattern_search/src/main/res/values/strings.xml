@@ -11,7 +11,6 @@
     <string name="join">Join</string>
     <string name="create">Create</string>
     <string name="game_window">Pattern Search</string>
-    <string name="rules">rules</string>
     <string name="distancefromlocation">Distance from the location</string>
     <string name="confirmposition">Confirm position</string>
     <string name="nowherenear">Nowhere near the target</string>
@@ -21,7 +20,8 @@
     <string name="restartbutton">restart</string>
     <string name="endgame">End Game</string>
     <string name="youlost">YOU LOST</string>
-    <string name="gotit">Got it!</string>
-    <string name="rule_of_the_game">Rule of the game is the players would have to place their phones in a position that they think is close to the master\'s hidden position. The master will give feedback after each move taken by the players is confirmed. Folow the feedback messages from the master and try to get as close as u can to that position. Press the button below to go back to the main window.</string>
+    <string name="rule_of_the_game">This game is about finding a position which the master phone hides. Rule of the game is the players would have to place their phones in a position that they think is close to the master\'s hidden position. The master will give feedback after each move taken by the players is confirmed. Follow the feedback messages from the master and try to get as close as u can to that position. Press the return key to go back to the main window.</string>
+    <string name="ruleofthegame">RULE</string>
+    <string name="title_activity_rule">title_activity_rule</string>
 
 </resources>

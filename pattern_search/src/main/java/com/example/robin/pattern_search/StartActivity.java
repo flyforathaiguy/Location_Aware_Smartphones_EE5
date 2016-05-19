@@ -22,8 +22,8 @@ public class StartActivity extends Activity{
     TextView txtMessage;
 
     //Animation
-  Animation animMove;
-Animation animBounce;
+    Animation animMove;
+    Animation animBounce;
 
 
     @Override
@@ -45,20 +45,20 @@ Animation animBounce;
 
         animBounce = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.bounce);
-        Button JOINButton = (Button) findViewById(R.id.join);
-        JOINButton.setVisibility(View.VISIBLE);
-        JOINButton.startAnimation(animBounce);
+        Button JoinButton = (Button) findViewById(R.id.join);
+        JoinButton.setVisibility(View.VISIBLE);
+        JoinButton.startAnimation(animBounce);
 
-        Button createButton = (Button) findViewById(R.id.start_new);
-        createButton.setVisibility(View.VISIBLE);
-        createButton.startAnimation(animBounce);
+        Button CreateButton = (Button) findViewById(R.id.start_new);
+        CreateButton.setVisibility(View.VISIBLE);
+        CreateButton.startAnimation(animBounce);
 
-        Button RULESButton = (Button) findViewById(R.id.rules);
-        RULESButton.setVisibility(View.INVISIBLE);
-        RULESButton.startAnimation(animBounce);
+        Button RULEButton = (Button) findViewById(R.id.game_rule);
+        RULEButton.setVisibility(View.VISIBLE);
+        RULEButton.startAnimation(animBounce);
 
 
-        JOINButton.setOnClickListener(new View.OnClickListener() {
+        JoinButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
@@ -71,7 +71,7 @@ Animation animBounce;
                         }
                     });
 
-        createButton.setOnClickListener(new View.OnClickListener() {
+        CreateButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(getBaseContext(), ConnectionActivity.class);
@@ -82,19 +82,20 @@ Animation animBounce;
                         }
                     });
 
-/*        RULESButton.setOnClickListener(new View.OnClickListener() {
+        RULEButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(getBaseContext(), RuleActivity.class);
+                            Bundle bundle = new Bundle();
+                            intent.putExtras(bundle);
                             StartActivity.this.startActivity(intent);
                         }
-                    });/*/
+                    });
 
                     hide();
                 }
-
-                @SuppressLint("InlinedApi")
-                private void hide() {
+    @SuppressLint("InlinedApi")
+            private void hide() {
 
                     //Lollipop and higher
                     if (Build.VERSION.SDK_INT >= 21) {
