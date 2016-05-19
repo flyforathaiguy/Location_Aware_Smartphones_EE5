@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -190,10 +191,11 @@ public class GameWindow extends Activity {
         for(Map.Entry<String, Position> entry : positions.entrySet()) {
 
             distance = entry.getValue().getXYDistance(randomPosition);
+            Log.d(TAG, "phone: " + entry.getKey() + " has an X of: " + entry.getValue().getX() + " and a Y of: " + entry.getValue().getY());
             Log.d(TAG, "phone: " + entry.getKey() + " is at a distance of " + distance);
 
             //Check if we have a winner
-            if (distance <= 4) {
+            if (distance <= 8) {
                 Toast toast = Toast.makeText(this, "Someone has won", Toast.LENGTH_LONG);
                 toast.show();
                 Log.d(TAG, "phone: " + entry.getKey() + " has won and is at a distance of " + distance);
@@ -205,7 +207,7 @@ public class GameWindow extends Activity {
         Log.d(TAG, "" + wonGame);
 
         //Start launching other intents or ratings
-        /*if(wonGame == true){
+        if(wonGame == true){
             for(Map.Entry<String, Position> entry : positions.entrySet()){
                 //Master can only launch his own intent after launching all the others
                 if(entry.getKey().equals("ownpos") == false){
@@ -220,10 +222,10 @@ public class GameWindow extends Activity {
             if(winnerString.equals("ownpos") == true)
                 this.launchWinIntent();
             else this.launchLoserIntent();
-        }*/
+        }
 
         //No winner
-        //else{
+        else{
             for(Map.Entry<String, Position> entry : positions.entrySet()){
                 if(entry.getKey().equals("ownpos") == false) {
                     ratingCalculation(entry.getKey(), entry.getValue().getXYDistance(randomPosition));
@@ -232,44 +234,54 @@ public class GameWindow extends Activity {
             //For master
             ratingCalculation("ownpos", GlobalResources.getInstance().getDevice().getPosition().getXYDistance(randomPosition));
             button.setEnabled(true);
-        //}
+        }
     }
 
     private void ratingCalculation(String phoneId, double distance) {
 
-        if(distance <= 8) {
+        if(distance <= 16) {
             if(phoneId.equals("ownpos") == false)
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 4));
-            else
-                setStars((int) distance);
+            else {
+                Log.d(TAG, "Master is calculating the rating 4 stars");
+                setStars(4);
+            }
         }
 
-        else if(distance <= 20) {
+        else if(distance <= 35) {
             if(phoneId.equals("ownpos") == false)
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 3));
-            else
-                setStars((int) distance);
+            else {
+                Log.d(TAG, "Master is calculating the rating 3 stars");
+                setStars(3);
+            }
         }
 
-        else if(distance <= 40) {
+        else if(distance <= 55) {
             if(phoneId.equals("ownpos") == false)
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 2));
-            else
-                setStars((int) distance);
+            else {
+                Log.d(TAG, "Master is calculating the rating 2 stars");
+                setStars(2);
+            }
         }
 
-        else if(distance <= 70) {
+        else if(distance <= 80) {
             if(phoneId.equals("ownpos") == false)
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 1));
-            else
-                setStars((int) distance);
+            else {
+                Log.d(TAG, "Master is calculating the rating 1 star");
+                setStars(1);
+            }
         }
 
         else {
             if(phoneId.equals("ownpos") == false)
                 GlobalResources.getInstance().sendData(phoneId, DataHandler.DATA_TYPE_DATA_PACKET, new DataPacket(RATING_CHOOSE, 0));
-            else
-                setStars((int) distance);
+            else {
+                Log.d(TAG, "Master is calculating the rating");
+                setStars(0);
+            }
         }
     }
 
