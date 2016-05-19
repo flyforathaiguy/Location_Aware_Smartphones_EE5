@@ -23,5 +23,8 @@
     <string name="rule_of_the_game">This game is about finding a position which the master phone hides. Rule of the game is the players would have to place their phones in a position that they think is close to the master\'s hidden position. The master will give feedback after each move taken by the players is confirmed. Follow the feedback messages from the master and try to get as close as u can to that position. Press the return key to go back to the main window.</string>
     <string name="ruleofthegame">RULE</string>
     <string name="title_activity_rule">title_activity_rule</string>
+    <string name="WINNER">CONGRATULATIONS! YOU WON!</string>
+    <string name="exit">Quit</string>
+    <string name="restart">Play Again</string>
 
 </resources>
