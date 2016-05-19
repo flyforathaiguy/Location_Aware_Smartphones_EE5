@@ -22,5 +22,6 @@
     <string name="endgame">End Game</string>
     <string name="youlost">YOU LOST</string>
     <string name="gotit">Got it!</string>
+    <string name="rule_of_the_game">Rule of the game is the players would have to place their phones in a position that they think is close to the master\'s hidden position. The master will give feedback after each move taken by the players is confirmed. Folow the feedback messages from the master and try to get as close as u can to that position. Press the button below to go back to the main window.</string>
 
 </resources>
