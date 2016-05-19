@@ -32,6 +32,8 @@ public class WinnerActivity extends Activity {
         winner.setVisibility(View.VISIBLE);
         // start the animation
         winner.startAnimation(animFadeIn);
+        
+        text = (TextView) findViewById(R.id.text);
         animBounce = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.bounce);
         text.setVisibility(View.VISIBLE);
