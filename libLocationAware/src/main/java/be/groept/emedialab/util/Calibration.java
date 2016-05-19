@@ -291,12 +291,12 @@ public class Calibration extends AppCompatActivity {
         //Determine if the camera is on the left or right side of the phone
         //Left side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            xCenter = -Math.abs((firstPosition.getY()*Math.cos(angle/2) - secondPosition.getY()*Math.cos(angle/2))/2);
+            xCenter = -Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle/2))/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             //this means the camera is on the right side of the phone
-            xCenter = Math.abs((firstPosition.getY()*Math.cos(angle/2) - secondPosition.getY()*Math.cos(angle/2))/2);
+            xCenter = Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle/2))/2);
         }
 
         else{
@@ -304,7 +304,7 @@ public class Calibration extends AppCompatActivity {
             xCenter = 0;
         }
 
-        yCenter = Math.abs((firstPosition.getX()*Math.cos(angle/2) - secondPosition.getX()*Math.cos(angle/2))/2);
+        yCenter = Math.abs((firstPosition.getX() - secondPosition.getX()*Math.cos(angle/2))/2);
 
         GlobalResources.getInstance().setCamXoffset(xCenter);
         GlobalResources.getInstance().setCamYoffset(yCenter);
