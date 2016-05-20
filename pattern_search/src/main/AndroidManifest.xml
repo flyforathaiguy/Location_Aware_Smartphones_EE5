@@ -32,6 +32,10 @@
             android:name=".LoserActivity"
             android:label="@string/title_activity_loser" >
         </activity>
+        <activity
+            android:name=".RuleActivity"
+            android:label="@string/title_activity_rule" >
+        </activity>
     </application>
 
 </manifest>

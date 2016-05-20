@@ -12,17 +12,18 @@
         android:layout_height="wrap_content"
         android:text="OK"
         android:id="@+id/confirmButton"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/ratingFeedback"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp" />
 
     <RatingBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/rating"
+        android:layout_marginBottom="29dp"
+        android:isIndicator="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="90dp"
-        android:isIndicator="true" />
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +31,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/distancefromlocation"
         android:id="@+id/textView"
-        android:layout_marginTop="61dp"
+        android:layout_marginTop="81dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -47,14 +48,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/distance"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/nowherenear"
         android:id="@+id/ratingFeedback"
         android:layout_above="@+id/rating"
@@ -64,7 +57,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/positionText"
-        android:layout_above="@+id/textView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="53dp" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/distanceText"
+        android:textSize="25dp"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

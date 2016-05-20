@@ -9,18 +9,23 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 
 public class WinnerActivity extends Activity {
-
+    TextView text;
     ImageView winner;
     private View mContentView;
     Animation animFadeIn;
+    Animation animBounce;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_winner);
-        mContentView = findViewById(R.id.winner);
+        mContentView = findViewById(R.id.winner_page);
+        winner= (ImageView) findViewById(R.id.winner);
+        text = (TextView) findViewById(R.id.text);
         // load the animations
         animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.fadein);
@@ -28,9 +33,17 @@ public class WinnerActivity extends Activity {
         winner.setVisibility(View.VISIBLE);
         // start the animation
         winner.startAnimation(animFadeIn);
+        
+        text = (TextView) findViewById(R.id.text);
+        animBounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.bounce);
+        text.setVisibility(View.VISIBLE);
+        // start the animation
+        text.startAnimation(animBounce);
 
-        Button restartButton = (Button) findViewById(R.id.restart);
-        restartButton.setOnClickListener(new View.OnClickListener() {
+
+        Button PlayAgainButton = (Button) findViewById(R.id.restart);
+        PlayAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             Intent intent = new Intent(getBaseContext(), GameWindow.class);
@@ -42,8 +55,8 @@ public class WinnerActivity extends Activity {
             }
         });
 
-        Button exitButton = (Button) findViewById(R.id.exit);
-        exitButton.setOnClickListener(new View.OnClickListener() {
+        Button quitButton = (Button) findViewById(R.id.exit);
+        quitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v){
                 finish();
             }

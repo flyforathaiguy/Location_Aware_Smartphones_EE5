@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:id="@+id/winner_page">
 
        <ImageView
 
@@ -10,12 +10,14 @@
             android:id="@+id/winner"
             android:src="@drawable/winner"
             android:layout_gravity="center"
-           android:background="#ffb7b7b7" />
+           android:background="#ffb7b7b7"
+           android:layout_above="@+id/restart"
+           android:layout_below="@+id/text" />
 
         <Button
             android:layout_width="142dp"
             android:layout_height="81dp"
-            android:text="@string/restartbutton"
+            android:text="@string/restart"
             android:id="@+id/restart"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
@@ -25,7 +27,7 @@
         <Button
             android:layout_width="154dp"
             android:layout_height="80dp"
-            android:text="@string/exitbutton"
+            android:text="@string/exit"
             android:id="@+id/exit"
             android:layout_alignTop="@+id/restart"
             android:layout_alignParentLeft="true"
@@ -35,7 +37,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/yourresult"
+            android:text="@string/WINNER"
             android:id="@+id/text"
             android:layout_gravity="center_horizontal|top"
             android:gravity="center"

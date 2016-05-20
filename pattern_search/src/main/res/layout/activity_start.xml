@@ -47,11 +47,11 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/rules"
-        android:id="@+id/rules"
-        android:textColor="#ff060606"
-        android:background="#fff5ba23"
-        android:layout_alignTop="@+id/start_new"
-        android:layout_centerHorizontal="true" />
+        android:text="@string/ruleofthegame"
+        android:textColor="#ff0a0a0a"
+        android:id="@+id/game_rule"
+        android:layout_alignTop="@+id/join"
+        android:layout_centerHorizontal="true"
+        android:background="#ffffc719" />
 
 </RelativeLayout>
