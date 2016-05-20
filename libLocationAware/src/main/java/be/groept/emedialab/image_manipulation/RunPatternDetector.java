@@ -43,6 +43,7 @@ public class RunPatternDetector {
                 }
             }
         };
+        //Very important to initialise the OpenCV library
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, activity, baseLoaderCallback);
     }
 
@@ -116,7 +117,6 @@ public class RunPatternDetector {
                 GlobalResources.getInstance().getContext().startActivity(intent);
                 Log.d(TAG, "Launched intent");
             }
-
         }
     }
 }
