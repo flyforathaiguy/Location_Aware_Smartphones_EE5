@@ -229,7 +229,7 @@ public class Calibration extends AppCompatActivity {
     }
 
     public void calibratePartTwo(){
-        //Angle has to be close to zero (<=2°)
+        //Angle has to be close to zero (<=10°)
         if(GlobalResources.getInstance().getDevice().getPosition().getRotation() < 350 && GlobalResources.getInstance().getDevice().getPosition().getRotation() > 10){
             Toast toast = Toast.makeText(this, "Angle offset too big" ,Toast.LENGTH_SHORT);
             toast.show();
@@ -291,12 +291,12 @@ public class Calibration extends AppCompatActivity {
         //Determine if the camera is on the left or right side of the phone
         //Left side: the signs of firstX - secondX and firstY - secondY have to be the opposite of each other
         if( ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
-            xCenter = -Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle/2))/2);
+            xCenter = -Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle))/2);
         }
 
         else if( ( (firstPosition.getX() > secondPosition.getX()) && (firstPosition.getY() > secondPosition.getY()) ) || ( (firstPosition.getX() < secondPosition.getX()) && (firstPosition.getY() < secondPosition.getY()) ) ){
             //this means the camera is on the right side of the phone
-            xCenter = Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle/2))/2);
+            xCenter = Math.abs((firstPosition.getY() - secondPosition.getY()*Math.cos(angle))/2);
         }
 
         else{
