@@ -49,7 +49,7 @@
         app:use_custom_radii="true"
         app:circle_x_radius="100dp"
         app:circle_y_radius="100dp"
-        app:max="720"
+        app:max="360"
         app:pointer_color="#0174DF"
         app:pointer_halo_color="#880174DF"
         android:layout_centerVertical="true"
